@@ -11,6 +11,10 @@ namespace CPPTools::Fmt {
 			formater.BufferPushBack('\033');
 			formater.BufferPushBack('[');
 			formater.BufferPushBack('m');
+
+			formater.AddNoStride(3);
+
+
 			formater.GetColorMem().IsSetColor = false;
 		}
 
@@ -23,10 +27,15 @@ namespace CPPTools::Fmt {
 	struct FormatType<AnsiColorFG>
 	{
 		static void Write(const AnsiColorFG& t, Formater& formater) {
+			std::size_t size = formater.GetCurrentBufferSize();
+
 			formater.BufferPushBack('\033');
 			formater.BufferPushBack('[');
 			formater.BufferParseUInt< std::uint8_t>(( std::uint8_t)t);
 			formater.BufferPushBack('m');
+
+			formater.AddNoStride(formater.GetCurrentBufferSize() - size);
+
 
 			formater.GetColorMem().IsSetColor = true;
 			formater.GetColorMem().FgType = AnsiColorFGType::AnsiColor;
@@ -48,10 +57,15 @@ namespace CPPTools::Fmt {
 	struct FormatType<AnsiColorBG>
 	{
 		static void Write(const AnsiColorBG& t, Formater& formater) {
+			std::size_t size = formater.GetCurrentBufferSize();
+
 			formater.BufferPushBack('\033');
 			formater.BufferPushBack('[');
 			formater.BufferParseUInt< std::uint8_t>(( std::uint8_t)t);
 			formater.BufferPushBack('m');
+
+			formater.AddNoStride(formater.GetCurrentBufferSize() - size);
+
 
 			formater.GetColorMem().IsSetColor = true;
 			formater.GetColorMem().BgType = AnsiColorBGType::AnsiColor;
@@ -72,8 +86,10 @@ namespace CPPTools::Fmt {
 	struct FormatType<AnsiColor>
 	{
 		static void Write(const AnsiColor& t, Formater& formater) {
+			std::size_t size = formater.GetCurrentBufferSize();
 			formater.LittleFormat("\033[{};{}m", (std::uint8_t)t.Fg, (std::uint8_t)t.Bg);
-			
+			formater.AddNoStride(formater.GetCurrentBufferSize() - size);
+
 			formater.GetColorMem().IsSetColor = true;
 			formater.GetColorMem().FgType = AnsiColorFGType::AnsiColor;
 			formater.GetColorMem().BgType = AnsiColorBGType::AnsiColor;
@@ -89,8 +105,10 @@ namespace CPPTools::Fmt {
 	struct FormatType<AnsiColor24bFG>
 	{
 		static void Write(const AnsiColor24bFG& t, Formater& formater) {
+			std::size_t size = formater.GetCurrentBufferSize();
 			formater.LittleFormat("\033[38;2;{};{};{}m", t.R, t.G, t.B);
-			
+			formater.AddNoStride(formater.GetCurrentBufferSize() - size);
+
 			formater.GetColorMem().IsSetColor = true;
 			formater.GetColorMem().FgType = AnsiColorFGType::AnsiColor24b;
 			formater.GetColorMem().Color24bits.Fg = t;
@@ -105,8 +123,10 @@ namespace CPPTools::Fmt {
 	struct FormatType<AnsiColor24bBG>
 	{
 		static void Write(const AnsiColor24bBG& t, Formater& formater) {
+			std::size_t size = formater.GetCurrentBufferSize();
 			formater.LittleFormat("\033[48;2;{};{};{}m", t.R, t.G, t.B);
-			
+			formater.AddNoStride(formater.GetCurrentBufferSize() - size);
+
 			formater.GetColorMem().IsSetColor = true;
 			formater.GetColorMem().BgType = AnsiColorBGType::AnsiColor24b;
 			formater.GetColorMem().Color24bits.Bg = t;
@@ -121,8 +141,10 @@ namespace CPPTools::Fmt {
 	struct FormatType<AnsiColor24b>
 	{
 		static void Write(const AnsiColor24b& t, Formater& formater) {
+			std::size_t size = formater.GetCurrentBufferSize();
 			formater.LittleFormat("\033[38;2;{};{};{};48;2;{};{};{}m", t.Fg.R, t.Fg.G, t.Fg.B, t.Bg.R, t.Bg.G, t.Bg.B);
-			
+			formater.AddNoStride(formater.GetCurrentBufferSize() - size);
+
 			formater.GetColorMem().IsSetColor = true;
 			formater.GetColorMem().FgType = AnsiColorFGType::AnsiColor24b;
 			formater.GetColorMem().BgType = AnsiColorBGType::AnsiColor24b;

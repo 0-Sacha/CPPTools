@@ -15,11 +15,15 @@ namespace CPPTools::Fmt {
 
 			formater.BufferPushBack('{');
 
+			std::size_t stride = formater.GetFormatData().GetValueOf('n') == FormatData::NotFound() ? 0 : formater.GetStride();
+
 			bool first = true;
 			for(const std::pair<T1, T2>& pair : t) {
-				if(!first)		formater.BufferParseCharPt(nextElement);
-				else			first = false;
-			
+				if (first)	first = false;
+				else {
+					formater.BufferParseCharPt(nextElement);
+					formater.BufferAddSpaces(stride);
+				}
 				FormatType<T1>::Write(pair.first, formater);
 				formater.BufferPushBack(':');
 				FormatType<T2>::Write(pair.second, formater);
@@ -38,11 +42,15 @@ namespace CPPTools::Fmt {
 
 			formater.BufferPushBack('{');
 
+			std::size_t stride = formater.GetFormatData().GetValueOf('n') == FormatData::NotFound() ? 0 : formater.GetStride();
+
 			bool first = true;
 			for (const std::pair<T1, T2>& pair : t) {
-				if (!first)		formater.BufferParseCharPt(nextElement);
-				else			first = false;
-
+				if (first)	first = false;
+				else {
+					formater.BufferParseCharPt(nextElement);
+					formater.BufferAddSpaces(stride);
+				}
 				FormatType<T1>::Write(pair.first, formater);
 				formater.BufferPushBack(':');
 				FormatType<T2>::Write(pair.second, formater);

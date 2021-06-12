@@ -17,10 +17,15 @@ namespace CPPTools::Fmt {
 
 			formater.BufferPushBack('{');
 
+			std::size_t stride = formater.GetFormatData().GetValueOf('n') == FormatData::NotFound() ? 0 : formater.GetStride();
+
 			bool first = true;
 			for (const T& ele : t) {
-				if (!first)			formater.BufferParseCharPt(nextElement);
-				else				first = false;
+				if (first)	first = false;
+				else {
+					formater.BufferParseCharPt(nextElement);
+					formater.BufferAddSpaces(stride);
+				}
 				FormatType<T>::Write(ele, formater);
 			}
 
@@ -37,10 +42,15 @@ namespace CPPTools::Fmt {
 
 			formater.BufferPushBack('{');
 
+			std::size_t stride = formater.GetFormatData().GetValueOf('n') == FormatData::NotFound() ? 0 : formater.GetStride();
+
 			bool first = true;
 			for (const T& ele : t) {
-				if (!first)			formater.BufferParseCharPt(nextElement);
-				else				first = false;
+				if (first)	first = false;
+				else {
+					formater.BufferParseCharPt(nextElement);
+					formater.BufferAddSpaces(stride);
+				}
 				FormatType<T>::Write(ele, formater);
 			}
 

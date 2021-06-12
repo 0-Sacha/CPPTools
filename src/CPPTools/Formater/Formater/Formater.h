@@ -22,6 +22,8 @@ namespace CPPTools::Fmt {
 		const char* m_SubFormat;
 		std::size_t m_FormatSize;
 
+		std::size_t m_NoStride = 0;
+
 		std::uint8_t m_ValuesIdx = 0;
 		FormatData m_FormatData;
 		AnsiColorMem m_ColorMem;
@@ -39,6 +41,9 @@ namespace CPPTools::Fmt {
 		inline FormatData& GetFormatData()					{ return m_FormatData; }
 		inline const FormatData& GetFormatData() const		{ return m_FormatData; }
 		inline const FormatData ForwardFormatData() const	{ return m_FormatData; }
+
+		inline void AddNoStride(const std::size_t noStride) { m_NoStride += noStride; }
+		inline std::size_t GetStride() const				{ return GetCurrentBufferSize() - m_NoStride; }
 
 	public:
 		inline static FormaterHandler& GetAPI()			{ return FormaterHandler::GetInstance(); }
@@ -160,9 +165,11 @@ namespace CPPTools::Fmt {
 
 	public:
 		inline void BufferPushBack(const char c)									{ *m_SubBuffer++ = c; }
-		inline void BufferPushEndChar()												{ BufferPushBack('\0'); }
+		inline void BufferPushEndChar()												{ *m_SubBuffer++ = '\0'; }
 		inline void BufferPushReverse(const char c)									{ *m_SubBuffer-- = c; }
-		inline void BufferShift(const std::size_t size)								{ m_SubBuffer += size; }
+		inline void BufferShiftAdd(const std::size_t size)							{ m_SubBuffer += size; }
+		inline void BufferShiftRemove(const std::size_t size)						{ m_SubBuffer -= size; }
+		inline void BufferAddSpaces(const std::size_t count)						{ for (std::size_t i = count; i > 0; --i) *m_SubBuffer++ = ' '; }
 
 		inline char BufferFormatGet() const											{ return *m_SubFormat; }
 		inline char BufferFormatGetAndNext()										{ return *m_SubFormat++; }

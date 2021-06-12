@@ -35,12 +35,12 @@ namespace CPPTools::Fmt::FormatFunc {
 			if (i_int < 0)		--shift;
 
 			if (i_int < 0)		{ formater.BufferPushBack('-'); i_int = -i_int; }
-			formater.BufferShift(nb - 1);
+			formater.BufferShiftAdd(nb - 1);
 			while (i_int > 0) {
 				formater.BufferPushReverse(i_int % 10 + '0');
 				i_int /= 10;
 			}
-			formater.BufferShift(nb + 1);
+			formater.BufferShiftAdd(nb + 1);
 
 			formater.BufferPushBack('.');
 			if (i < 0)
