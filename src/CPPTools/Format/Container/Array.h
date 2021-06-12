@@ -9,18 +9,20 @@ namespace CPPTools::Fmt {
 	template<size_t SIZE, typename T>
 	struct FormatType<std::array<T, SIZE>>
 	{
-		static void Write(const std::array<T, SIZE>& t, Formater& formater, const FormatData& data) {
+		static void Write(const std::array<T, SIZE>& t, Formater& formater) {
 
-			const char* nextElement = data.GetValueOf('n') == FormatData::NotFound() ? ", " : "\n";
+			const char* nextElement = formater.GetFormatData().GetValueOf('n') == FormatData::NotFound() ? ", " : "\n";
 
-			formater.PushBack('[');
-			for (uint8_t i = 0; i < SIZE - 1; ++i) {
-				FormatType<T>::Write(t[i], formater, data);
-				formater.WriteCharPt(nextElement);
+			formater.BufferPushBack('[');
+
+			bool first = true;
+			for (const T& ele : t) {
+				if (!first)			formater.BufferParseCharPt(nextElement);
+				else				first = false;
+				FormatType<T>::Write(ele, formater);
 			}
-			if (SIZE > 0)
-				FormatType<T>::Write(t[SIZE - 1], formater, data);
-			formater.PushBack(']');
+
+			formater.BufferPushBack(']');
 		}
 	};
 

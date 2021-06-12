@@ -43,13 +43,15 @@ namespace CPPTools::Fmt {
 		FormatData m_FormatData;
 
 	public:
-		inline const char* const GetBuffer() const		{ return m_Buffer; }
-		inline size_t GetBufferSize() const				{ return m_SubBuffer - m_Buffer; } // change name
-		inline size_t GetFormatSize() const				{ return m_SubFormat - m_Format; } // change name
-		inline AnsiColorMem& GetColorMem()				{ return m_ColorMem; }
-		inline FormatData& GetFormatData()				{ return m_FormatData; }
-		inline const FormatData& GetFormatData() const	{ return m_FormatData; }
-		inline int16_t NoError()						{ return -1; }
+		inline const char* const GetBuffer() const			{ return m_Buffer; }
+		inline size_t GetBufferSize() const					{ return m_SubBuffer - m_Buffer; } // change name
+		inline size_t GetFormatSize() const					{ return m_SubFormat - m_Format; } // change name
+		inline AnsiColorMem& GetColorMem()					{ return m_ColorMem; }
+		inline FormatData& GetFormatData()					{ return m_FormatData; }
+		inline const FormatData& GetFormatData() const		{ return m_FormatData; }
+		inline int16_t NoError()							{ return -1; }
+
+		inline const FormatData ForwardFormatData() const	{ return m_FormatData; }
 
 	private:
 		template<typename ...Args>

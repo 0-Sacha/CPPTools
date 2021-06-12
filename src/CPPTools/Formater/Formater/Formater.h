@@ -27,11 +27,13 @@ namespace CPPTools::Fmt {
 		AnsiColorMem m_ColorMem;
 
 	public:
-		inline char* const GetBuffer() const			{ return m_Buffer; }
-		inline size_t GetSize() const					{ return m_SubBuffer - m_Buffer; }
-		inline AnsiColorMem& GetColorMem()				{ return m_ColorMem; }
-		inline FormatData& GetFormatData()				{ return m_FormatData; }
-		inline const FormatData& GetFormatData() const	{ return m_FormatData; }
+		inline char* const GetBuffer() const				{ return m_Buffer; }
+		inline size_t GetSize() const						{ return m_SubBuffer - m_Buffer; }
+		inline AnsiColorMem& GetColorMem()					{ return m_ColorMem; }
+		inline FormatData& GetFormatData()					{ return m_FormatData; }
+		inline const FormatData& GetFormatData() const		{ return m_FormatData; }
+
+		inline const FormatData FowardFormatData() const	{ return m_FormatData; }
 
 	public:
 		inline static FormaterHandler& GetAPI()			{ return FormaterHandler::GetInstance(); }
