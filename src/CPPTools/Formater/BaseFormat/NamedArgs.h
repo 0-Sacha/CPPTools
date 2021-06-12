@@ -47,7 +47,7 @@ namespace CPPTools::Fmt {
 	struct CharPtNamedArgs : public NamedArgs<T>
 	{
 
-		CharPtNamedArgs(const T& t, const char* const name)
+		CharPtNamedArgs(const char* const name, const T& t)
 			: NamedArgs(t), m_Name(name) {}
 
 	public:
@@ -80,10 +80,10 @@ namespace CPPTools::Fmt {
 	struct StringNamedArgs : public NamedArgs<T>
 	{
 
-		StringNamedArgs(const T& t, const std::string& name)
+		StringNamedArgs(const std::string& name, const T& t)
 			: NamedArgs(t), m_Name(name) {}
 
-		StringNamedArgs(const T& t, std::string&& name)
+		StringNamedArgs(std::string&& name, const T& t)
 			: NamedArgs(t), m_Name(std::move(name)) {}
 
 	public:
@@ -113,6 +113,6 @@ namespace CPPTools::Fmt {
 
 
 #define FORMAT(value)				CPPTools::Fmt::CharPtNamedArgs(#value, value)
-#define FORMAT_CSTR(value, name)	CPPTools::Fmt::CharPtNamedArgs(name, value)
+#define FORMAT_CSTR(name, value)	CPPTools::Fmt::CharPtNamedArgs(name, value)
 
-#define FORMAT_STR(value, name)		CPPTools::Fmt::StringNamedArgs(name, value)
+#define FORMAT_STR(name, value)		CPPTools::Fmt::StringNamedArgs(name, value)
