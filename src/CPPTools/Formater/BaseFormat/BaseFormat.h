@@ -84,65 +84,57 @@ namespace CPPTools::Fmt {
 		}
 	};
 
+#if 0
 	template<>
-	struct FormatType<int8_t> {
-		static void Write(const int8_t t, Formater& formater) {
-			formater.BufferParseInt(t);
-		}
-		static bool Read(int8_t& t, UnFormater& formater) {
-			return formater.BufferUnParseInt(t);
-		}
-	};
-
-	template<>
-	struct FormatType<uint8_t> {
-		static void Write(const uint8_t t, Formater& formater) {
+	struct FormatType<unsigned char> {
+		static void Write(const unsigned char t, Formater& formater) {
 			formater.BufferParseUInt(t);
 		}
-		static bool Read(uint8_t& t, UnFormater& formater) {
+		static bool Read(unsigned char& t, UnFormater& formater) {
 			return formater.BufferUnParseUInt(t);
 		}
 	};
 
 	template<>
-	struct FormatType<int16_t> {
-		static void Write(const int16_t t, Formater& formater) {
+	struct FormatType<short> {
+		static void Write(const short t, Formater& formater) {
 			formater.BufferParseInt(t);
 		}
-		static bool Read(int16_t& t, UnFormater& formater) {
+		static bool Read(short& t, UnFormater& formater) {
 			return formater.BufferUnParseInt(t);
 		}
 	};
 
 	template<>
-	struct FormatType<uint16_t> {
-		static void Write(const uint16_t t, Formater& formater) {
+	struct FormatType<unsigned short> {
+		static void Write(const unsigned short t, Formater& formater) {
 			formater.BufferParseUInt(t);
 		}
-		static bool Read(uint16_t& t, UnFormater& formater) {
+		static bool Read(unsigned short& t, UnFormater& formater) {
 			return formater.BufferUnParseUInt(t);
 		}
 	};
 
 	template<>
-	struct FormatType<int32_t> {
-		static void Write(const int32_t t, Formater& formater) {
+	struct FormatType<int> {
+		static void Write(const long t, Formater& formater) {
 			formater.BufferParseInt(t);
 		}
-		static bool Read(int32_t& t, UnFormater& formater) {
+		static bool Read(long& t, UnFormater& formater) {
 			return formater.BufferUnParseInt(t);
 		}
 	};
 
 	template<>
-	struct FormatType<uint32_t> {
-		static void Write(const uint32_t t, Formater& formater) {
+	struct FormatType<unsigned int> {
+		static void Write(const unsigned int t, Formater& formater) {
 			formater.BufferParseUInt(t);
 		}
-		static bool Read(uint32_t& t, UnFormater& formater) {
+		static bool Read(unsigned int& t, UnFormater& formater) {
 			return formater.BufferUnParseUInt(t);
 		}
 	};
+#endif
 
 	template<>
 	struct FormatType<long> {
@@ -160,26 +152,6 @@ namespace CPPTools::Fmt {
 			formater.BufferParseUInt(t);
 		}
 		static bool Read(unsigned long& t, UnFormater& formater) {
-			return formater.BufferUnParseUInt(t);
-		}
-	};
-
-	template<>
-	struct FormatType<int64_t> {
-		static void Write(const int64_t t, Formater& formater) {
-			formater.BufferParseInt(t);
-		}
-		static bool Read(int64_t& t, UnFormater& formater) {
-			return formater.BufferUnParseInt(t);
-		}
-	};
-
-	template<>
-	struct FormatType<uint64_t> {
-		static void Write(const uint64_t t, Formater& formater) {
-			formater.BufferParseUInt(t);
-		}
-		static bool Read(uint64_t& t, UnFormater& formater) {
 			return formater.BufferUnParseUInt(t);
 		}
 	};
@@ -216,12 +188,98 @@ namespace CPPTools::Fmt {
 
 
 
+	//------------------ STD Type ------------------//
+
+	template<>
+	struct FormatType<std::int8_t> {
+		static void Write(const std::int8_t t, Formater& formater) {
+			formater.BufferParseInt(t);
+		}
+		static bool Read(std::int8_t& t, UnFormater& formater) {
+			return formater.BufferUnParseInt(t);
+		}
+	};
+
+	template<>
+	struct FormatType<std::uint8_t> {
+		static void Write(const std::uint8_t t, Formater& formater) {
+			formater.BufferParseUInt(t);
+		}
+		static bool Read(std::uint8_t& t, UnFormater& formater) {
+			return formater.BufferUnParseUInt(t);
+		}
+	};
+
+	template<>
+	struct FormatType<std::int16_t> {
+		static void Write(const std::int16_t t, Formater& formater) {
+			formater.BufferParseInt(t);
+		}
+		static bool Read(std::int16_t& t, UnFormater& formater) {
+			return formater.BufferUnParseInt(t);
+		}
+	};
+
+	template<>
+	struct FormatType<std::uint16_t> {
+		static void Write(const std::uint16_t t, Formater& formater) {
+			formater.BufferParseUInt(t);
+		}
+		static bool Read(std::uint16_t& t, UnFormater& formater) {
+			return formater.BufferUnParseUInt(t);
+		}
+	};
+
+	template<>
+	struct FormatType<std::int32_t> {
+		static void Write(const std::int32_t t, Formater& formater) {
+			formater.BufferParseInt(t);
+		}
+		static bool Read(std::int32_t& t, UnFormater& formater) {
+			return formater.BufferUnParseInt(t);
+		}
+	};
+
+	template<>
+	struct FormatType<std::uint32_t> {
+		static void Write(const std::uint32_t t, Formater& formater) {
+			formater.BufferParseUInt(t);
+		}
+		static bool Read(std::uint32_t& t, UnFormater& formater) {
+			return formater.BufferUnParseUInt(t);
+		}
+	};
+
+	template<>
+	struct FormatType<std::int64_t> {
+		static void Write(const std::int64_t t, Formater& formater) {
+			formater.BufferParseInt(t);
+		}
+		static bool Read(std::int64_t& t, UnFormater& formater) {
+			return formater.BufferUnParseInt(t);
+		}
+	};
+
+	template<>
+	struct FormatType<std::uint64_t> {
+		static void Write(const std::uint64_t t, Formater& formater) {
+			formater.BufferParseUInt(t);
+		}
+		static bool Read(std::uint64_t& t, UnFormater& formater) {
+			return formater.BufferUnParseUInt(t);
+		}
+	};
+
+
+	
+	//------------------ Pointer/Array of Type ------------------//
+
 	template<typename T>
 	struct FormatType<T*>
 	{
 		static void Write(const T* const t, Formater& formater) {
 			if(t == nullptr)	formater.LittleFormat("{}", (void*)t);
-			else				formater.LittleFormat("{} -> {:{}}", (void*)t, *t);
+			else				formater.LittleFormat("{} -> {:{}}", (void*)t, *t, formater.ForwardFormatData());
 		}
 		static bool Read(T*& t, UnFormater& formater) {
 			return false;
@@ -233,23 +291,23 @@ namespace CPPTools::Fmt {
 	{
 		static void Write(const void* const t, Formater& formater) {
 			if (t == nullptr)	formater.LittleFormat("nullptr");
-			else				formater.LittleFormat("0x{:x}", (size_t)t);
+			else				formater.LittleFormat("0x{:x}", (std::size_t)t);
 		}
 		static bool Read(void*& t, UnFormater& formater) {
 			return false;
 		}
 	};
 
-	template<size_t SIZE, typename T>
+	template<std::size_t SIZE, typename T>
 	struct FormatType<T[SIZE]>
 	{
 		static void Write(T const (t)[SIZE], Formater& formater) {
 			const FormatData& data = formater.GetFormatData();
 
-			int8_t begin = data.GetValueOf('a');
+			std::int8_t begin = data.GetValueOf('a');
 			if (begin == FormatData::NotFound())	begin = 0;
 
-			size_t size = SIZE - begin;
+			std::size_t size = SIZE - begin;
 			if (data.Size != 0)		size = data.Size;
 
 			const char* nextElement = data.GetValueOf('n') == FormatData::NotFound() ? ", " : "\n";
@@ -269,10 +327,10 @@ namespace CPPTools::Fmt {
 
 			if (formater.BufferIsEqNext('[')) {
 
-				int8_t begin = data.GetValueOf('a');
+				std::int8_t begin = data.GetValueOf('a');
 				if (begin == FormatData::NotFound()) begin = 0;
 
-				size_t size = SIZE - begin;
+				std::size_t size = SIZE - begin;
 				if (data.Size != 0)		size = data.Size;
 
 				const char* nextElement = data.GetValueOf('n') == FormatData::NotFound() ? ", " : "\n";
@@ -291,13 +349,14 @@ namespace CPPTools::Fmt {
 
 
 
+	//------------------ Specifier for Pointer/Array of Type ------------------//
 
 	template<>
 	struct FormatType<char*> {
 		static void Write(const char* const t, Formater& formater) {
 			const FormatData& data = formater.GetFormatData();
 
-			int8_t begin = data.GetValueOf('a');
+			std::int8_t begin = data.GetValueOf('a');
 			if (begin == FormatData::NotFound())	begin = 0;
 
 			if (data.BaseValue)						formater.BufferPushBack('"');
@@ -324,10 +383,10 @@ namespace CPPTools::Fmt {
 		static void Write(char const (t)[SIZE], Formater& formater) {
 			const FormatData& data = formater.GetFormatData();
 
-			int8_t begin = data.GetValueOf('a');
+			std::int8_t begin = data.GetValueOf('a');
 			if (begin == FormatData::NotFound()) begin = 0;
 
-			size_t size = SIZE - begin;
+			std::size_t size = SIZE - begin;
 			if (data.Size != 0)	size = data.Size;
 
 			if (data.BaseValue)									formater.BufferPushBack('"');
@@ -339,13 +398,13 @@ namespace CPPTools::Fmt {
 		static bool Read(char (t)[SIZE], UnFormater& formater) {
 			const FormatData& data = formater.GetFormatData();
 
-			int8_t begin = data.GetValueOf('a');
+			std::int8_t begin = data.GetValueOf('a');
 			if (begin == FormatData::NotFound())	begin = 0;
 
-			size_t size = SIZE - begin;
+			std::size_t size = SIZE - begin;
 			if (data.Size != 0)						size = data.Size;
 
-			int8_t putEnd = data.GetValueOf('e');
+			std::int8_t putEnd = data.GetValueOf('e');
 			if (putEnd != FormatData::NotFound())	--size;
 
 			char* str = t;

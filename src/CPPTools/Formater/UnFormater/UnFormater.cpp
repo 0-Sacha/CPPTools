@@ -10,14 +10,14 @@
 
 namespace CPPTools::Fmt {
 
-	UnFormater::UnFormater(const char* const format, size_t formatSize, const char* const buffer, size_t bufferSize)
+	UnFormater::UnFormater(const char* const format, std::size_t formatSize, const char* const buffer, std::size_t bufferSize)
 		: m_Buffer(buffer), m_SubBuffer(buffer), m_BufferSize(bufferSize), m_Format(format), m_SubFormat(format), m_FormatSize(formatSize)
 	{
 	}
 
 
-	void UnFormater::FormatReadRec(uint8_t idx) { }
-	void UnFormater::ParameterDataRec(uint8_t idx) { }
+	void UnFormater::FormatReadRec(std::uint8_t idx) { }
+	void UnFormater::ParameterDataRec(std::uint8_t idx) { }
 	void UnFormater::FormatReadRecNamedArgs(const char* const name) { }
 
 

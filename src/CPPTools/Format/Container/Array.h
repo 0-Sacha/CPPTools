@@ -17,8 +17,9 @@ namespace CPPTools::Fmt {
 
 			bool first = true;
 			for (const T& ele : t) {
-				if (!first)			formater.BufferParseCharPt(nextElement);
-				else				first = false;
+				if (!first)		formater.BufferParseCharPt(nextElement);
+				else			first = false;
+
 				FormatType<T>::Write(ele, formater);
 			}
 

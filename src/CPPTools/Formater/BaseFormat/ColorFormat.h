@@ -25,7 +25,7 @@ namespace CPPTools::Fmt {
 		static void Write(const AnsiColorFG& t, Formater& formater) {
 			formater.BufferPushBack('\033');
 			formater.BufferPushBack('[');
-			formater.BufferParseUInt<uint8_t>((uint8_t)t);
+			formater.BufferParseUInt< std::uint8_t>(( std::uint8_t)t);
 			formater.BufferPushBack('m');
 
 			formater.GetColorMem().IsSetColor = true;
@@ -36,7 +36,7 @@ namespace CPPTools::Fmt {
 		static bool Read(AnsiColorFG& t, UnFormater& formater) {
 			if (formater.BufferIsEqNext('\033'))
 				if (formater.BufferIsEqNext('[')) {
-					formater.BufferUnParseUInt<uint8_t>((uint8_t&)t);
+					formater.BufferUnParseUInt< std::uint8_t>(( std::uint8_t&)t);
 					if (formater.BufferIsEqNext('m'))
 						return true;
 				}
@@ -50,7 +50,7 @@ namespace CPPTools::Fmt {
 		static void Write(const AnsiColorBG& t, Formater& formater) {
 			formater.BufferPushBack('\033');
 			formater.BufferPushBack('[');
-			formater.BufferParseUInt<uint8_t>((uint8_t)t);
+			formater.BufferParseUInt< std::uint8_t>(( std::uint8_t)t);
 			formater.BufferPushBack('m');
 
 			formater.GetColorMem().IsSetColor = true;
@@ -61,9 +61,8 @@ namespace CPPTools::Fmt {
 		static bool Read(AnsiColorBG& t, UnFormater& formater) {
 			if (formater.BufferIsEqNext('\033'))
 				if (formater.BufferIsEqNext('[')) {
-					formater.BufferUnParseUInt<uint8_t>((uint8_t&)t);
-					if (formater.BufferIsEqNext('m'))
-						return true;
+					formater.BufferUnParseUInt<std::uint8_t>((std::uint8_t&)t);
+					if (formater.BufferIsEqNext('m'))	return true;
 				}
 			return false;
 		}
@@ -73,7 +72,7 @@ namespace CPPTools::Fmt {
 	struct FormatType<AnsiColor>
 	{
 		static void Write(const AnsiColor& t, Formater& formater) {
-			formater.LittleFormat("\033[{};{}m", (uint8_t)t.Fg, (uint8_t)t.Bg);
+			formater.LittleFormat("\033[{};{}m", (std::uint8_t)t.Fg, (std::uint8_t)t.Bg);
 			
 			formater.GetColorMem().IsSetColor = true;
 			formater.GetColorMem().FgType = AnsiColorFGType::AnsiColor;
@@ -82,7 +81,7 @@ namespace CPPTools::Fmt {
 		}
 
 		static bool Read(AnsiColor& t, UnFormater& formater) {
-			return formater.LittleUnFormat("\033[{};{}m", (uint8_t)t.Fg, (uint8_t)t.Bg);
+			return formater.LittleUnFormat("\033[{};{}m", (std::uint8_t)t.Fg, (std::uint8_t)t.Bg);
 		}
 	};
 

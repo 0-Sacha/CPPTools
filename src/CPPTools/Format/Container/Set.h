@@ -15,11 +15,12 @@ namespace CPPTools::Fmt {
 
 			formater.BufferPushBack('{');
 
-			for (uint8_t i = 0; i < size - 1; ++i) {
-				FormatType<T>::Write(t[i], formater);
-				formater.BufferParseCharPt(nextElement);
+			bool first = true;
+			for (const T& ele : t) {
+				if (!first)			formater.BufferParseCharPt(nextElement);
+				else				first = false;
+				FormatType<T>::Write(ele, formater);
 			}
-			if (size > 0)	FormatType<T>::Write(t[size - 1], formater);
 
 			formater.BufferPushBack('}');
 		}
@@ -35,12 +36,14 @@ namespace CPPTools::Fmt {
 			size_t size = t.size();
 
 			formater.BufferPushBack('{');
-			for (uint8_t i = 0; i < size - 1; ++i) {
-				FormatType<T>::Write(t[i], formater);
-				formater.BufferParseCharPt(nextElement);
+
+			bool first = true;
+			for (const T& ele : t) {
+				if (!first)			formater.BufferParseCharPt(nextElement);
+				else				first = false;
+				FormatType<T>::Write(ele, formater);
 			}
-			if (size > 0)
-				FormatType<T>::Write(t[size - 1], formater);
+
 			formater.BufferPushBack('}');
 		}
 	};

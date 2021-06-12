@@ -20,7 +20,7 @@ namespace CPPTools::Fmt {
 	{
 	}
 
-	FormatData::FormatData(bool baseValue, ValueIntPrint intPrint, uint8_t precision, uint8_t floatPrecision, ::CPPTools::Fmt::ShiftPrint shiftPrint, ::CPPTools::Fmt::ShiftType shiftType, uint8_t shiftValue)
+	FormatData::FormatData(bool baseValue, ValueIntPrint intPrint, std::uint8_t precision, std::uint8_t floatPrecision, ::CPPTools::Fmt::ShiftPrint shiftPrint, ::CPPTools::Fmt::ShiftType shiftType,  std::uint8_t shiftValue)
 		: IsInit(true)
 		, HasSpec(true)
 		, BaseValue(baseValue)
@@ -55,19 +55,19 @@ namespace CPPTools::Fmt {
 
 	void FormatData::Clone(const FormatData& other)
 	{
-		memcpy(this, &other, sizeof(FormatData));
+		std::memcpy(this, &other, sizeof(FormatData));
 	}
 
 
 	FormatData& FormatData::operator=(const FormatData& other) {
-		memcpy(this, &other, sizeof(FormatData));
+		std::memcpy(this, &other, sizeof(FormatData));
 		HasChangeColor = false;
 		return *this;
 	}
 
 	const int8_t FormatData::GetValueOf(const char c) const
 	{
-		for (uint8_t i = 0; i < SpecIdx; ++i)
+		for (std::uint8_t i = 0; i < SpecIdx; ++i)
 			if (Spec[i].Type == c)
 				return Spec[i].Value;
 		return NotFound();

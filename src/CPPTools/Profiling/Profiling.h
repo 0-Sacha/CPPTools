@@ -29,7 +29,7 @@ namespace CPPTools::Instrumentation {
 		const std::string& GetName() const;
 		const float GetStart() const;
 		const float GetDuration() const;
-		const size_t GetTID() const;
+		const std::size_t GetTID() const;
 
 
 	private:
@@ -49,7 +49,7 @@ namespace CPPTools::Instrumentation {
 
 	public:
 		void WriteProfile(const ProfileResult* const result);
-		void WriteProfile(std::string name, const float start, const float dur, const size_t tid);
+		void WriteProfile(std::string name, const float start, const float dur, const std::size_t tid);
 		void EndSession();
 
 		inline const CPPTools::LogSystem& GetLogger() { return m_Logger; }

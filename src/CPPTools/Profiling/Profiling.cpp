@@ -53,7 +53,7 @@ namespace CPPTools::Instrumentation {
 		return m_End - m_Start;
 	}
 
-	const size_t ProfileResult::GetTID() const {
+	const std::size_t ProfileResult::GetTID() const {
 		return m_TID;
 	}
 
@@ -78,7 +78,7 @@ namespace CPPTools::Instrumentation {
 		WriteProfile(result->GetName(), result->GetStart(), result->GetDuration(), result->GetTID());
 	}
 
-	void Profiler::WriteProfile(std::string name, const float start, const float dur, const size_t tid)
+	void Profiler::WriteProfile(std::string name, const float start, const float dur, const std::size_t tid)
 	{
 		std::replace(name.begin(), name.end(), '"', '\'');
 

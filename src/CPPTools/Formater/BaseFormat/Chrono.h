@@ -43,13 +43,10 @@ namespace CPPTools::Fmt {
 		if (formater.FormatIsEqNext(':')) {
 			isSpecified = true;
 			formater.WriteUntil('%', '#');
-			while (!formater.IsEndOfParameter()) {
-				if (formater.FormatIsEqNext('%'))
-					WriteTestTimeMod(value, formater);
-				else if (formater.FormatIsEqNext('#'))
-					WriteTestTime(value, formater);
-				else
-					formater.GoToEndOfParameter();
+			while (!formater.FormatIsEndOfParameter()) {
+				if (formater.FormatIsEqNext('%'))		WriteTestTimeMod(value, formater);
+				else if (formater.FormatIsEqNext('#'))	WriteTestTime(value, formater);
+				else									formater.FormatGoToEndOfParameter();
 				formater.WriteUntil('%', '#');
 			}
 		}

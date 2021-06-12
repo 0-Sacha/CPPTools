@@ -4,7 +4,7 @@
 
 namespace CPPTools::Fmt {
 
-	enum class AnsiColorFG : uint8_t {
+	enum class AnsiColorFG : std::uint8_t {
 		Black = 30,
 		Red,
 		Green,
@@ -26,7 +26,7 @@ namespace CPPTools::Fmt {
 		DBStep = BrightBlack
 	};
 
-	enum class AnsiColorBG : uint8_t {
+	enum class AnsiColorBG : std::uint8_t {
 		Black = 40,
 		Red,
 		Green,
@@ -57,16 +57,16 @@ namespace CPPTools::Fmt {
 	};
 
 	struct Color24b {
-		Color24b(uint8_t _r, uint8_t _g, uint8_t _b);
-		uint8_t R, G, B;
+		Color24b(std::uint8_t _r, std::uint8_t _g, std::uint8_t _b);
+		std::uint8_t R, G, B;
 	};
 
 	struct AnsiColor24bFG : public Color24b {
-		AnsiColor24bFG(uint8_t _r = 255, uint8_t _g = 255, uint8_t _b = 255);
+		AnsiColor24bFG(std::uint8_t _r = 255, std::uint8_t _g = 255, std::uint8_t _b = 255);
 	};
 
 	struct AnsiColor24bBG : public Color24b {
-		AnsiColor24bBG(uint8_t _r = 0, uint8_t _g = 0, uint8_t _b = 0);
+		AnsiColor24bBG(std::uint8_t _r = 0, std::uint8_t _g = 0, std::uint8_t _b = 0);
 	};
 
 
@@ -76,13 +76,13 @@ namespace CPPTools::Fmt {
 		AnsiColor24bBG Bg;
 	};
 
-	enum class AnsiColorFGType : uint8_t {
+	enum class AnsiColorFGType : std::uint8_t {
 		Nothing,
 		AnsiColor,
 		AnsiColor24b
 	};
 
-	enum class AnsiColorBGType : uint8_t {
+	enum class AnsiColorBGType : std::uint8_t {
 		Nothing,
 		AnsiColor,
 		AnsiColor24b

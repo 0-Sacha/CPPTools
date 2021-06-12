@@ -6,11 +6,11 @@ namespace CPPTools::Fmt {
 	template<typename T>
 	struct FormatArgs {
 
-		FormatArgs(const uint8_t idx, const T& t)
+		FormatArgs(const std::uint8_t idx, const T& t)
 			: m_Value(t), m_Idx(idx) {}
 
 	public:
-		inline bool IsRightIdx(uint8_t idx) const {
+		inline bool IsRightIdx(std::uint8_t idx) const {
 			return idx == m_Idx;
 		}
 
@@ -20,7 +20,7 @@ namespace CPPTools::Fmt {
 
 	protected:
 		const T& m_Value;
-		const uint8_t m_Idx;
+		const std::uint8_t m_Idx;
 	};
 
 	template<typename T>

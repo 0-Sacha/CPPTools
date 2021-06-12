@@ -12,37 +12,42 @@ namespace CPPTools::Fmt {
 	class Formater {
 
 	public:
-		Formater(const char* const format, size_t formatSize, char* const buffer, size_t bufferSize);
+		Formater(const char* const format, std::size_t formatSize, char* const buffer, std::size_t bufferSize);
 
 	private:
 		char* const m_Buffer;
 		char* m_SubBuffer;
-		size_t m_BufferSize;
+		std::size_t m_BufferSize;
 		const char* const m_Format;
 		const char* m_SubFormat;
-		size_t m_FormatSize;
+		std::size_t m_FormatSize;
 
-		uint8_t m_ValuesIdx = 0;
+		std::uint8_t m_ValuesIdx = 0;
 		FormatData m_FormatData;
 		AnsiColorMem m_ColorMem;
 
 	public:
-		inline char* const GetBuffer() const				{ return m_Buffer; }
-		inline size_t GetSize() const						{ return m_SubBuffer - m_Buffer; }
+		inline char* const GetBuffer()					{ return m_Buffer; }
+		inline const char* const GetBuffer() const		{ return m_Buffer; }
+		inline std::size_t GetBufferSize() const		{ return m_BufferSize; }
+		inline const char* const GetFormat() const		{ return m_Format; }
+		inline std::size_t GetFormatSize() const		{ return m_FormatSize; }
+
+		inline std::size_t GetCurrentBufferSize() const		{ return m_SubBuffer - m_Buffer; }
+
 		inline AnsiColorMem& GetColorMem()					{ return m_ColorMem; }
 		inline FormatData& GetFormatData()					{ return m_FormatData; }
 		inline const FormatData& GetFormatData() const		{ return m_FormatData; }
-
-		inline const FormatData FowardFormatData() const	{ return m_FormatData; }
+		inline const FormatData ForwardFormatData() const	{ return m_FormatData; }
 
 	public:
 		inline static FormaterHandler& GetAPI()			{ return FormaterHandler::GetInstance(); }
 
 	private:
 		/////---------- Default Print Rec ----------/////
-		void FormatPrintRec(uint8_t idx);
+		void FormatPrintRec( std::uint8_t idx);
 		template<typename T, typename ...Args>
-		void FormatPrintRec(uint8_t idx, const T& t, Args&& ...args);
+		void FormatPrintRec( std::uint8_t idx, const T& t, Args&& ...args);
 
 
 		/////---------- NamedArgs Print Rec ----------/////
@@ -62,9 +67,9 @@ namespace CPPTools::Fmt {
 
 
 		/////---------- Data Print Rec ----------/////
-		void ParameterDataRec(uint8_t idx);
+		void ParameterDataRec(std::uint8_t idx);
 		template<typename T, typename ...Args>
-		void ParameterDataRec(uint8_t idx, const T& t, Args&& ...args);
+		void ParameterDataRec(std::uint8_t idx, const T& t, Args&& ...args);
 
 
 		/////---------- Impl ----------/////
@@ -76,23 +81,21 @@ namespace CPPTools::Fmt {
 	public:
 		template<typename ...Args>
 		void Format(Args&& ...args);
-		template<size_t SIZE, typename ...Args>
-		void LittleFormat(const char (&format)[SIZE], Args&& ...args);
 		template<typename ...Args>
-		void LittleFormat(const std::string& format, Args&& ...args);
+		void LittleFormat(const std::string_view format, Args&& ...args);
 		template<typename ...Args>
 		void MainFormat(Args&& ...args);
 
 	public:
-		bool GetFormatType(const char* formatTypes[], FormatSpecifierIDX* arr, uint8_t size);
-		uint8_t GetWordFromList(const char* formatTypes[], uint8_t count);
+		bool GetFormatType(const char* formatTypes[], FormatSpecifierIDX* arr, std::uint8_t size);
+		std::uint8_t GetWordFromList(const char* formatTypes[], std::uint8_t count);
 
 	private:
 		void CheckEndStr();
 		void ColorValuePrint();
-		uint8_t GetColorCode();
-		uint8_t GetColorFG();
-		uint8_t GetColorBG();
+		std::uint8_t GetColorCode();
+		std::uint8_t GetColorFG();
+		std::uint8_t GetColorBG();
 		void TimerValuePrint();
 		void DateValuePrint();
 		void ReloadColor();
@@ -112,22 +115,20 @@ namespace CPPTools::Fmt {
 		template<typename T>
 		void BufferParseFloat(T i);
 
-		inline void BufferParseCharPt(const char* str, size_t size)					{ while (size-- != 0 && *str != 0) *m_SubBuffer++ = *str++; }
-		template<size_t SIZE>
+		inline void BufferParseCharPt(const char* str, std::size_t size)			{ while (size-- != 0 && *str != 0) *m_SubBuffer++ = *str++; }
+		template<std::size_t SIZE>
 		inline void BufferParseCharPt(const char(&str)[SIZE])						{ BufferParseCharPt(str, SIZE); }
 		inline void BufferParseCharPt(const char* str)								{ while (*str != 0) *m_SubBuffer++ = *str++; }
 
 	public:
-		inline bool IsEndOfParameter()												{ return *m_SubFormat == '}'; }
-		inline void GoToEndOfParameter()											{ while (*m_SubFormat != '}' && *m_SubFormat != '\0') ++m_SubFormat; }
-		inline void GoOutOfParameter()												{ while (*m_SubFormat != '}' && *m_SubFormat != '\0') ++m_SubFormat; ++m_SubFormat; }
+		inline bool FormatIsEndOfParameter()										{ return *m_SubFormat == '}'; }
+		inline void FormatGoToEndOfParameter()										{ while (*m_SubFormat != '}' && *m_SubFormat != '\0') ++m_SubFormat; }
+		inline void FormatGoOutOfParameter()										{ while (*m_SubFormat != '}' && *m_SubFormat != '\0') ++m_SubFormat; ++m_SubFormat; }
 
-		inline bool IsEndOfFormat()													{ return *m_SubFormat == '\0'; }
-		inline void FormatIgnoreSpace()												{ while (*m_SubFormat == ' ') ++m_SubFormat; }
-		inline void FormatGoToNext(const char c)									{ while (*m_SubFormat != c && *m_SubFormat != '}' && *m_SubFormat != '\0') ++m_SubFormat; }
-		inline void FormatGoToNext(const char c0, const char c1)					{ while (*m_SubFormat != c0 && *m_SubFormat != c1 && *m_SubFormat != '}' && *m_SubFormat != '\0') ++m_SubFormat; }
-		inline void FormatGoToNext(const char c0, const char c1, const char c2)		{ while (*m_SubFormat != c0 && *m_SubFormat != c1 && *m_SubFormat != c2 && *m_SubFormat != '}' && *m_SubFormat != '\0') ++m_SubFormat; }
-		inline void FormatNext() { ++m_SubFormat; }
+		inline bool FormatIsEndChar()												{ return *m_SubFormat == '\0'; }
+		
+	public:
+		inline void FormatNext()													{ ++m_SubFormat; }
 		inline bool FormatIsEqual(const char c) const								{ return *m_SubFormat == c; }
 		inline bool FormatIsEqNext(const char c)									{ if (*m_SubFormat == c) { ++m_SubFormat; return true; } return false; }
 		bool FormatNextIsSame(const char* str);
@@ -135,36 +136,49 @@ namespace CPPTools::Fmt {
 		inline char FormatGet() const												{ return *m_SubFormat; }
 		inline char FormatGetAndNext()												{ return *m_SubFormat++; }
 
+		inline void FormatIgnoreSpace()												{ while (*m_SubFormat == ' ' && *m_SubFormat != '\0') ++m_SubFormat; }
+		inline void FormatGoTo(const char c)										{ while (*m_SubFormat != c && *m_SubFormat != '\0') ++m_SubFormat; }
+		inline void FormatGoTo(const char c0, const char c1)						{ while (*m_SubFormat != c0 && *m_SubFormat != c1 && *m_SubFormat != '\0') ++m_SubFormat; }
+		inline void FormatGoTo(const char c0, const char c1, const char c2)			{ while (*m_SubFormat != c0 && *m_SubFormat != c1 && *m_SubFormat != c2 && *m_SubFormat != '\0') ++m_SubFormat; }
+		inline void FormatGoToNext(const char c)									{ while (*m_SubFormat != c && *m_SubFormat != '\0') ++m_SubFormat; ++m_SubFormat; }
+		inline void FormatGoToNext(const char c0, const char c1)					{ while (*m_SubFormat != c0 && *m_SubFormat != c1 && *m_SubFormat != '\0') ++m_SubFormat; ++m_SubFormat; }
+		inline void FormatGoToNext(const char c0, const char c1, const char c2)		{ while (*m_SubFormat != c0 && *m_SubFormat != c1 && *m_SubFormat != c2 && *m_SubFormat != '\0') ++m_SubFormat; ++m_SubFormat; }
+
 		inline char FormatIsLowerCase() const										{ return *m_SubFormat >= 'a' && *m_SubFormat <= 'z'; }
 		inline char FormatIsUpperCase() const										{ return *m_SubFormat >= 'A' && *m_SubFormat <= 'Z'; }
 		inline char FormatIsADigit() const											{ return *m_SubFormat >= '0' && *m_SubFormat <= '9'; }
+
+	// Format in parameter (add check to '}' to avoid skip the end of the format specifier)
+	public:
+		inline void FormatParamIgnoreSpace()										{ while (*m_SubFormat == ' ' && *m_SubFormat != '}' && *m_SubFormat != '\0') ++m_SubFormat; }
+		inline void FormatParamGoTo(const char c)									{ while (*m_SubFormat != c && *m_SubFormat != '}' && *m_SubFormat != '\0') ++m_SubFormat; }
+		inline void FormatParamGoTo(const char c0, const char c1)					{ while (*m_SubFormat != c0 && *m_SubFormat != c1 && *m_SubFormat != '}' && *m_SubFormat != '\0') ++m_SubFormat; }
+		inline void FormatParamGoTo(const char c0, const char c1, const char c2)	{ while (*m_SubFormat != c0 && *m_SubFormat != c1 && *m_SubFormat != c2 && *m_SubFormat != '}' && *m_SubFormat != '\0') ++m_SubFormat; }
+		inline void FormatParamGoToNext(const char c)									{ while (*m_SubFormat != c && *m_SubFormat != '}' && *m_SubFormat != '\0') ++m_SubFormat; ++m_SubFormat; }
+		inline void FormatParamGoToNext(const char c0, const char c1)					{ while (*m_SubFormat != c0 && *m_SubFormat != c1 && *m_SubFormat != '}' && *m_SubFormat != '\0') ++m_SubFormat; ++m_SubFormat; }
+		inline void FormatParamGoToNext(const char c0, const char c1, const char c2)	{ while (*m_SubFormat != c0 && *m_SubFormat != c1 && *m_SubFormat != c2 && *m_SubFormat != '}' && *m_SubFormat != '\0') ++m_SubFormat; ++m_SubFormat; }
 
 	public:
 		inline void BufferPushBack(const char c)									{ *m_SubBuffer++ = c; }
 		inline void BufferPushEndChar()												{ BufferPushBack('\0'); }
 		inline void BufferPushReverse(const char c)									{ *m_SubBuffer-- = c; }
-		inline void BufferShift(const size_t size)									{ m_SubBuffer += size; }
+		inline void BufferShift(const std::size_t size)								{ m_SubBuffer += size; }
 
 		inline char BufferFormatGet() const											{ return *m_SubFormat; }
 		inline char BufferFormatGetAndNext()										{ return *m_SubFormat++; }
 		inline char BufferPop()														{ return *m_SubBuffer--; }
 
 	public:
-		inline void WriteUntilNextParameter()										{ while (*m_SubFormat != '{' && *m_SubFormat != 0) *m_SubBuffer++ = *m_SubFormat++; }
-		inline void WriteUntilEndOfParameter()										{ while (*m_SubFormat != '}' && *m_SubFormat != 0) *m_SubBuffer++ = *m_SubFormat++; }
+		inline void WriteUntilNextParameter()										{ while (*m_SubFormat != '{' && *m_SubFormat != '\0') *m_SubBuffer++ = *m_SubFormat++; }
+		inline void WriteUntilEndOfParameter()										{ while (*m_SubFormat != '}' && *m_SubFormat != '\0') *m_SubBuffer++ = *m_SubFormat++; }
 		inline void WriteUntil(const char c)										{ while (*m_SubFormat != c && *m_SubFormat != '}' && *m_SubFormat != '\0') *m_SubBuffer++ = *m_SubFormat++; }
 		inline void WriteUntil(const char c0, const char c1)						{ while (*m_SubFormat != c0 && *m_SubFormat != c1 && *m_SubFormat != '}' && *m_SubFormat != '\0') *m_SubBuffer++ = *m_SubFormat++; }
 		inline void WriteUntil(const char c0, const char c1, const char c2)			{ while (*m_SubFormat != c0 && *m_SubFormat != c1 && *m_SubFormat != c2 && *m_SubFormat != '}' && *m_SubFormat != '\0') *m_SubBuffer++ = *m_SubFormat++; }
 
 		inline bool CheckForEscape() {
-			bool i = *(m_SubBuffer - 1) == '#' && m_SubBuffer != m_Buffer;
-
-			if (!i)
-				return false;
-
+			if (*(m_SubBuffer - 1) != '#' || m_SubBuffer == m_Buffer)	return false;
 			*(m_SubBuffer - 1) = '{';
 			++m_SubFormat;
-
 			return true;
 		}
 	};

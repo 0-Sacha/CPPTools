@@ -10,13 +10,13 @@
 
 namespace CPPTools::Fmt {
 
-	Formater::Formater(const char* const format, size_t formatSize, char* const buffer, size_t bufferSize)
+	Formater::Formater(const char* const format, std::size_t formatSize, char* const buffer, std::size_t bufferSize)
 		: m_Buffer(buffer), m_SubBuffer(buffer), m_BufferSize(bufferSize), m_Format(format), m_SubFormat(format), m_FormatSize(formatSize)
 	{
 	}
 
-	void Formater::FormatPrintRec(uint8_t idx) { }
-	void Formater::ParameterDataRec(uint8_t idx) { }
+	void Formater::FormatPrintRec(std::uint8_t idx) { }
+	void Formater::ParameterDataRec(std::uint8_t idx) { }
 	void Formater::FormatPrintRecNamedArgs(const char* const name) { }
 
 
@@ -26,7 +26,7 @@ namespace CPPTools::Fmt {
 	}
 
 
-	uint8_t Formater::GetColorCode() {
+	 std::uint8_t Formater::GetColorCode() {
 		static const char* colorCode[8] = {
 			"black",
 			"red",
@@ -41,21 +41,21 @@ namespace CPPTools::Fmt {
 		return GetWordFromList(colorCode, 8);
 	}
 
-	uint8_t Formater::GetColorFG() {
-		uint8_t step = (uint8_t)(FormatIsEqNext('+') ? AnsiColorFG::DBStep : AnsiColorFG::DStep);
-		uint8_t code = GetColorCode();
-		if (code == std::numeric_limits<uint8_t>::max())
-			code = (uint8_t)AnsiColorFG::Default;
+	 std::uint8_t Formater::GetColorFG() {
+		 std::uint8_t step = (std::uint8_t)(FormatIsEqNext('+') ? AnsiColorFG::DBStep : AnsiColorFG::DStep);
+		 std::uint8_t code = GetColorCode();
+		if (code == std::numeric_limits<std::uint8_t>::max())
+			code = ( std::uint8_t)AnsiColorFG::Default;
 		else
 			code += step;
 		return code;
 	}
 
-	uint8_t Formater::GetColorBG() {
-		uint8_t step = (uint8_t)(FormatIsEqNext('+') ? AnsiColorBG::DBStep : AnsiColorBG::DStep);
-		uint8_t code = GetColorCode();
-		if (code == std::numeric_limits<uint8_t>::max())
-			code = (uint8_t)AnsiColorBG::Default;
+	 std::uint8_t Formater::GetColorBG() {
+		 std::uint8_t step = (std::uint8_t)(FormatIsEqNext('+') ? AnsiColorBG::DBStep : AnsiColorBG::DStep);
+		 std::uint8_t code = GetColorCode();
+		if (code == std::numeric_limits<std::uint8_t>::max())
+			code = (std::uint8_t)AnsiColorBG::Default;
 		else
 			code += step;
 		return code;
@@ -63,18 +63,17 @@ namespace CPPTools::Fmt {
 
 	void Formater::ColorValuePrint() {
 		if (FormatIsEqNext(':')) {
-			FormatIgnoreSpace();
+			FormatParamIgnoreSpace();
 			AnsiColor color;
 			color.Fg = (AnsiColorFG)GetColorFG();
-			FormatGoToNext(',');
+			FormatParamGoTo(',');
 			if (FormatIsEqNext(',')) {
-				FormatIgnoreSpace();
+				FormatParamIgnoreSpace();
 				color.Bg = (AnsiColorBG)GetColorBG();
 			}
 			FormatType<AnsiColor>::Write(color, *this);
 		}
-		else
-			FormatType<ResetAnsiColor>::Write(RESET_ANSI_COLOR, *this);
+		else	FormatType<ResetAnsiColor>::Write(RESET_ANSI_COLOR, *this);
 	}
 
 
@@ -103,8 +102,8 @@ namespace CPPTools::Fmt {
 		return isSame;
 	}
 
-	uint8_t Formater::GetWordFromList(const char* formatTypes[], uint8_t count) {
-		uint8_t res = std::numeric_limits<uint8_t>::max();
+	 std::uint8_t Formater::GetWordFromList(const char* formatTypes[],  std::uint8_t count) {
+		 std::uint8_t res = std::numeric_limits< std::uint8_t>::max();
 		for (int idx = 0; idx < count; ++idx) {
 			if (FormatNextIsSame(formatTypes[idx])) {
 				res = idx;
@@ -115,17 +114,16 @@ namespace CPPTools::Fmt {
 	}
 
 
-	bool Formater::GetFormatType(const char* formatTypes[], FormatSpecifierIDX* arr, uint8_t size)
+	bool Formater::GetFormatType(const char* formatTypes[], FormatSpecifierIDX* arr,  std::uint8_t size)
 	{
-		if (IsEndOfParameter())
-			return false;
-		while (!IsEndOfParameter()) {
+		if (FormatIsEndOfParameter())		return false;
+		while (!FormatIsEndOfParameter()) {
 			FormatNext();
-			FormatIgnoreSpace();
+			FormatParamIgnoreSpace();
 
-			for(uint8_t i = 0; i < size; ++i) {
+			for(std::uint8_t i = 0; i < size; ++i) {
 				const char* fType = formatTypes[i];
-				uint8_t idxType = 0;
+				std::uint8_t idxType = 0;
 				while (*fType != 0 && i != size) {
 					if(FormatIsEqNext(*fType)) {
 						arr[i].Type = *fType;
@@ -138,7 +136,7 @@ namespace CPPTools::Fmt {
 				}
 			}
 
-			FormatGoToNext(',');
+			FormatParamGoTo(',');
 		}
 		return true;
 	}

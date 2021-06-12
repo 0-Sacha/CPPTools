@@ -16,7 +16,7 @@ namespace CPPTools::Fmt {
 
 			formater.BufferPushBack('[');
 
-			for (uint8_t i = 0; i < size - 1; ++i) {
+			for (std::uint8_t i = 0; i < size - 1; ++i) {
 				FormatType<T>::Write(t[i], formater, data);
 				formater.BufferParseCharPt(nextElement);
 			}
