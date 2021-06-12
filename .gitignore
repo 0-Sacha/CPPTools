@@ -1,0 +1,13 @@
+
+# Visual Studio
+.vs
+*.sln
+*.vcxproj
+*.vcxproj.user
+*.vcxproj.filters
+
+
+# Binary
+bin
+bin-int
+
