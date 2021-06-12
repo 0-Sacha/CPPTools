@@ -15,10 +15,10 @@ namespace CPPTools::Fmt::FormatFunc {
 
 		T i_ = i;
 		int8_t nb = 0;
-		while (i_ > 0) { i_ /= 10; ++nb; }
-		formater.BufferShift(nb - 1);
-		while (i > 0) { formater.BufferPushReverse(i % 10 + '0'); i /= 10; }
-		formater.BufferShift(nb + 1);
+		while (i_ > 0)		{ i_ /= 10; ++nb; }
+		formater.BufferShiftAdd(nb - 1);
+		while (i > 0)		{ formater.BufferPushReverse(i % 10 + '0'); i /= 10; }
+		formater.BufferShiftAdd(nb + 1);
 	}
 
 	template<typename T>
@@ -41,10 +41,10 @@ namespace CPPTools::Fmt::FormatFunc {
 			return;
 		}
 
-		if (i < 0) { formater.BufferPushBack('-'); i = -i; }
-		formater.BufferShift(nb - 1);
-		while (i > 0) { formater.BufferPushReverse(i % 10 + '0'); i /= 10; }
-		formater.BufferShift(nb + 1);
+		if (i < 0)		{ formater.BufferPushBack('-'); i = -i; }
+		formater.BufferShiftAdd(nb - 1);
+		while (i > 0)	{ formater.BufferPushReverse(i % 10 + '0'); i /= 10; }
+		formater.BufferShiftAdd(nb + 1);
 
 		if (st == ShiftType::Left)		while (shift-- > 0) formater.BufferPushBack(' ');
 	}
@@ -121,10 +121,10 @@ namespace CPPTools::Fmt::FormatFunc {
 
 		T i_ = i;
 		int nb = 0;
-		while (i_ > 0) { i_ /= 10; ++nb; }
-		formater.BufferShift(nb - 1);
-		while (i > 0) { formater.BufferPushReverse(i % 10 + '0'); i /= 10; }
-		formater.BufferShift(nb + 1);
+		while (i_ > 0)			{ i_ /= 10; ++nb; }
+		formater.BufferShiftAdd(nb - 1);
+		while (i > 0)			{ formater.BufferPushReverse(i % 10 + '0'); i /= 10; }
+		formater.BufferShiftAdd(nb + 1);
 	}
 
 	template<typename T>
@@ -145,9 +145,9 @@ namespace CPPTools::Fmt::FormatFunc {
 			return;
 		}
 
-		formater.BufferShift(nb - 1);
+		formater.BufferShiftAdd(nb - 1);
 		while (i > 0) { formater.BufferPushReverse(i % 10 + '0'); i /= 10; }
-		formater.BufferShift(nb + 1);
+		formater.BufferShiftAdd(nb + 1);
 
 		if (st == ShiftType::Left)
 			while (shift-- > 0) formater.BufferPushBack(' ');

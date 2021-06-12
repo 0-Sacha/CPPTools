@@ -16,11 +16,17 @@ namespace CPPTools::Fmt {
 
 			formater.BufferPushBack('[');
 
-			for (std::uint8_t i = 0; i < size - 1; ++i) {
-				FormatType<T>::Write(t[i], formater, data);
-				formater.BufferParseCharPt(nextElement);
+			std::size_t stride = formater.GetFormatData().GetValueOf('n') == FormatData::NotFound() ? 0 : formater.GetStride();
+
+			bool first = true;
+			for (const T& ele : t) {
+				if (first)	first = false;
+				else {
+					formater.BufferParseCharPt(nextElement);
+					formater.BufferAddSpaces(stride);
+				}
+				FormatType<T>::Write(ele, formater);
 			}
-			if (size > 0)		FormatType<T>::Write(t[size - 1], formater, data);
 
 			formater.BufferPushBack(']');
 		}
