@@ -19,7 +19,7 @@ namespace CPPTools::Fmt::FormatFunc {
 		isValid = formater.BufferIsADigit();
 
 		while (formater.BufferIsADigit())	{ res = res * 10 + (formater.BufferGetAndNext() - '0'); }
-		formater.BufferPop();
+
 		if (isValid)						{ i = sign ? -res : res; }
 		return isValid;
 	}
@@ -86,7 +86,6 @@ namespace CPPTools::Fmt::FormatFunc {
 		isValid = formater.BufferIsADigit();
 
 		while (formater.BufferIsADigit())	{ res = res * 10 + (formater.BufferGetAndNext() - '0'); }
-		formater.BufferPop();
 
 		if (isValid)						{ i = res; }
 		return isValid;

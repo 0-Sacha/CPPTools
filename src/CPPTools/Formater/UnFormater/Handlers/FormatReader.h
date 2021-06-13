@@ -9,20 +9,13 @@ namespace CPPTools::Fmt {
 	bool UnFormater::FormatReadInt(T& i) {
 		T res = 0;
 		bool sign = false, isValid = false;
-		char c = *m_SubFormat++;
-		if (c == '-') {
-			c = *m_SubFormat++;
-			sign = true;
-		}
-		if (c >= '0' && c <= '9')
-			isValid = true;
-		while (c >= '0' && c <= '9') {
-			res = res * 10 + c - '0';
-			c = *m_SubFormat++;
-		}
-		--m_SubFormat;
-		if (isValid)
-			i = sign ? -res : res;
+
+		sign = FormatIsEqNext('-');
+		isValid = FormatIsADigit();
+
+		while (FormatIsADigit()) { res = res * 10 + (FormatGetAndNext() - '0'); }
+
+		if (isValid)	{ i = sign ? -res : res; }
 		return isValid;
 	}
 
@@ -30,16 +23,12 @@ namespace CPPTools::Fmt {
 	bool UnFormater::FormatReadUInt(T& i) {
 		T res = (T)0;
 		bool isValid = false;
-		char c = *m_SubFormat++;
-		if (c >= '0' && c <= '9')
-			isValid = true;
-		while (c >= '0' && c <= '9') {
-			res = res * 10 + c - '0';
-			c = *m_SubFormat++;
-		}
-		--m_SubFormat;
-		if (isValid)
-			i = res;
+
+		isValid = FormatIsADigit();
+
+		while (FormatIsADigit()) { res = res * 10 + (FormatGetAndNext() - '0'); }
+
+		if (isValid)	{ i = res; }
 		return isValid;
 	}
 }

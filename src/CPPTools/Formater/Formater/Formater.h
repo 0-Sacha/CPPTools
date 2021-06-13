@@ -134,6 +134,7 @@ namespace CPPTools::Fmt {
 		
 	public:
 		inline void FormatNext()													{ ++m_SubFormat; }
+		inline char FormatPop()														{ return *m_SubFormat--; }
 		inline bool FormatIsEqual(const char c) const								{ return *m_SubFormat == c; }
 		inline bool FormatIsEqNext(const char c)									{ if (*m_SubFormat == c) { ++m_SubFormat; return true; } return false; }
 		bool FormatNextIsSame(const char* str);

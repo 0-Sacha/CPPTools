@@ -165,7 +165,7 @@ namespace CPPTools::Fmt {
 
 	template<typename ...Args>
 	UnFormatError UnFormatChar(const char* const buffer, const std::string_view format, Args&& ...args) {
-		Formater::UnFormater formater(format, format.size(), buffer, 0);
+		Fmt::UnFormater formater(format.data(), format.size(), buffer, 0);
 		return formater.MainUnFormat(args...);
 	}
 }
