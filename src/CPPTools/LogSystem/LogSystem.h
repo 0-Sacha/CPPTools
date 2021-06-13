@@ -108,19 +108,19 @@ namespace CPPTools::Fmt {
 			switch(t)
 			{
 			case LogSystem::LogSeverity::Trace:
-				FormatType<AnsiColorFG>::Write(AnsiColorFG::BrightBlack, formater);
+				FormatType<Detail::AnsiColorFG>::Write(Detail::AnsiColorFG::BrightBlack, formater);
 				break;
 			case LogSystem::LogSeverity::Info:
-				FormatType<AnsiColorFG>::Write(AnsiColorFG::Green, formater);
+				FormatType<Detail::AnsiColorFG>::Write(Detail::AnsiColorFG::Green, formater);
 				break;
 			case LogSystem::LogSeverity::Warn:
-				FormatType<AnsiColorFG>::Write(AnsiColorFG::Yellow, formater);
+				FormatType<Detail::AnsiColorFG>::Write(Detail::AnsiColorFG::Yellow, formater);
 				break;
 			case LogSystem::LogSeverity::Error:
-				FormatType<AnsiColorFG>::Write(AnsiColorFG::Red, formater);
+				FormatType<Detail::AnsiColorFG>::Write(Detail::AnsiColorFG::Red, formater);
 				break;
 			case LogSystem::LogSeverity::Fatal:
-				FormatType<AnsiColorFG>::Write(AnsiColorFG::BrightMagenta, formater);
+				FormatType<Detail::AnsiColorFG>::Write(Detail::AnsiColorFG::BrightMagenta, formater);
 				break;
 			}
 		}

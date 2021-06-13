@@ -14,7 +14,7 @@ namespace CPPTools::Fmt::FormatFunc {
 		if (i < 0)	{ formater.BufferPushBack('-'); i = -i; }
 
 		T i_ = i;
-		int8_t nb = 0;
+		std::int8_t nb = 0;
 		while (i_ > 0)		{ i_ /= 10; ++nb; }
 		formater.BufferShiftAdd(nb - 1);
 		while (i > 0)		{ formater.BufferPushReverse(i % 10 + '0'); i /= 10; }
@@ -22,22 +22,22 @@ namespace CPPTools::Fmt::FormatFunc {
 	}
 
 	template<typename T>
-	void FormaterParseInt(Formater& formater, T i, ShiftType st, int32_t shift, ShiftPrint sp = ShiftPrint::Space) {
+	void FormaterParseInt(Formater& formater, T i, Detail::ShiftType st, std::int32_t shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
 		T i_ = i < 0 ? -i : i;
-		int8_t nb = 0;
+		std::int8_t nb = 0;
 
 		while (i_ > 0)			{ i_ /= 10; ++nb; --shift; }
 		if (i == 0)				--shift;
 		if (i < 0)				--shift;
 		
-		if (st == ShiftType::Right) {
-			if (sp == ShiftPrint::Space)		{ while (shift-- > 0) formater.BufferPushBack(' '); }
-			else if (sp == ShiftPrint::Zeros)	{ while (shift-- > 0) formater.BufferPushBack('0'); }
+		if (st == Detail::ShiftType::Right) {
+			if (sp == Detail::ShiftPrint::Space)		{ while (shift-- > 0) formater.BufferPushBack(' '); }
+			else if (sp == Detail::ShiftPrint::Zeros)	{ while (shift-- > 0) formater.BufferPushBack('0'); }
 		}
 
 		if (i == 0) {
 			--shift; formater.BufferPushBack('0');
-			if (st == ShiftType::Left)	while (shift-- > 0) formater.BufferPushBack(' ');
+			if (st == Detail::ShiftType::Left)	while (shift-- > 0) formater.BufferPushBack(' ');
 			return;
 		}
 
@@ -46,20 +46,20 @@ namespace CPPTools::Fmt::FormatFunc {
 		while (i > 0)	{ formater.BufferPushReverse(i % 10 + '0'); i /= 10; }
 		formater.BufferShiftAdd(nb + 1);
 
-		if (st == ShiftType::Left)		while (shift-- > 0) formater.BufferPushBack(' ');
+		if (st == Detail::ShiftType::Left)		while (shift-- > 0) formater.BufferPushBack(' ');
 	}
 
 
 	//-------------------- Int Bin --------------------//
 
 	template<typename T>
-	void FormaterParseIntAsBin(Formater& formater, T i, int8_t def) {
+	void FormaterParseIntAsBin(Formater& formater, T i, std::int8_t def) {
 		if (def < 3)	def = sizeof(T) * 8;
 
 		if (i < 0)		formater.BufferPushBack('1');
 		else			formater.BufferPushBack('0');
 
-		uint64_t mask = (uint64_t)1 << (def - 2);
+		std::uint64_t mask = (std::uint64_t)1 << (def - 2);
 		while (mask != 0) {
 			if (i & mask)	formater.BufferPushBack('1');
 			else			formater.BufferPushBack('0');
@@ -68,12 +68,12 @@ namespace CPPTools::Fmt::FormatFunc {
 	}
 
 	template<typename T>
-	void FormaterParseIntAsBin(Formater& formater, T i, int8_t def, ShiftType st, int32_t shift, ShiftPrint sp = ShiftPrint::Space) {
+	void FormaterParseIntAsBin(Formater& formater, T i, std::int8_t def, Detail::ShiftType st, std::int32_t shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
 		if (def < 3)	def = sizeof(T) * 8;
-		uint64_t mask = (uint64_t)1 << (def - 2);
+		std::uint64_t mask = (std::uint64_t)1 << (def - 2);
 		shift -= def;
 
-		if (st == ShiftType::Right)		while (shift-- > 0) formater.BufferPushBack(' ');
+		if (st == Detail::ShiftType::Right)		while (shift-- > 0) formater.BufferPushBack(' ');
 
 		if (i < 0)	formater.BufferPushBack('1');
 		else		formater.BufferPushBack('0');
@@ -83,19 +83,19 @@ namespace CPPTools::Fmt::FormatFunc {
 			else			formater.BufferPushBack('0');
 			mask = mask >> 1;
 		}
-		if (st == ShiftType::Left)		while (shift-- > 0)		formater.BufferPushBack(' ');
+		if (st == Detail::ShiftType::Left)		while (shift-- > 0)		formater.BufferPushBack(' ');
 	}
 
 
 	//-------------------- Int Hex --------------------//
 
 	template<typename T>
-	void FormaterParseIntAsHex(Formater& formater, T i, int8_t def) {
+	void FormaterParseIntAsHex(Formater& formater, T i, std::int8_t def) {
 		static char arr[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 	}
 
 	template<typename T>
-	void FormaterParseIntAsHex(Formater& formater, T i, int8_t def, ShiftType st, int32_t shift, ShiftPrint sp = ShiftPrint::Space) {
+	void FormaterParseIntAsHex(Formater& formater, T i, std::int8_t def, Detail::ShiftType st, std::int32_t shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
 		static char arr[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 	}
 
@@ -103,10 +103,10 @@ namespace CPPTools::Fmt::FormatFunc {
 	//-------------------- Oct --------------------//
 
 	template<typename T>
-	void FormaterParseIntAsOct(Formater& formater, T i, int8_t def) {}
+	void FormaterParseIntAsOct(Formater& formater, T i, std::int8_t def) {}
 
 	template<typename T>
-	void FormaterParseIntAsOct(Formater& formater, T i, int8_t def, ShiftType st, int32_t shift, ShiftPrint sp = ShiftPrint::Space) {}
+	void FormaterParseIntAsOct(Formater& formater, T i, std::int8_t def, Detail::ShiftType st, std::int32_t shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {}
 
 
 
@@ -128,20 +128,20 @@ namespace CPPTools::Fmt::FormatFunc {
 	}
 
 	template<typename T>
-	void FormaterParseUInt(Formater& formater, T i, ShiftType st, int32_t shift, ShiftPrint sp = ShiftPrint::Space) {
+	void FormaterParseUInt(Formater& formater, T i, Detail::ShiftType st, std::int32_t shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
 		T i_ = i;
-		int8_t nb = 0;
+		std::int8_t nb = 0;
 		while (i_ > 0)	{ i_ /= 10; ++nb; --shift; }
 		if (i == 0)		--shift;
 
-		if (st == ShiftType::Right) {
-			if (sp == ShiftPrint::Space)		{ while (shift-- > 0) formater.BufferPushBack(' '); }
-			else if (sp == ShiftPrint::Zeros)	{ while (shift-- > 0) formater.BufferPushBack('0'); }
+		if (st == Detail::ShiftType::Right) {
+			if (sp == Detail::ShiftPrint::Space)		{ while (shift-- > 0) formater.BufferPushBack(' '); }
+			else if (sp == Detail::ShiftPrint::Zeros)	{ while (shift-- > 0) formater.BufferPushBack('0'); }
 		}
 
 		if (i == 0) {
 			formater.BufferPushBack('0');
-			if (st == ShiftType::Left)		while (shift-- > 0) formater.BufferPushBack(' ');
+			if (st == Detail::ShiftType::Left)		while (shift-- > 0) formater.BufferPushBack(' ');
 			return;
 		}
 
@@ -149,7 +149,7 @@ namespace CPPTools::Fmt::FormatFunc {
 		while (i > 0) { formater.BufferPushReverse(i % 10 + '0'); i /= 10; }
 		formater.BufferShiftAdd(nb + 1);
 
-		if (st == ShiftType::Left)
+		if (st == Detail::ShiftType::Left)
 			while (shift-- > 0) formater.BufferPushBack(' ');
 	}
 
@@ -157,9 +157,9 @@ namespace CPPTools::Fmt::FormatFunc {
 	//-------------------- UInt Bin --------------------//
 
 	template<typename T>
-	void FormaterParseUIntAsBin(Formater& formater, T i, int16_t def) {
+	void FormaterParseUIntAsBin(Formater& formater, T i, std::int16_t def) {
 		if (def < 2)	def = sizeof(T) * 8;
-		size_t mask = (size_t)1 << (def - 1);
+		std::size_t mask = (std::size_t)1 << (def - 1);
 		while (mask != 0) {
 			if (i & mask)	formater.BufferPushBack('1');
 			else			formater.BufferPushBack('0');
@@ -168,13 +168,13 @@ namespace CPPTools::Fmt::FormatFunc {
 	}
 
 	template<typename T>
-	void FormaterParseUIntAsBin(Formater& formater, T i, int16_t def, ShiftType st, int32_t shift, ShiftPrint sp = ShiftPrint::Space) {
+	void FormaterParseUIntAsBin(Formater& formater, T i, std::int16_t def, Detail::ShiftType st, std::int32_t shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
 		if (def < 2)	def = sizeof(T) * 8;
 		T i_ = i;
-		uint64_t mask = (uint64_t)1 << (def - 1);
+		std::uint64_t mask = (std::uint64_t)1 << (def - 1);
 		shift -= def;
 
-		if (st == ShiftType::Right)		while (shift-- > 0) formater.BufferPushBack(' ');
+		if (st == Detail::ShiftType::Right)		while (shift-- > 0) formater.BufferPushBack(' ');
 
 		if (i < 0)	formater.BufferPushBack('1');
 		else		formater.BufferPushBack('0');
@@ -184,7 +184,7 @@ namespace CPPTools::Fmt::FormatFunc {
 			else			formater.BufferPushBack('0');
 			mask = mask >> 1;
 		}
-		if (st == ShiftType::Left)
+		if (st == Detail::ShiftType::Left)
 			while (shift-- > 0)			formater.BufferPushBack(' ');
 	}
 
@@ -192,10 +192,10 @@ namespace CPPTools::Fmt::FormatFunc {
 	//-------------------- UInt Hex --------------------//
 
 	template<typename T>
-	void FormaterParseUIntAsHex(Formater& formater, T i, int16_t def) {
+	void FormaterParseUIntAsHex(Formater& formater, T i, std::int16_t def) {
 		static char arr[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 
-		size_t mask = (size_t)0b1111;
+		std::size_t mask = (std::size_t)0b1111;
 
 		if (def == 0) {
 			T i_ = i;
@@ -206,14 +206,14 @@ namespace CPPTools::Fmt::FormatFunc {
 
 		--def;
 		while (mask != 0) {
-			size_t k = ((size_t)i & mask) >> (def--) * 4;
+			std::size_t k = ((std::size_t)i & mask) >> (def--) * 4;
 			formater.BufferPushBack(arr[k]);
 			mask = mask >> 4;
 		}
 	}
 
 	template<typename T>
-	void FormaterParseUIntAsHex(Formater& formater, T i, int16_t def, ShiftType st, int32_t shift, ShiftPrint sp = ShiftPrint::Space) {
+	void FormaterParseUIntAsHex(Formater& formater, T i, std::int16_t def, Detail::ShiftType st, std::int32_t shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
 		static char arr[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 	}
 
@@ -222,8 +222,8 @@ namespace CPPTools::Fmt::FormatFunc {
 	//-------------------- UInt Oct --------------------//
 
 	template<typename T>
-	void FormaterParseUIntAsOct(Formater& formater, T i, int16_t def) {}
+	void FormaterParseUIntAsOct(Formater& formater, T i, std::int16_t def) {}
 
 	template<typename T>
-	void FormaterParseUIntAsOct(Formater& formater, T i, int16_t def, ShiftType st, int32_t shift, ShiftPrint sp = ShiftPrint::Space) {}
+	void FormaterParseUIntAsOct(Formater& formater, T i, std::int16_t def, Detail::ShiftType st, std::int32_t shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {}
 }

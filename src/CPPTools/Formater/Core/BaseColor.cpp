@@ -2,7 +2,7 @@
 #include "CPPToolspch.h"
 #include "BaseColor.h"
 
-namespace CPPTools::Fmt {
+namespace CPPTools::Fmt::Detail {
 
 	AnsiColor::AnsiColor(AnsiColorFG _fg, AnsiColorBG _bg)
 		: Fg(_fg), Bg(_bg) { }

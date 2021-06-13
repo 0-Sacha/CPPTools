@@ -22,7 +22,7 @@ namespace CPPTools::Fmt {
 
 	void Formater::CheckEndStr() {
 		if (m_ColorMem.IsSetColor)
-			FormatType<ResetAnsiColor>::Write(RESET_ANSI_COLOR, *this);
+			FormatType<Detail::ResetAnsiColor>::Write(Detail::RESET_ANSI_COLOR, *this);
 	}
 
 
@@ -42,20 +42,20 @@ namespace CPPTools::Fmt {
 	}
 
 	 std::uint8_t Formater::GetColorFG() {
-		 std::uint8_t step = (std::uint8_t)(FormatIsEqNext('+') ? AnsiColorFG::DBStep : AnsiColorFG::DStep);
+		 std::uint8_t step = (std::uint8_t)(FormatIsEqNext('+') ? Detail::AnsiColorFG::DBStep : Detail::AnsiColorFG::DStep);
 		 std::uint8_t code = GetColorCode();
 		if (code == std::numeric_limits<std::uint8_t>::max())
-			code = ( std::uint8_t)AnsiColorFG::Default;
+			code = (std::uint8_t)Detail::AnsiColorFG::Default;
 		else
 			code += step;
 		return code;
 	}
 
 	 std::uint8_t Formater::GetColorBG() {
-		 std::uint8_t step = (std::uint8_t)(FormatIsEqNext('+') ? AnsiColorBG::DBStep : AnsiColorBG::DStep);
+		 std::uint8_t step = (std::uint8_t)(FormatIsEqNext('+') ? Detail::AnsiColorBG::DBStep : Detail::AnsiColorBG::DStep);
 		 std::uint8_t code = GetColorCode();
 		if (code == std::numeric_limits<std::uint8_t>::max())
-			code = (std::uint8_t)AnsiColorBG::Default;
+			code = (std::uint8_t)Detail::AnsiColorBG::Default;
 		else
 			code += step;
 		return code;
@@ -64,16 +64,16 @@ namespace CPPTools::Fmt {
 	void Formater::ColorValuePrint() {
 		if (FormatIsEqNext(':')) {
 			FormatParamIgnoreSpace();
-			AnsiColor color;
-			color.Fg = (AnsiColorFG)GetColorFG();
+			Detail::AnsiColor color;
+			color.Fg = (Detail::AnsiColorFG)GetColorFG();
 			FormatParamGoTo(',');
 			if (FormatIsEqNext(',')) {
 				FormatParamIgnoreSpace();
-				color.Bg = (AnsiColorBG)GetColorBG();
+				color.Bg = (Detail::AnsiColorBG)GetColorBG();
 			}
-			FormatType<AnsiColor>::Write(color, *this);
+			FormatType<Detail::AnsiColor>::Write(color, *this);
 		}
-		else	FormatType<ResetAnsiColor>::Write(RESET_ANSI_COLOR, *this);
+		else	FormatType<Detail::ResetAnsiColor>::Write(Detail::RESET_ANSI_COLOR, *this);
 	}
 
 
@@ -144,45 +144,45 @@ namespace CPPTools::Fmt {
 	void Formater::ReloadColor()
 	{
 		if(m_ColorMem.IsSetColor) {
-			if(m_ColorMem.FgType == AnsiColorFGType::AnsiColor) {
+			if(m_ColorMem.FgType == Detail::AnsiColorFGType::AnsiColor) {
 
-				if (m_ColorMem.BgType == AnsiColorBGType::AnsiColor)
-					FormatType<AnsiColor>::Write(m_ColorMem.Color, *this);
-				else if (m_ColorMem.BgType == AnsiColorBGType::AnsiColor24b) {
-					FormatType<AnsiColorFG>::Write(m_ColorMem.Color.Fg, *this);
-					FormatType<AnsiColor24bBG>::Write(m_ColorMem.Color24bits.Bg, *this);
+				if (m_ColorMem.BgType == Detail::AnsiColorBGType::AnsiColor)
+					FormatType<Detail::AnsiColor>::Write(m_ColorMem.Color, *this);
+				else if (m_ColorMem.BgType == Detail::AnsiColorBGType::AnsiColor24b) {
+					FormatType<Detail::AnsiColorFG>::Write(m_ColorMem.Color.Fg, *this);
+					FormatType<Detail::AnsiColor24bBG>::Write(m_ColorMem.Color24bits.Bg, *this);
 				} else {
-					FormatType<AnsiColorFG>::Write(m_ColorMem.Color.Fg, *this);
-					FormatType<AnsiColorBG>::Write(AnsiColorBG::Default, *this);
+					FormatType<Detail::AnsiColorFG>::Write(m_ColorMem.Color.Fg, *this);
+					FormatType<Detail::AnsiColorBG>::Write(Detail::AnsiColorBG::Default, *this);
 				}
 
-			} else if (m_ColorMem.FgType == AnsiColorFGType::AnsiColor24b) {
+			} else if (m_ColorMem.FgType == Detail::AnsiColorFGType::AnsiColor24b) {
 
-				if (m_ColorMem.BgType == AnsiColorBGType::AnsiColor) {
-					FormatType<AnsiColor24bFG>::Write(m_ColorMem.Color24bits.Fg, *this);
-					FormatType<AnsiColorBG>::Write(m_ColorMem.Color.Bg, *this);
+				if (m_ColorMem.BgType == Detail::AnsiColorBGType::AnsiColor) {
+					FormatType<Detail::AnsiColor24bFG>::Write(m_ColorMem.Color24bits.Fg, *this);
+					FormatType<Detail::AnsiColorBG>::Write(m_ColorMem.Color.Bg, *this);
 				}
-				else if (m_ColorMem.BgType == AnsiColorBGType::AnsiColor24b)
-					FormatType<AnsiColor24b>::Write(m_ColorMem.Color24bits, *this);
+				else if (m_ColorMem.BgType == Detail::AnsiColorBGType::AnsiColor24b)
+					FormatType<Detail::AnsiColor24b>::Write(m_ColorMem.Color24bits, *this);
 				else {
-					FormatType<AnsiColor24bFG>::Write(m_ColorMem.Color24bits.Fg, *this);
-					FormatType<AnsiColorBG>::Write(AnsiColorBG::Default, *this);
+					FormatType<Detail::AnsiColor24bFG>::Write(m_ColorMem.Color24bits.Fg, *this);
+					FormatType<Detail::AnsiColorBG>::Write(Detail::AnsiColorBG::Default, *this);
 				}
 
 			} else {
 
-				if (m_ColorMem.BgType == AnsiColorBGType::AnsiColor) {
-					FormatType<AnsiColorFG>::Write(AnsiColorFG::Default, *this);
-					FormatType<AnsiColorBG>::Write(m_ColorMem.Color.Bg, *this);
-				} else if (m_ColorMem.BgType == AnsiColorBGType::AnsiColor24b) {
-					FormatType<AnsiColorFG>::Write(AnsiColorFG::Default, *this);
-					FormatType<AnsiColor24bBG>::Write(m_ColorMem.Color24bits.Bg, *this);
+				if (m_ColorMem.BgType == Detail::AnsiColorBGType::AnsiColor) {
+					FormatType<Detail::AnsiColorFG>::Write(Detail::AnsiColorFG::Default, *this);
+					FormatType<Detail::AnsiColorBG>::Write(m_ColorMem.Color.Bg, *this);
+				} else if (m_ColorMem.BgType == Detail::AnsiColorBGType::AnsiColor24b) {
+					FormatType<Detail::AnsiColorFG>::Write(Detail::AnsiColorFG::Default, *this);
+					FormatType<Detail::AnsiColor24bBG>::Write(m_ColorMem.Color24bits.Bg, *this);
 				} else {
-					FormatType<ResetAnsiColor>::Write(RESET_ANSI_COLOR, *this);
+					FormatType<Detail::ResetAnsiColor>::Write(Detail::RESET_ANSI_COLOR, *this);
 				}
 
 			}
 		} else
-			FormatType<ResetAnsiColor>::Write(RESET_ANSI_COLOR, *this);
+			FormatType<Detail::ResetAnsiColor>::Write(Detail::RESET_ANSI_COLOR, *this);
 	}
 }

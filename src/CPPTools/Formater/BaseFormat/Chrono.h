@@ -24,17 +24,17 @@ namespace CPPTools::Fmt {
 	template<typename Clock, typename Duration>
 	void WriteTestTimeMod(const std::chrono::time_point<Clock, Duration>& value, Formater& formater) {
 		if (formater.FormatNextIsSame("ns"))
-			FormatFunc::FormaterParseUInt<uint32_t>(formater, (uint32_t)std::chrono::time_point_cast<std::chrono::nanoseconds>(value).time_since_epoch().count() % 1000, ShiftType::Right, 3, ShiftPrint::Zeros);
+			FormatFunc::FormaterParseUInt<uint32_t>(formater, (uint32_t)std::chrono::time_point_cast<std::chrono::nanoseconds>(value).time_since_epoch().count() % 1000, Detail::ShiftType::Right, 3, Detail::ShiftPrint::Zeros);
 		else if (formater.FormatNextIsSame("us"))
-			FormatFunc::FormaterParseUInt<uint32_t>(formater, (uint32_t)std::chrono::time_point_cast<std::chrono::microseconds>(value).time_since_epoch().count() % 1000, ShiftType::Right, 3, ShiftPrint::Zeros);
+			FormatFunc::FormaterParseUInt<uint32_t>(formater, (uint32_t)std::chrono::time_point_cast<std::chrono::microseconds>(value).time_since_epoch().count() % 1000, Detail::ShiftType::Right, 3, Detail::ShiftPrint::Zeros);
 		else if (formater.FormatNextIsSame("ms"))
-			FormatFunc::FormaterParseUInt<uint32_t>(formater, (uint32_t)std::chrono::time_point_cast<std::chrono::milliseconds>(value).time_since_epoch().count() % 1000, ShiftType::Right, 3, ShiftPrint::Zeros);
+			FormatFunc::FormaterParseUInt<uint32_t>(formater, (uint32_t)std::chrono::time_point_cast<std::chrono::milliseconds>(value).time_since_epoch().count() % 1000, Detail::ShiftType::Right, 3, Detail::ShiftPrint::Zeros);
 		else if (formater.FormatNextIsSame("s"))
-			FormatFunc::FormaterParseUInt<uint32_t>(formater, (uint32_t)std::chrono::time_point_cast<std::chrono::seconds>(value).time_since_epoch().count() % 60, ShiftType::Right, 2, ShiftPrint::Zeros);
+			FormatFunc::FormaterParseUInt<uint32_t>(formater, (uint32_t)std::chrono::time_point_cast<std::chrono::seconds>(value).time_since_epoch().count() % 60, Detail::ShiftType::Right, 2, Detail::ShiftPrint::Zeros);
 		else if (formater.FormatNextIsSame("m"))
-			FormatFunc::FormaterParseUInt<uint32_t>(formater, (uint32_t)std::chrono::time_point_cast<std::chrono::minutes>(value).time_since_epoch().count() % 60, ShiftType::Right, 2, ShiftPrint::Zeros);
+			FormatFunc::FormaterParseUInt<uint32_t>(formater, (uint32_t)std::chrono::time_point_cast<std::chrono::minutes>(value).time_since_epoch().count() % 60, Detail::ShiftType::Right, 2, Detail::ShiftPrint::Zeros);
 		else if (formater.FormatNextIsSame("h"))
-			FormatFunc::FormaterParseUInt<uint32_t>(formater, (uint32_t)std::chrono::time_point_cast<std::chrono::hours>(value).time_since_epoch().count() % 24, ShiftType::Right, 2, ShiftPrint::Zeros);
+			FormatFunc::FormaterParseUInt<uint32_t>(formater, (uint32_t)std::chrono::time_point_cast<std::chrono::hours>(value).time_since_epoch().count() % 24, Detail::ShiftType::Right, 2, Detail::ShiftPrint::Zeros);
 	}
 
 	template<typename Clock, typename Duration>

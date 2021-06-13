@@ -2,7 +2,7 @@
 
 #include "CPPTools/Core/Core.h"
 
-namespace CPPTools::Fmt {
+namespace CPPTools::Fmt::Detail {
 
 	enum class AnsiColorFG : std::uint8_t {
 		Black = 30,

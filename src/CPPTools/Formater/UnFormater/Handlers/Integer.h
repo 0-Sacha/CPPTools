@@ -25,7 +25,7 @@ namespace CPPTools::Fmt::FormatFunc {
 	}
 
 	template<typename T>
-	bool FormaterUnParseInt(UnFormater& formater, T& i, ShiftType st, int32_t shift, ShiftPrint sp = ShiftPrint::Space) {
+	bool FormaterUnParseInt(UnFormater& formater, T& i, Detail::ShiftType st, std::int32_t shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
 		return false;
 	}
 
@@ -33,12 +33,12 @@ namespace CPPTools::Fmt::FormatFunc {
 	//-------------------- UInt Bin --------------------//
 
 	template<typename T>
-	bool FormaterUnParseIntAsBin(UnFormater& formater, T& i, int16_t def) {
+	bool FormaterUnParseIntAsBin(UnFormater& formater, T& i, std::int16_t def) {
 		return false;
 	}
 
 	template<typename T>
-	bool FormaterUnParseIntAsBin(UnFormater& formater, T& i, int16_t def, ShiftType st, int32_t shift, ShiftPrint sp = ShiftPrint::Space) {
+	bool FormaterUnParseIntAsBin(UnFormater& formater, T& i, std::int16_t def, Detail::ShiftType st, std::int32_t shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
 		return false;
 	}
 
@@ -47,12 +47,12 @@ namespace CPPTools::Fmt::FormatFunc {
 
 
 	template<typename T>
-	bool FormaterUnParseIntAsHex(UnFormater& formater, T& i, int16_t def) {
+	bool FormaterUnParseIntAsHex(UnFormater& formater, T& i, std::int16_t def) {
 		return false;
 	}
 
 	template<typename T>
-	bool FormaterUnParseIntAsHex(UnFormater& formater, T& i, int16_t def, ShiftType st, int32_t shift, ShiftPrint sp = ShiftPrint::Space) {
+	bool FormaterUnParseIntAsHex(UnFormater& formater, T& i, std::int16_t def, Detail::ShiftType st, std::int32_t shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
 		return false;
 	}
 
@@ -60,12 +60,12 @@ namespace CPPTools::Fmt::FormatFunc {
 	//-------------------- UInt Oct --------------------//
 
 	template<typename T>
-	bool FormaterUnParseIntAsOct(UnFormater& formater, T& i, int16_t def) {
+	bool FormaterUnParseIntAsOct(UnFormater& formater, T& i, std::int16_t def) {
 		return false;
 	}
 
 	template<typename T>
-	bool FormaterUnParseIntAsOct(UnFormater& formater, T& i, int16_t def, ShiftType st, int32_t shift, ShiftPrint sp = ShiftPrint::Space) {
+	bool FormaterUnParseIntAsOct(UnFormater& formater, T& i, std::int16_t def, Detail::ShiftType st, int32_t shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
 		return false;
 	}
 
@@ -92,7 +92,7 @@ namespace CPPTools::Fmt::FormatFunc {
 	}
 
 	template<typename T>
-	bool FormaterUnParseUInt(UnFormater& formater, T& i, ShiftType st, int32_t shift, ShiftPrint sp = ShiftPrint::Space) {
+	bool FormaterUnParseUInt(UnFormater& formater, T& i, Detail::ShiftType st, std::int32_t shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
 		return false;
 	}
 
@@ -100,12 +100,12 @@ namespace CPPTools::Fmt::FormatFunc {
 	//-------------------- UInt Bin --------------------//
 
 	template<typename T>
-	bool FormaterUnParseUIntAsBin(UnFormater& formater, T& i, int16_t def) {
+	bool FormaterUnParseUIntAsBin(UnFormater& formater, T& i, std::int16_t def) {
 		return false;
 	}
 
 	template<typename T>
-	bool FormaterUnParseUIntAsBin(UnFormater& formater, T& i, int16_t def, ShiftType st, int32_t shift, ShiftPrint sp = ShiftPrint::Space) {
+	bool FormaterUnParseUIntAsBin(UnFormater& formater, T& i, std::int16_t def, Detail::ShiftType st, std::int32_t shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
 		return false;
 	}
 
@@ -114,12 +114,12 @@ namespace CPPTools::Fmt::FormatFunc {
 
 
 	template<typename T>
-	bool FormaterUnParseUIntAsHex(UnFormater& formater, T& i, int16_t def) {
+	bool FormaterUnParseUIntAsHex(UnFormater& formater, T& i, std::int16_t def) {
 		return false;
 	}
 
 	template<typename T>
-	bool FormaterUnParseUIntAsHex(UnFormater& formater, T& i, int16_t def, ShiftType st, int32_t shift, ShiftPrint sp = ShiftPrint::Space) {
+	bool FormaterUnParseUIntAsHex(UnFormater& formater, T& i, std::int16_t def, Detail::ShiftType st, std::int32_t shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
 		return false;
 	}
 
@@ -127,12 +127,12 @@ namespace CPPTools::Fmt::FormatFunc {
 	//-------------------- UInt Oct --------------------//
 
 	template<typename T>
-	bool FormaterUnParseUIntAsOct(UnFormater& formater, T& i, int16_t def) {
+	bool FormaterUnParseUIntAsOct(UnFormater& formater, T& i, std::int16_t def) {
 		return false;
 	}
 
 	template<typename T>
-	bool FormaterUnParseUIntAsOct(UnFormater& formater, T& i, int16_t def, ShiftType st, int32_t shift, ShiftPrint sp = ShiftPrint::Space) {
+	bool FormaterUnParseUIntAsOct(UnFormater& formater, T& i, std::int16_t def, Detail::ShiftType st, std::int32_t shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
 		return false;
 	}
 }

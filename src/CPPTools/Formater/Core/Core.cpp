@@ -9,14 +9,14 @@ namespace CPPTools::Fmt {
 		: IsInit(false)
 		, HasSpec(false)
 		, BaseValue(false)
-		, IntPrint(::CPPTools::Fmt::ValueIntPrint::Int)
+		, IntPrint(::CPPTools::Fmt::Detail::ValueIntPrint::Int)
 		, Precision(0)
 		, FloatPrecision(3)
 		, Size(-1)
 		, Begin(0)
-		, ContainerPrintStyle(::CPPTools::Fmt::ContainerPrintStyle::CommaSpace)
-		, ShiftPrint(::CPPTools::Fmt::ShiftPrint::Space)
-		, ShiftType(::CPPTools::Fmt::ShiftType::Nothing)
+		, ContainerPrintStyle(::CPPTools::Fmt::Detail::ContainerPrintStyle::CommaSpace)
+		, ShiftPrint(::CPPTools::Fmt::Detail::ShiftPrint::Space)
+		, ShiftType(::CPPTools::Fmt::Detail::ShiftType::Nothing)
 		, ShiftValue(0)
 		, SpecIdx(0)
 		, HasChangeColor(false)
@@ -26,14 +26,14 @@ namespace CPPTools::Fmt {
 
 	FormatData::FormatData(bool hasSpec
 		, bool baseValue
-		, ::CPPTools::Fmt::ValueIntPrint intPrint
+		, ::CPPTools::Fmt::Detail::ValueIntPrint intPrint
 		, std::int16_t precision
 		, std::int16_t floatPrecision
 		, std::int16_t size
 		, std::int16_t begin
-		, ::CPPTools::Fmt::ContainerPrintStyle containerPrintStyle
-		, ::CPPTools::Fmt::ShiftPrint shiftPrint
-		, ::CPPTools::Fmt::ShiftType shiftType
+		, ::CPPTools::Fmt::Detail::ContainerPrintStyle containerPrintStyle
+		, ::CPPTools::Fmt::Detail::ShiftPrint shiftPrint
+		, ::CPPTools::Fmt::Detail::ShiftType shiftType
 		, std::uint8_t shiftValue)
 
 		: IsInit(true)

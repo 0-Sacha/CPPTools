@@ -39,7 +39,7 @@ namespace CPPTools::Fmt {
 		std::size_t m_FormatSize;
 
 		std::uint8_t m_ValuesIdx = 0;
-		AnsiColorMem m_ColorMem;
+		Detail::AnsiColorMem m_ColorMem;
 		FormatData m_FormatData;
 
 	public:
@@ -50,7 +50,7 @@ namespace CPPTools::Fmt {
 		inline std::size_t GetCurrentBufferSize() const		{ return m_SubBuffer - m_Buffer; }
 		inline std::size_t GetCurrentFormatSize() const		{ return m_SubFormat - m_Format; }
 
-		inline AnsiColorMem& GetColorMem()					{ return m_ColorMem; }
+		inline Detail::AnsiColorMem& GetColorMem()			{ return m_ColorMem; }
 		inline FormatData& GetFormatData()					{ return m_FormatData; }
 		inline const FormatData& GetFormatData() const		{ return m_FormatData; }
 		inline std::int16_t NoError()						{ return -1; }

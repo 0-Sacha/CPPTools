@@ -5,7 +5,7 @@
 #include "BaseColor.h"
 #include "GetBaseType.h"
 
-namespace CPPTools::Fmt {
+namespace CPPTools::Fmt::Detail {
 
 	enum class ValueType : std::uint8_t {
 		Param,
@@ -37,7 +37,9 @@ namespace CPPTools::Fmt {
 		CommaSpace,
 		NewLine
 	};
+}
 
+namespace CPPTools::Fmt {
 	struct FormatSpecifierIDX {
 		char Type = 0;
 		std::int8_t Value = 0;
@@ -57,14 +59,14 @@ namespace CPPTools::Fmt {
 
 		FormatData(bool hasSpec
 			, bool baseValue = false
-			, ValueIntPrint intPrint = ValueIntPrint::Int
+			, Detail::ValueIntPrint intPrint = Detail::ValueIntPrint::Int
 			, std::int16_t precision = 0
 			, std::int16_t floatPrecision = 3
 			, std::int16_t size = -1
 			, std::int16_t begin = 0
-			, ContainerPrintStyle containerPrintStyle = ContainerPrintStyle::CommaSpace
-			, ShiftPrint shiftPrint = ShiftPrint::Space
-			, ShiftType shiftType = ShiftType::Nothing
+			, Detail::ContainerPrintStyle containerPrintStyle = Detail::ContainerPrintStyle::CommaSpace
+			, Detail::ShiftPrint shiftPrint = Detail::ShiftPrint::Space
+			, Detail::ShiftType shiftType = Detail::ShiftType::Nothing
 			, std::uint8_t shiftValue = 0);
 
 	public:
@@ -75,17 +77,17 @@ namespace CPPTools::Fmt {
 		bool HasSpec;
 		bool BaseValue;
 
-		ValueIntPrint IntPrint;
+		Detail::ValueIntPrint IntPrint;
 		std::int16_t Precision;
 		std::int16_t FloatPrecision;
 
 		std::int16_t Size;
 		std::int16_t Begin;
 
-		ContainerPrintStyle ContainerPrintStyle;
+		Detail::ContainerPrintStyle ContainerPrintStyle;
 
-		ShiftPrint ShiftPrint;
-		ShiftType ShiftType;
+		Detail::ShiftPrint ShiftPrint;
+		Detail::ShiftType ShiftType;
 		std::int16_t ShiftValue;
 
 		std::uint8_t SpecIdx;
@@ -110,7 +112,9 @@ namespace CPPTools::Fmt {
 			return (std::numeric_limits<std::int8_t>::max)();
 		}
 	};
+}
 
-	template<typename T>	struct CopyFormatData				{ static void Copy(FormatData& data, const T& t)			{ } };
-	template<>				struct CopyFormatData<FormatData>	{ static void Copy(FormatData& data, const FormatData& t)	{ data = t; } };
+namespace CPPTools::Fmt::Detail {
+	template<typename T>	struct CopyFormatData { static void Copy(FormatData& data, const T& t) { } };
+	template<>				struct CopyFormatData<FormatData> { static void Copy(FormatData& data, const FormatData& t) { data = t; } };
 }

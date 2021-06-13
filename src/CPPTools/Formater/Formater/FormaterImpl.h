@@ -34,7 +34,7 @@ namespace CPPTools::Fmt {
 	/////---------- Data Print Rec ----------/////
 	template<typename T, typename ...Args>
 	void Formater::ParameterDataRec(std::uint8_t idx, const T& t, Args&& ...args) {
-		if (idx == 0)	CopyFormatData<T>::Copy(m_FormatData, t);
+		if (idx == 0)	Detail::CopyFormatData<T>::Copy(m_FormatData, t);
 		else			ParameterDataRec(idx - 1, std::forward<Args>(args)...);
 	}
 
@@ -54,23 +54,23 @@ namespace CPPTools::Fmt {
 						dataIdx = m_ValuesIdx++;
 					ParameterDataRec(dataIdx, std::forward<Args>(args)...);
 					FormatNext();
-				} else if (FormatIsEqNext('b')) { m_FormatData.IntPrint = ValueIntPrint::Bin;	FormatReadUInt(m_FormatData.Precision);
-				} else if (FormatIsEqNext('x')) { m_FormatData.IntPrint = ValueIntPrint::Hex;	FormatReadUInt(m_FormatData.Precision);
-				} else if (FormatIsEqNext('o')) { m_FormatData.IntPrint = ValueIntPrint::Oct;	FormatReadUInt(m_FormatData.Precision);
-				} else if (FormatIsEqNext('d')) { m_FormatData.IntPrint = ValueIntPrint::Int;	FormatReadUInt(m_FormatData.Precision);
+				} else if (FormatIsEqNext('b')) { m_FormatData.IntPrint = Detail::ValueIntPrint::Bin;	FormatReadUInt(m_FormatData.Precision);
+				} else if (FormatIsEqNext('x')) { m_FormatData.IntPrint = Detail::ValueIntPrint::Hex;	FormatReadUInt(m_FormatData.Precision);
+				} else if (FormatIsEqNext('o')) { m_FormatData.IntPrint = Detail::ValueIntPrint::Oct;	FormatReadUInt(m_FormatData.Precision);
+				} else if (FormatIsEqNext('d')) { m_FormatData.IntPrint = Detail::ValueIntPrint::Int;	FormatReadUInt(m_FormatData.Precision);
 				} else if (FormatIsLowerCase()) {	// Custom specifier
 					const char c = FormatGetAndNext();
 					std::int8_t i = 0;
 					FormatReadInt(i);
 					m_FormatData.AddSpecifier(c, i);
-				} else if (FormatIsEqNext('C'))		{ m_FormatData.HasChangeColor = true; m_ColorMem = AnsiColorMem(); ColorValuePrint();
-				} else if (FormatIsEqNext('>'))		{ m_FormatData.ShiftType = ShiftType::Right;	FormatReadUInt(m_FormatData.ShiftValue);
-				} else if (FormatIsEqNext('<'))		{ m_FormatData.ShiftType = ShiftType::Left;		FormatReadUInt(m_FormatData.ShiftValue);
-				} else if (FormatIsEqNext('^'))		{ m_FormatData.ShiftType = ShiftType::Center;	FormatReadUInt(m_FormatData.ShiftValue);
+				} else if (FormatIsEqNext('C'))		{ m_FormatData.HasChangeColor = true; m_ColorMem = Detail::AnsiColorMem(); ColorValuePrint();
+				} else if (FormatIsEqNext('>'))		{ m_FormatData.ShiftType = Detail::ShiftType::Right;	FormatReadUInt(m_FormatData.ShiftValue);
+				} else if (FormatIsEqNext('<'))		{ m_FormatData.ShiftType = Detail::ShiftType::Left;		FormatReadUInt(m_FormatData.ShiftValue);
+				} else if (FormatIsEqNext('^'))		{ m_FormatData.ShiftType = Detail::ShiftType::Center;	FormatReadUInt(m_FormatData.ShiftValue);
 				} else if (FormatIsEqNext('.'))		{ FormatReadUInt(m_FormatData.FloatPrecision);
 				} else if (FormatIsEqNext('S'))		{ FormatReadUInt(m_FormatData.Size);
 				} else if (FormatIsEqNext('B'))		{ FormatReadUInt(m_FormatData.Begin);
-				} else if (FormatIsEqNext('\n'))	{ m_FormatData.ContainerPrintStyle = ContainerPrintStyle::NewLine;
+				} else if (FormatIsEqNext('\n'))	{ m_FormatData.ContainerPrintStyle = Detail::ContainerPrintStyle::NewLine;
 				} else if (FormatIsEqNext('=')) { m_FormatData.BaseValue = true; }
 
 				FormatParamGoTo(',');
@@ -93,7 +93,7 @@ namespace CPPTools::Fmt {
 			data.Clone(m_FormatData);
 			m_FormatData = FormatData();
 
-			AnsiColorMem colorMem(m_ColorMem);
+			Detail::AnsiColorMem colorMem(m_ColorMem);
 			const char* name = nullptr;
 
 			if (!FormatReadUInt(valueIdx)) {
