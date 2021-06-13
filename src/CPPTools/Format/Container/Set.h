@@ -9,25 +9,24 @@ namespace CPPTools::Fmt {
 	struct FormatType<std::set<T>>
 	{
 		static void Write(const std::set<T>& t, Formater& formater) {
+			formater.BufferPushBack('[');
 
-			const char* nextElement = formater.GetFormatData().GetValueOf('n') == FormatData::NotFound() ? ", " : "\n";
-			size_t size = t.size();
+			FormatData& data = formater.GetFormatData();
+			data.SetMaxSize(t.size());
 
-			formater.BufferPushBack('{');
-
-			std::size_t stride = formater.GetFormatData().GetValueOf('n') == FormatData::NotFound() ? 0 : formater.GetStride();
+			const char* nextElement = data.ContainerPrintStyle == ContainerPrintStyle::NewLine ? "\n" : ", ";
+			std::size_t stride		= data.ContainerPrintStyle == ContainerPrintStyle::NewLine ? formater.GetStride() : 0;
 
 			bool first = true;
-			for (const T& ele : t) {
+			std::for_each(t.cbegin(), t.cend(), [&](const T& element) {
 				if (first)	first = false;
 				else {
 					formater.BufferParseCharPt(nextElement);
 					formater.BufferAddSpaces(stride);
 				}
-				FormatType<T>::Write(ele, formater);
-			}
+				FormatType<T>::Write(element, formater); });
 
-			formater.BufferPushBack('}');
+			formater.BufferPushBack(']');
 		}
 	};
 
@@ -36,25 +35,24 @@ namespace CPPTools::Fmt {
 	struct FormatType<std::unordered_set<T>>
 	{
 		static void Write(const std::unordered_set<T>& t, Formater& formater) {
+			formater.BufferPushBack('[');
 
-			const char* nextElement = formater.GetFormatData().GetValueOf('n') == FormatData::NotFound() ? ", " : "\n";
-			size_t size = t.size();
+			FormatData& data = formater.GetFormatData();
+			data.SetMaxSize(t.size());
 
-			formater.BufferPushBack('{');
-
-			std::size_t stride = formater.GetFormatData().GetValueOf('n') == FormatData::NotFound() ? 0 : formater.GetStride();
+			const char* nextElement = data.ContainerPrintStyle == ContainerPrintStyle::NewLine ? "\n" : ", ";
+			std::size_t stride		= data.ContainerPrintStyle == ContainerPrintStyle::NewLine ? formater.GetStride() : 0;
 
 			bool first = true;
-			for (const T& ele : t) {
+			std::for_each(t.cbegin(), t.cend(), [&](const T& element) {
 				if (first)	first = false;
 				else {
 					formater.BufferParseCharPt(nextElement);
 					formater.BufferAddSpaces(stride);
 				}
-				FormatType<T>::Write(ele, formater);
-			}
+				FormatType<T>::Write(element, formater); });
 
-			formater.BufferPushBack('}');
+			formater.BufferPushBack(']');
 		}
 	};
 }

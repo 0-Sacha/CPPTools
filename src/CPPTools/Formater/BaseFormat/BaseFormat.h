@@ -302,47 +302,33 @@ namespace CPPTools::Fmt {
 	struct FormatType<T[SIZE]>
 	{
 		static void Write(T const (t)[SIZE], Formater& formater) {
-			const FormatData& data = formater.GetFormatData();
-
-			std::int8_t begin = data.GetValueOf('a');
-			if (begin == FormatData::NotFound())	begin = 0;
-
-			std::size_t size = SIZE - begin;
-			if (data.Size != 0)		size = data.Size;
-
-			const char* nextElement = data.GetValueOf('n') == FormatData::NotFound() ? ", " : "\n";
 
 			formater.BufferPushBack('[');
 
-			for (t += begin; size > 1; --size) {
-				FormatType<T>::Write(*t++, formater);
-				formater.BufferParseCharPt(nextElement);
+			FormatData& data = formater.GetFormatData();
+
+			data.SetMaxSize(SIZE);
+
+			const char* nextElement = data.ContainerPrintStyle == ContainerPrintStyle::NewLine ? "\n" : ", ";
+			std::size_t stride		= data.ContainerPrintStyle == ContainerPrintStyle::NewLine ? formater.GetStride() : 0;
+
+			const T* begin = t + data.Begin;
+			const T* end = begin + data.Size;
+
+			bool first = true;
+			while (begin < end) {
+				if (first)	first = false;
+				else {
+					formater.BufferParseCharPt(nextElement);
+					formater.BufferAddSpaces(stride);
+				}
+				FormatType<T>::Write(*begin++, formater);
 			}
-			if(size == 1)	FormatType<T>::Write(*t, formater);
 
 			formater.BufferPushBack(']');
 		}
 		static bool Read(T (t)[SIZE], UnFormater& formater) {
 			const FormatData& data = formater.GetFormatData();
-
-			if (formater.BufferIsEqNext('[')) {
-
-				std::int8_t begin = data.GetValueOf('a');
-				if (begin == FormatData::NotFound()) begin = 0;
-
-				std::size_t size = SIZE - begin;
-				if (data.Size != 0)		size = data.Size;
-
-				const char* nextElement = data.GetValueOf('n') == FormatData::NotFound() ? ", " : "\n";
-
-				for (t += begin; size > 1; --size) {
-					if (!FormatType<T>::Read(*t++, formater))		return false;
-					if (!formater.BufferNextIsSame(nextElement))	return false;
-				}
-
-				if (size == 1)						FormatType<T>::Read(*t, formater);
-				if (formater.BufferIsEqNext(']'))	return true;
-			}
 			return false;
 		}
 	};
@@ -356,24 +342,14 @@ namespace CPPTools::Fmt {
 		static void Write(const char* const t, Formater& formater) {
 			const FormatData& data = formater.GetFormatData();
 
-			std::int8_t begin = data.GetValueOf('a');
-			if (begin == FormatData::NotFound())	begin = 0;
-
 			if (data.BaseValue)						formater.BufferPushBack('"');
 
-			if (data.Size != 0)						formater.BufferParseCharPt(t + begin, data.Size);
-			else									formater.BufferParseCharPt(t + begin);
+			if (data.Size != -1)					formater.BufferParseCharPt(t + data.Begin, data.Size);
+			else									formater.BufferParseCharPt(t + data.Begin);
 
 			if (data.BaseValue)						formater.BufferPushBack('"');
 		}
 		static bool Read(char* t, UnFormater& formater) {
-			const FormatData& data = formater.GetFormatData();
-
-			if (data.Size != 0) {
-				bool res = formater.BufferUnParseCharPt(t, data.Size);
-				if (data.GetValueOf('e') != FormatData::NotFound()) *t = 0;
-				return res;
-			}
 			return false;
 		}
 	};
@@ -381,36 +357,15 @@ namespace CPPTools::Fmt {
 	template<size_t SIZE>
 	struct FormatType<char[SIZE]> {
 		static void Write(char const (t)[SIZE], Formater& formater) {
-			const FormatData& data = formater.GetFormatData();
-
-			std::int8_t begin = data.GetValueOf('a');
-			if (begin == FormatData::NotFound()) begin = 0;
-
-			std::size_t size = SIZE - begin;
-			if (data.Size != 0)	size = data.Size;
-
-			if (data.BaseValue)									formater.BufferPushBack('"');
-
-			for (t += begin; size > 0 && *t != '\0'; --size)	formater.BufferPushBack(*t++);
-
-			if (data.BaseValue)									formater.BufferPushBack('"');
+			FormatData& data = formater.GetFormatData();
+			data.SetMaxSize(SIZE);
+			
+			if (data.BaseValue)	formater.BufferPushBack('"');
+			formater.BufferParseCharPt(t + data.Begin, data.Size);
+			if (data.BaseValue)	formater.BufferPushBack('"');
 		}
 		static bool Read(char (t)[SIZE], UnFormater& formater) {
-			const FormatData& data = formater.GetFormatData();
-
-			std::int8_t begin = data.GetValueOf('a');
-			if (begin == FormatData::NotFound())	begin = 0;
-
-			std::size_t size = SIZE - begin;
-			if (data.Size != 0)						size = data.Size;
-
-			std::int8_t putEnd = data.GetValueOf('e');
-			if (putEnd != FormatData::NotFound())	--size;
-
-			char* str = t;
-			for (; size > 0; --size)				*str++ = formater.BufferGetAndNext();
-			if (putEnd != FormatData::NotFound())	*str = 0;
-			return *(str - 1) != 0;
+			return false;
 		}
 	};
 

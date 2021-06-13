@@ -9,23 +9,22 @@ namespace CPPTools::Fmt {
 	struct FormatType<std::deque<T>>
 	{
 		static void Write(const std::deque<T>& t, Formater& formater) {
-
-			const char* nextElement = formater.GetFormatData().GetValueOf('n') == FormatData::NotFound() ? ", " : "\n";
-			size_t size = t.size();
-
 			formater.BufferPushBack('[');
 
-			std::size_t stride = formater.GetFormatData().GetValueOf('n') == FormatData::NotFound() ? 0 : formater.GetStride();
+			FormatData& data = formater.GetFormatData();
+			data.SetMaxSize(t.size());
+
+			const char* nextElement = data.ContainerPrintStyle == ContainerPrintStyle::NewLine ? "\n" : ", ";
+			std::size_t stride		= data.ContainerPrintStyle == ContainerPrintStyle::NewLine ? formater.GetStride() : 0;
 
 			bool first = true;
-			for (const T& ele : t) {
+			std::for_each_n(t.cbegin() + data.Begin, data.Size, [&](const T& element) { 
 				if (first)	first = false;
 				else {
 					formater.BufferParseCharPt(nextElement);
 					formater.BufferAddSpaces(stride);
 				}
-				FormatType<T>::Write(ele, formater);
-			}
+				FormatType<T>::Write(element, formater); });
 
 			formater.BufferPushBack(']');
 		}

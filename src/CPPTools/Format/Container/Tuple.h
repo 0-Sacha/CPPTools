@@ -1,6 +1,8 @@
 #pragma once
 
 #include "CPPTools/Formater/Formater.h"
+
+
 #include <tuple>
 #include <utility>
 
@@ -33,10 +35,10 @@ namespace CPPTools::Fmt {
 	template<typename ...T>
 	struct FormatType<std::tuple<T...>>
 	{
-		static void Write(const std::tuple<T...>& t, Formater& formater, const FormatData& data) {
+		static void Write(const std::tuple<T...>& t, Formater& formater) {
 			formater.BufferPushBack('<');
 
-			std::apply([&formater, &data](auto&&... args) { TupleFormatRec(formater, data, args...); }, t);
+			std::apply([&formater](auto&&... args) { TupleFormatRec(formater, args...); }, t);
 
 			formater.BufferPushBack('>');
 		}
@@ -51,7 +53,7 @@ namespace CPPTools::Fmt {
 			formater.BufferPushBack('<');
 			FormatType<T1>::Write(t.first, formater);
 			formater.BufferPushBack(':');
-			FormatType<T1>::Write(t.second, formater);
+			FormatType<T2>::Write(t.second, formater);
 			formater.BufferPushBack('>');
 		}
 	};

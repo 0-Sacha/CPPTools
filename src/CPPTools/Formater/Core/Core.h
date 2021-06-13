@@ -33,6 +33,11 @@ namespace CPPTools::Fmt {
 		Zeros
 	};
 
+	enum class ContainerPrintStyle : std::uint8_t {
+		CommaSpace,
+		NewLine
+	};
+
 	struct FormatSpecifierIDX {
 		char Type = 0;
 		std::int8_t Value = 0;
@@ -47,9 +52,20 @@ namespace CPPTools::Fmt {
 	struct FormatData {
 	public:
 		FormatData();
-		FormatData(bool baseValue, ValueIntPrint intPrint = ValueIntPrint::Int, std::uint8_t precision = 0, std::uint8_t floatPrecision = 3, ShiftPrint shiftPrint = ShiftPrint::Space, ShiftType shiftType = ShiftType::Nothing,  std::uint8_t shiftValue = 0);
 		FormatData(const FormatData& other);
 		FormatData& operator=(const FormatData& other);
+
+		FormatData(bool hasSpec
+			, bool baseValue = false
+			, ValueIntPrint intPrint = ValueIntPrint::Int
+			, std::int16_t precision = 0
+			, std::int16_t floatPrecision = 3
+			, std::int16_t size = -1
+			, std::int16_t begin = 0
+			, ContainerPrintStyle containerPrintStyle = ContainerPrintStyle::CommaSpace
+			, ShiftPrint shiftPrint = ShiftPrint::Space
+			, ShiftType shiftType = ShiftType::Nothing
+			, std::uint8_t shiftValue = 0);
 
 	public:
 		void Clone(const FormatData& data);
@@ -63,7 +79,10 @@ namespace CPPTools::Fmt {
 		std::int16_t Precision;
 		std::int16_t FloatPrecision;
 
-		std::size_t Size;
+		std::int16_t Size;
+		std::int16_t Begin;
+
+		ContainerPrintStyle ContainerPrintStyle;
 
 		ShiftPrint ShiftPrint;
 		ShiftType ShiftType;
@@ -76,6 +95,9 @@ namespace CPPTools::Fmt {
 		bool HasChangeColor;
 
 	public:
+		inline void SetDefaultSize(std::int16_t size)	{ if (Size == -1) Size = size; }
+		inline void SetMaxSize(std::int16_t size)		{ if (Size == -1) SetDefaultSize(size); if(Begin + Size > size) Size = size - Begin; }
+
 		const std::int8_t GetValueOf(const char c) const;
 		inline void AddSpecifier(const FormatSpecifier specifier) {
 			if (SpecIdx < Spec.size())

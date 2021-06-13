@@ -13,21 +13,22 @@ namespace CPPTools::Fmt {
 	struct FormatType<std::list<T>>
 	{
 		static void Write(const std::list<T>& t, Formater& formater) {
-			const char* nextElement = formater.GetFormatData().GetValueOf('n') == FormatData::NotFound() ? ", " : "\n";
-
 			formater.BufferPushBack('{');
 
-			std::size_t stride = formater.GetFormatData().GetValueOf('n') == FormatData::NotFound() ? 0 : formater.GetStride();
+			FormatData& data = formater.GetFormatData();
+			data.SetMaxSize(t.size());
+
+			const char* nextElement = data.ContainerPrintStyle == ContainerPrintStyle::NewLine ? "\n" : ", ";
+			std::size_t stride		= data.ContainerPrintStyle == ContainerPrintStyle::NewLine ? formater.GetStride() : 0;
 
 			bool first = true;
-			for (const T& ele : t) {
+			std::for_each(t.cbegin(), t.cend(), [&](const T& element) {
 				if (first)	first = false;
 				else {
 					formater.BufferParseCharPt(nextElement);
 					formater.BufferAddSpaces(stride);
 				}
-				FormatType<T>::Write(ele, formater);
-			}
+				FormatType<T>::Write(element, formater); });
 
 			formater.BufferPushBack('}');
 		}
@@ -38,21 +39,22 @@ namespace CPPTools::Fmt {
 	struct FormatType<std::forward_list<T>>
 	{
 		static void Write(const std::forward_list<T>& t, Formater& formater) {
-			const char* nextElement = formater.GetFormatData().GetValueOf('n') == FormatData::NotFound() ? ", " : "\n";
-
 			formater.BufferPushBack('{');
 
-			std::size_t stride = formater.GetFormatData().GetValueOf('n') == FormatData::NotFound() ? 0 : formater.GetStride();
+			FormatData& data = formater.GetFormatData();
+			data.SetMaxSize(t.size());
+
+			const char* nextElement = data.ContainerPrintStyle == ContainerPrintStyle::NewLine ? "\n" : ", ";
+			std::size_t stride = data.ContainerPrintStyle == ContainerPrintStyle::NewLine ? formater.GetStride() : 0;
 
 			bool first = true;
-			for (const T& ele : t) {
+			std::for_each(t.cbegin(), t.cend(), [&](const T& element) {
 				if (first)	first = false;
 				else {
 					formater.BufferParseCharPt(nextElement);
 					formater.BufferAddSpaces(stride);
 				}
-				FormatType<T>::Write(ele, formater);
-			}
+				FormatType<T>::Write(element, formater); });
 
 			formater.BufferPushBack('}');
 		}

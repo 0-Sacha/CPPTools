@@ -12,7 +12,7 @@ namespace CPPTools::Fmt {
 
 	/////---------- Default Print Rec ----------/////
 	template<typename T, typename ...Args>
-	void Formater::FormatPrintRec( std::uint8_t idx, const T& t, Args&& ...args) {
+	void Formater::FormatPrintRec(std::uint8_t idx, const T& t, Args&& ...args) {
 		if (idx == 0)	FormatType<GetBaseType<T>>::Write(t, *this);
 		else			FormatPrintRec(idx - 1, std::forward<Args>(args)...);
 	}
@@ -33,7 +33,7 @@ namespace CPPTools::Fmt {
 
 	/////---------- Data Print Rec ----------/////
 	template<typename T, typename ...Args>
-	void Formater::ParameterDataRec( std::uint8_t idx, const T& t, Args&& ...args) {
+	void Formater::ParameterDataRec(std::uint8_t idx, const T& t, Args&& ...args) {
 		if (idx == 0)	CopyFormatData<T>::Copy(m_FormatData, t);
 		else			ParameterDataRec(idx - 1, std::forward<Args>(args)...);
 	}
@@ -48,50 +48,33 @@ namespace CPPTools::Fmt {
 				FormatNext();
 				FormatParamIgnoreSpace();
 
-				if (FormatIsEqNext('{')) {
-					 std::uint8_t dataIdx;
+				if (FormatIsEqNext('{')) {		// Forward specifier
+					std::uint8_t dataIdx;
 					if (!FormatReadUInt(dataIdx))
 						dataIdx = m_ValuesIdx++;
 					ParameterDataRec(dataIdx, std::forward<Args>(args)...);
 					FormatNext();
-				} else if (FormatIsEqNext('C')) {
-					m_FormatData.HasChangeColor = true;
-					m_ColorMem = AnsiColorMem();
-					ColorValuePrint();
-				} else if (FormatIsEqNext('>')) {
-					m_FormatData.ShiftType = ShiftType::Right;
-					FormatReadUInt(m_FormatData.ShiftValue);
-				} else if (FormatIsEqNext('<')) {
-					m_FormatData.ShiftType = ShiftType::Left;
-					FormatReadUInt(m_FormatData.ShiftValue);
-				} else if (FormatIsEqNext('^')) {
-					m_FormatData.ShiftType = ShiftType::Center;
-					FormatReadUInt(m_FormatData.ShiftValue);
-				} else if (FormatIsEqNext('b')) {
-					m_FormatData.IntPrint = ValueIntPrint::Bin;
-					FormatReadUInt(m_FormatData.Precision);
-				} else if (FormatIsEqNext('x')) {
-					m_FormatData.IntPrint = ValueIntPrint::Hex;
-					FormatReadUInt(m_FormatData.Precision);
-				} else if (FormatIsEqNext('o')) {
-					m_FormatData.IntPrint = ValueIntPrint::Oct;
-					FormatReadUInt(m_FormatData.Precision);
-				} else if (FormatIsEqNext('d')) {
-					m_FormatData.IntPrint = ValueIntPrint::Int;
-					FormatReadUInt(m_FormatData.Precision);
-				} else if (FormatIsEqNext('.')) { FormatReadUInt(m_FormatData.FloatPrecision);
-				} else if (FormatIsEqNext('s')) { FormatReadUInt(m_FormatData.Size);
-				} else if (FormatIsEqNext('=')) { m_FormatData.BaseValue = true;
-				} else {
+				} else if (FormatIsEqNext('b')) { m_FormatData.IntPrint = ValueIntPrint::Bin;	FormatReadUInt(m_FormatData.Precision);
+				} else if (FormatIsEqNext('x')) { m_FormatData.IntPrint = ValueIntPrint::Hex;	FormatReadUInt(m_FormatData.Precision);
+				} else if (FormatIsEqNext('o')) { m_FormatData.IntPrint = ValueIntPrint::Oct;	FormatReadUInt(m_FormatData.Precision);
+				} else if (FormatIsEqNext('d')) { m_FormatData.IntPrint = ValueIntPrint::Int;	FormatReadUInt(m_FormatData.Precision);
+				} else if (FormatIsLowerCase()) {	// Custom specifier
 					const char c = FormatGetAndNext();
-					int8_t i = 0;
+					std::int8_t i = 0;
 					FormatReadInt(i);
 					m_FormatData.AddSpecifier(c, i);
-				}
+				} else if (FormatIsEqNext('C'))		{ m_FormatData.HasChangeColor = true; m_ColorMem = AnsiColorMem(); ColorValuePrint();
+				} else if (FormatIsEqNext('>'))		{ m_FormatData.ShiftType = ShiftType::Right;	FormatReadUInt(m_FormatData.ShiftValue);
+				} else if (FormatIsEqNext('<'))		{ m_FormatData.ShiftType = ShiftType::Left;		FormatReadUInt(m_FormatData.ShiftValue);
+				} else if (FormatIsEqNext('^'))		{ m_FormatData.ShiftType = ShiftType::Center;	FormatReadUInt(m_FormatData.ShiftValue);
+				} else if (FormatIsEqNext('.'))		{ FormatReadUInt(m_FormatData.FloatPrecision);
+				} else if (FormatIsEqNext('S'))		{ FormatReadUInt(m_FormatData.Size);
+				} else if (FormatIsEqNext('B'))		{ FormatReadUInt(m_FormatData.Begin);
+				} else if (FormatIsEqNext('\n'))	{ m_FormatData.ContainerPrintStyle = ContainerPrintStyle::NewLine;
+				} else if (FormatIsEqNext('=')) { m_FormatData.BaseValue = true; }
 
 				FormatParamGoTo(',');
 			}
-
 		}
 	}
 
@@ -154,7 +137,7 @@ namespace CPPTools::Fmt {
 	void Formater::LittleFormat(const std::string_view format, Args&& ...args) {
 		const char* const mainFormater = m_SubFormat;
 		const std::size_t mainFormaterSize = m_FormatSize;
-		 std::uint8_t mainIdx = m_ValuesIdx;
+		std::uint8_t mainIdx = m_ValuesIdx;
 
 		m_FormatSize = format.size();
 		m_SubFormat = format.data();
