@@ -6,7 +6,7 @@
 #include <tuple>
 #include <utility>
 
-namespace CPPTools::Fmt {
+namespace CPPTools::Fmt::TupleDetail {
 
 	template<uint32_t N, typename ...Args> using NthTypeOf =
 		typename std::tuple_element<N, std::tuple<Args...>>::type;
@@ -32,13 +32,17 @@ namespace CPPTools::Fmt {
 		TupleFormatRec(formater, args...);
 	}
 
+}
+
+namespace CPPTools::Fmt {
+
 	template<typename ...T>
 	struct FormatType<std::tuple<T...>>
 	{
 		static void Write(const std::tuple<T...>& t, Formater& formater) {
 			formater.BufferPushBack('<');
 
-			std::apply([&formater](auto&&... args) { TupleFormatRec(formater, args...); }, t);
+			std::apply([&formater](auto&&... args) { TupleDetail::TupleFormatRec(formater, args...); }, t);
 
 			formater.BufferPushBack('>');
 		}

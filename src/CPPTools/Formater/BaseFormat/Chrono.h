@@ -3,7 +3,7 @@
 #include "../Formater.h"
 #include <chrono>
 
-namespace CPPTools::Fmt {
+namespace CPPTools::Fmt::ChronoDetail {
 
 	template<typename Clock, typename Duration>
 	void WriteTestTime(const std::chrono::time_point<Clock, Duration>& value, Formater& formater) {
@@ -53,18 +53,16 @@ namespace CPPTools::Fmt {
 		return isSpecified;
 	}
 
+}
 
 
-
-
-
-
+namespace CPPTools::Fmt {
 
 	template<>
 	struct FormatType<std::chrono::time_point<std::chrono::high_resolution_clock>>
 	{
 		static void Write(const std::chrono::time_point<std::chrono::high_resolution_clock>& t, Formater& formater) {
-			if (!WriteTime(t, formater))
+			if (!ChronoDetail::WriteTime(t, formater))
 				formater.BufferParseUInt((uint32_t)std::chrono::time_point_cast<std::chrono::microseconds>(t).time_since_epoch().count());
 		}
 	};
@@ -73,7 +71,7 @@ namespace CPPTools::Fmt {
 	struct FormatType<std::chrono::time_point<std::chrono::system_clock>>
 	{
 		static void Write(const std::chrono::time_point<std::chrono::system_clock>& t, Formater& formater) {
-			if (!WriteTime(t, formater))
+			if (!ChronoDetail::WriteTime(t, formater))
 				formater.BufferParseUInt((uint32_t)std::chrono::time_point_cast<std::chrono::microseconds>(t).time_since_epoch().count());
 		}
 	};
@@ -83,7 +81,7 @@ namespace CPPTools::Fmt {
 	{
 		static void Write(const std::chrono::seconds& t, Formater& formater) {
 			std::chrono::time_point<std::chrono::high_resolution_clock, std::chrono::seconds> time(t);
-			if (!WriteTime<std::chrono::high_resolution_clock, std::chrono::seconds>(time, formater)) {
+			if (!ChronoDetail::WriteTime<std::chrono::high_resolution_clock, std::chrono::seconds>(time, formater)) {
 				formater.BufferParseUInt(t.count());
 				formater.BufferPushBack('s');
 			}
@@ -95,7 +93,7 @@ namespace CPPTools::Fmt {
 	{
 		static void Write(const std::chrono::minutes& t, Formater& formater) {
 			std::chrono::time_point<std::chrono::high_resolution_clock, std::chrono::minutes> time(t);
-			if (!WriteTime<std::chrono::high_resolution_clock, std::chrono::minutes>(time, formater)) {
+			if (!ChronoDetail::WriteTime<std::chrono::high_resolution_clock, std::chrono::minutes>(time, formater)) {
 				formater.BufferParseUInt(t.count());
 				formater.BufferPushBack('m');
 			}
@@ -107,7 +105,7 @@ namespace CPPTools::Fmt {
 	{
 		static void Write(const std::chrono::hours& t, Formater& formater) {
 			std::chrono::time_point<std::chrono::high_resolution_clock, std::chrono::hours> time(t);
-			if (!WriteTime<std::chrono::high_resolution_clock, std::chrono::hours>(time, formater)) {
+			if (!ChronoDetail::WriteTime<std::chrono::high_resolution_clock, std::chrono::hours>(time, formater)) {
 				formater.BufferParseUInt(t.count());
 				formater.BufferPushBack('h');
 			}
@@ -119,7 +117,7 @@ namespace CPPTools::Fmt {
 	{
 		static void Write(const std::chrono::milliseconds& t, Formater& formater) {
 			std::chrono::time_point<std::chrono::high_resolution_clock, std::chrono::milliseconds> time(t);
-			if (!WriteTime<std::chrono::high_resolution_clock, std::chrono::milliseconds>(time, formater)) {
+			if (!ChronoDetail::WriteTime<std::chrono::high_resolution_clock, std::chrono::milliseconds>(time, formater)) {
 				formater.BufferParseUInt(t.count());
 				formater.BufferPushBack('m');
 				formater.BufferPushBack('s');
@@ -132,7 +130,7 @@ namespace CPPTools::Fmt {
 	{
 		static void Write(const std::chrono::microseconds& t, Formater& formater) {
 			std::chrono::time_point<std::chrono::high_resolution_clock, std::chrono::microseconds> time(t);
-			if (!WriteTime<std::chrono::high_resolution_clock, std::chrono::microseconds>(time, formater)) {
+			if (!ChronoDetail::WriteTime<std::chrono::high_resolution_clock, std::chrono::microseconds>(time, formater)) {
 				formater.BufferParseUInt(t.count());
 				formater.BufferPushBack('u');
 				formater.BufferPushBack('s');
@@ -145,7 +143,7 @@ namespace CPPTools::Fmt {
 	{
 		static void Write(const std::chrono::nanoseconds& t, Formater& formater) {
 			std::chrono::time_point<std::chrono::high_resolution_clock, std::chrono::nanoseconds> time(t);
-			if (!WriteTime<std::chrono::high_resolution_clock, std::chrono::nanoseconds>(time, formater)) {
+			if (!ChronoDetail::WriteTime<std::chrono::high_resolution_clock, std::chrono::nanoseconds>(time, formater)) {
 				formater.BufferParseUInt(t.count());
 				formater.BufferPushBack('n');
 				formater.BufferPushBack('s');
