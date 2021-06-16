@@ -10,8 +10,15 @@
 
 namespace CPPTools::Fmt {
 
-	UnFormater::UnFormater(const char* const format, std::size_t formatSize, const char* const buffer, std::size_t bufferSize)
-		: m_Buffer(buffer), m_SubBuffer(buffer), m_BufferSize(bufferSize), m_Format(format), m_SubFormat(format), m_FormatSize(formatSize)
+	UnFormater::UnFormater(const std::string_view format, const std::string_view buffer)
+		: m_Buffer(buffer.data())
+		, m_SubBuffer(buffer.data())
+		, m_BufferEnd(buffer.data() + buffer.size())
+		, m_BufferSize(buffer.size())
+		, m_Format(format.data())
+		, m_SubFormat(format.data())
+		, m_FormatEnd(format.data() + format.size())
+		, m_FormatSize(format.size())
 	{
 	}
 
@@ -34,30 +41,10 @@ namespace CPPTools::Fmt {
 	}
 
 	void UnFormater::IgnoreParameter() {
-		if(FormatIsEqNext(':')) {
+		if(BufferIsEqualForward(':')) {
 
 		}
 		else
 			BufferIgnoreSpace();
 	}
-
-	bool UnFormater::FormatNextIsSame(const char* str) {
-		const char* format = m_SubFormat;
-		bool isSame = true;
-		while (isSame && *str != 0 && *format != '}')	{ if (*str++ != *format++) isSame = false; }
-		if (isSame && *str != 0)	isSame = false;
-		if (isSame)					m_SubFormat = format;
-		return isSame;
-	}
-
-
-	bool UnFormater::BufferNextIsSame(const char* str) {
-		const char* buffer = m_SubBuffer;
-		bool isSame = true;
-		while (isSame && *str != 0 && *buffer != '}')	{ if (*str++ != *buffer++) isSame = false; }
-		if (isSame && *str != 0)	isSame = false;
-		if (isSame)					m_SubBuffer = buffer;
-		return isSame;
-	}
-
 }

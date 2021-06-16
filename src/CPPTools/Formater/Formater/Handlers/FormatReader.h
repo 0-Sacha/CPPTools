@@ -9,10 +9,10 @@ namespace CPPTools::Fmt {
 		T res = 0;
 		bool sign = false, isValid = false;
 
-		sign	= FormatIsEqNext('-');
+		sign	= FormatIsEqualForward('-');
 		isValid = FormatIsADigit();
 
-		while (FormatIsADigit()) { res = res * 10 + (FormatGetAndNext() - '0'); }
+		while (FormatIsADigit()) { res = res * 10 + (FormatGetAndForward() - '0'); }
 		if (isValid)	{ i = sign ? -res : res; }
 		return isValid;
 	}
@@ -24,7 +24,7 @@ namespace CPPTools::Fmt {
 
 		isValid = FormatIsADigit();
 
-		while (FormatIsADigit()) { res = res * 10 + (FormatGetAndNext() - '0'); }
+		while (FormatIsADigit()) { res = res * 10 + (FormatGetAndForward() - '0'); }
 
 		if (isValid)	{ i = res; }
 		return isValid;

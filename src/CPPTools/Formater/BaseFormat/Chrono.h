@@ -40,14 +40,14 @@ namespace CPPTools::Fmt::ChronoDetail {
 	template<typename Clock, typename Duration>
 	bool WriteTime(const std::chrono::time_point<Clock, Duration>& value, Formater& formater) {
 		bool isSpecified = false;
-		if (formater.FormatIsEqNext(':')) {
+		if (formater.FormatIsEqualForward(':')) {
 			isSpecified = true;
-			formater.WriteUntil('%', '#');
+			formater.WriteUntilEndOfParameterOr('%', '#');
 			while (!formater.FormatIsEndOfParameter()) {
-				if (formater.FormatIsEqNext('%'))		WriteTestTimeMod(value, formater);
-				else if (formater.FormatIsEqNext('#'))	WriteTestTime(value, formater);
-				else									formater.FormatGoToEndOfParameter();
-				formater.WriteUntil('%', '#');
+				if (formater.FormatIsEqualForward('%'))			WriteTestTimeMod(value, formater);
+				else if (formater.FormatIsEqualForward('#'))	WriteTestTime(value, formater);
+				else											formater.FormatGoToEndOfParameter();
+				formater.WriteUntilEndOfParameterOr('%', '#');
 			}
 		}
 		return isSpecified;

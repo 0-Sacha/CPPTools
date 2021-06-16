@@ -15,10 +15,10 @@ namespace CPPTools::Fmt::FormatFunc {
 		T res = 0;
 		bool sign = false, isValid = false;
 
-		sign = formater.BufferIsEqNext('-');
+		sign = formater.BufferIsEqualForward('-');
 		isValid = formater.BufferIsADigit();
 
-		while (formater.BufferIsADigit())	{ res = res * 10 + (formater.BufferGetAndNext() - '0'); }
+		while (formater.BufferIsADigit())	{ res = res * 10 + (formater.BufferGetAndForward() - '0'); }
 
 		if (isValid)						{ i = sign ? -res : res; }
 		return isValid;
@@ -85,7 +85,7 @@ namespace CPPTools::Fmt::FormatFunc {
 
 		isValid = formater.BufferIsADigit();
 
-		while (formater.BufferIsADigit())	{ res = res * 10 + (formater.BufferGetAndNext() - '0'); }
+		while (formater.BufferIsADigit())	{ res = res * 10 + (formater.BufferGetAndForward() - '0'); }
 
 		if (isValid)						{ i = res; }
 		return isValid;

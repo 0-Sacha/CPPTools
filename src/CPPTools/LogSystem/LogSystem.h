@@ -34,9 +34,9 @@ namespace CPPTools {
 		void SetSeverity(LogSeverity severityMin);
 		void SetName(const std::string& name);
 		void SetName(std::string&& name);
-		void SetBaseFormat(const char* const fmt);
+		void SetBaseFormat(std::string_view basetFmt);
 		// You need to put {color} flag to have color ; use SetBaseColor instead
-		void SetFormat(const char* const fmt);
+		void SetFormat(std::string_view basetFmt);
 		void ResetFormat();
 
 	public:
@@ -144,9 +144,9 @@ namespace CPPTools {
 	template<typename ...Args>
 	void LogSystem::Log(LogSeverity severity, const std::string_view format, Args&& ...args) const {
 		if (severity >= m_SeverityMin) {
-			char formatBuffer[500];
+			char formatBuffer[800];
 			Fmt::FormatInChar(formatBuffer, m_FmtBuffer, FORMAT_CSTR("color", "{color}"), FORMAT_CSTR("name", m_Name), FORMAT_CSTR("data", format));
-			Fmt::FilePrintLn<500>(m_Stream, formatBuffer, std::forward<Args>(args)..., FORMAT_CSTR("color", severity));
+			Fmt::FilePrintLn<800>(m_Stream, formatBuffer, std::forward<Args>(args)..., FORMAT_CSTR("color", severity));
 		}
 	}
 

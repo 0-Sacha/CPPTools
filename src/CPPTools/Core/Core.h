@@ -12,15 +12,15 @@
 #endif
 
 namespace CPPTools {
-	namespace Experimental {
-
-	}
-
-	namespace Deprecated {
-
-	}
+	namespace Experimental {}
+	namespace Deprecated {}
 }
 
 
-
 #define CPPTOOLS_NODISCARD [[nodiscard]]
+
+#ifdef CPPTOOLS_DEBUG
+	#define CPPTOOLS_ONLY_ON_DEBUG(x) x
+#else
+	#define CPPTOOLS_ONLY_ON_DEBUG(x)
+#endif

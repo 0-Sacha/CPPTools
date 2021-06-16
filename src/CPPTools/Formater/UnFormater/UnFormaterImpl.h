@@ -22,63 +22,65 @@ namespace CPPTools::Fmt {
 		}
 	};
 
+	/////---------- Default Print Rec ----------/////
 	template<typename T, typename ...Args>
-	void UnFormater::FormatReadRec( std::uint8_t idx, T& t, Args&& ...args) {
+	void UnFormater::FormatReadRec(std::uint8_t idx, T& t, Args&& ...args) {
 		if (idx == 0)	FormatType<GetBaseType<T>>::Read(t, *this);
-		else			FormatReadRec(idx - 1, args...);
+		else			FormatReadRec(idx - 1, std::forward<Args>(args)...);
 	}
 
-
+	/////---------- NamedArgs Print Rec ----------/////
 	template<typename T, typename ...Args>
 	void UnFormater::FormatReadRecNamedArgs(const char* const name, NamedArgs<T>& t, Args&& ...args) {
-		if (t.IsRightName(name))	FormatType<T>::Read(t.t, *this);
-		else						FormatReadRecNamedArgs(name, args...);
+		if (t.IsRightName(name))	FormatType<NamedArgs<T>>::Read(t, *this);
+		else						FormatReadRecNamedArgs(name, std::forward<Args>(args)...);
 	}
 
 	template<typename T, typename ...Args>
 	void UnFormater::FormatReadRecNamedArgs(const char* const name, T& t, Args&& ...args) {
-		FormatReadRecNamedArgs(name, args...);
+		FormatReadRecNamedArgs(name, std::forward<Args>(args)...);
 	}
 
-
+	/////---------- Data Print Rec ----------/////
 	template<typename T, typename ...Args>
-	void UnFormater::ParameterDataRec( std::uint8_t idx, const T& t, Args&& ...args) {
+	void UnFormater::ParameterDataRec(std::uint8_t idx, const T& t, Args&& ...args) {
 		if (idx == 0)	Detail::CopyFormatData<T>::Copy(m_FormatData, t);
-		else			ParameterDataRec(idx - 1, args...);
+		else			ParameterDataRec(idx - 1, std::forward<Args>(args)...);
 	}
 
+	/////---------- Impl ----------/////
 	template<typename ...Args>
 	void UnFormater::ParameterData(Args&& ...args) {
-		if (FormatIsEqual(':')) {
+		if (FormatIsEqualTo(':')) {
 			m_FormatData.HasSpec = true;
 			while (!FormatIsEndOfParameter()) {
-				FormatNext();
-				FormatParamIgnoreSpace();
+				FormatForward();
+				FormatIgnoreSpace();
 
-				if (FormatIsEqNext('{')) {		// Forward specifier
+				if (BufferIsEqualForward('{')) {		// Forward specifier
 					std::uint8_t dataIdx;
 					if (!FormatReadUInt(dataIdx))
 						dataIdx = m_ValuesIdx++;
 					ParameterDataRec(dataIdx, std::forward<Args>(args)...);
-					FormatNext();
-				} else if (FormatIsEqNext('b')) { m_FormatData.IntPrint = Detail::ValueIntPrint::Bin;	FormatReadUInt(m_FormatData.Precision);
-				} else if (FormatIsEqNext('x')) { m_FormatData.IntPrint = Detail::ValueIntPrint::Hex;	FormatReadUInt(m_FormatData.Precision);
-				} else if (FormatIsEqNext('o')) { m_FormatData.IntPrint = Detail::ValueIntPrint::Oct;	FormatReadUInt(m_FormatData.Precision);
-				} else if (FormatIsEqNext('d')) { m_FormatData.IntPrint = Detail::ValueIntPrint::Int;	FormatReadUInt(m_FormatData.Precision);
+					FormatForward();
+				} else if (BufferIsEqualForward('b')) { m_FormatData.IntPrint = Detail::ValueIntPrint::Bin;	FormatReadUInt(m_FormatData.Precision);
+				} else if (BufferIsEqualForward('x')) { m_FormatData.IntPrint = Detail::ValueIntPrint::Hex;	FormatReadUInt(m_FormatData.Precision);
+				} else if (BufferIsEqualForward('o')) { m_FormatData.IntPrint = Detail::ValueIntPrint::Oct;	FormatReadUInt(m_FormatData.Precision);
+				} else if (BufferIsEqualForward('d')) { m_FormatData.IntPrint = Detail::ValueIntPrint::Int;	FormatReadUInt(m_FormatData.Precision);
 				} else if (FormatIsLowerCase()) {	// Custom specifier
-					const char c = FormatGetAndNext();
+					const char c = FormatGetAndForward();
 					std::int8_t i = 0;
 					FormatReadInt(i);
 					m_FormatData.AddSpecifier(c, i);
-				} else if (FormatIsEqNext('C')) {
-				} else if (FormatIsEqNext('>')) { m_FormatData.ShiftType = Detail::ShiftType::Right;	FormatReadUInt(m_FormatData.ShiftValue);
-				} else if (FormatIsEqNext('<')) { m_FormatData.ShiftType = Detail::ShiftType::Left;		FormatReadUInt(m_FormatData.ShiftValue);
-				} else if (FormatIsEqNext('^')) { m_FormatData.ShiftType = Detail::ShiftType::Center;	FormatReadUInt(m_FormatData.ShiftValue);
-				} else if (FormatIsEqNext('.')) { FormatReadUInt(m_FormatData.FloatPrecision);
-				} else if (FormatIsEqNext('S')) { FormatReadUInt(m_FormatData.Size);
-				} else if (FormatIsEqNext('B')) { FormatReadUInt(m_FormatData.Begin);
-				} else if (FormatIsEqNext('\n')) { m_FormatData.ContainerPrintStyle = Detail::ContainerPrintStyle::NewLine;
-				} else if (FormatIsEqNext('=')) { m_FormatData.BaseValue = true; }
+				} else if (BufferIsEqualForward('C')) {
+				} else if (BufferIsEqualForward('>')) { m_FormatData.ShiftType = Detail::ShiftType::Right;	FormatReadUInt(m_FormatData.ShiftValue);
+				} else if (BufferIsEqualForward('<')) { m_FormatData.ShiftType = Detail::ShiftType::Left;		FormatReadUInt(m_FormatData.ShiftValue);
+				} else if (BufferIsEqualForward('^')) { m_FormatData.ShiftType = Detail::ShiftType::Center;	FormatReadUInt(m_FormatData.ShiftValue);
+				} else if (BufferIsEqualForward('.')) { FormatReadUInt(m_FormatData.FloatPrecision);
+				} else if (BufferIsEqualForward('S')) { FormatReadUInt(m_FormatData.Size);
+				} else if (BufferIsEqualForward('B')) { FormatReadUInt(m_FormatData.Begin);
+				} else if (BufferIsEqualForward('\n')) { m_FormatData.ContainerPrintStyle = Detail::ContainerPrintStyle::NewLine;
+				} else if (BufferIsEqualForward('=')) { m_FormatData.BaseValue = true; }
 
 				FormatParamGoTo(',');
 			}
@@ -88,10 +90,12 @@ namespace CPPTools::Fmt {
 
 	template<typename ...Args>
 	void UnFormater::ParameterType(Args&& ...args) {
-		if (FormatIsEqNext('C'))			GetColorValue();
-		else if (FormatIsEqNext('T'))		GetTimerPrinted();
-		else if (FormatIsEqNext('D'))		GetDatePrinted();
-		else if (FormatIsEqNext('I'))		IgnoreParameter();
+		FormatForward();						// '{'
+
+		if (BufferIsEqualForward('C'))			GetColorValue();
+		else if (BufferIsEqualForward('T'))		GetTimerPrinted();
+		else if (BufferIsEqualForward('D'))		GetDatePrinted();
+		else if (BufferIsEqualForward('I'))		IgnoreParameter();
 		else {
 			std::uint8_t valueIdx;
 			FormatData data;
@@ -105,13 +109,15 @@ namespace CPPTools::Fmt {
 				else						valueIdx = m_ValuesIdx++;
 			}
 
-			if (!m_FormatData.IsInit)	ParameterData(args...);
+			if (!m_FormatData.IsInit)	ParameterData(std::forward<Args>(args)...);
 
 			if (name == nullptr)		FormatReadRec(valueIdx, args...);
 			else						FormatReadRecNamedArgs(name, args...);
 
 			m_FormatData.Clone(data);
 		}
+
+		FormatGoOutOfParameter();				// '}'
 	}
 
 
@@ -120,15 +126,14 @@ namespace CPPTools::Fmt {
 
 		bool error = false;
 
-		while (!FormatIsEndChar() && !error) {
+		while (!FormatEnd() && !error) {
 
 			if (CheckUntilNextParameter()) {
-				if (FormatIsEqNext('{')) {
-					ParameterType(args...);
-					FormatGoOutOfParameter();
-				}
+				if (FormatIsEqualTo('{'))
+					if (!CheckForEscape())
+						ParameterType(std::forward<Args>(args)...);
 			}
-			else if (!CheckForEscape())
+			else if (!Check())
 				error = true;
 		}
 
@@ -138,19 +143,29 @@ namespace CPPTools::Fmt {
 
 	template<typename ...Args>
 	bool UnFormater::LittleUnFormat(const std::string_view format, Args&& ...args) {
-		const char* const mainFormater = m_SubFormat;
-		const std::size_t mainFormaterSize = m_FormatSize;
+		// Copy
+		const char* const mainFormat		= m_Format;
+		const char* const mainSubFormat		= m_SubFormat;
+		const char* const mainFormatEnd		= m_FormatEnd;
+		const std::size_t mainFormatSize	= m_FormatSize;
 		std::uint8_t mainIdx = m_ValuesIdx;
 
-		m_FormatSize = format.size();
-		m_SubFormat = format.data();
-		m_ValuesIdx = 0;
+		// Assign new value
+		m_Format		= format.data();
+		m_SubFormat		= format.data();
+		m_FormatEnd		= format.data() + format.size();
+		m_FormatSize	= format.size();
+		m_ValuesIdx		= 0;
 
-		bool error = UnFormat(args...);
+		bool error = UnFormat(std::forward<Args>(args)...);
 
-		m_ValuesIdx = mainIdx;
-		m_SubFormat = mainFormater;
-		m_FormatSize = mainFormaterSize;
+		// Assign old value
+		m_Format		= mainFormat;
+		m_SubFormat		= mainSubFormat;
+		m_FormatEnd		= mainFormatEnd;
+		m_FormatSize	= mainFormatSize;
+		m_ValuesIdx		= mainIdx;
+
 		return error;
 	}
 
@@ -158,14 +173,14 @@ namespace CPPTools::Fmt {
 	UnFormatError UnFormater::MainUnFormat(Args&& ...args) {
 		UnFormatError error;
 		if (UnFormat(args...))		error = UnFormatError(GetFormatSize(), GetBufferSize());
-		else if (!IsEndOfBuffer())	error = UnFormatError(GetFormatSize(), GetBufferSize());
+		else if (!BufferEnd())		error = UnFormatError(GetFormatSize(), GetBufferSize());
 		return error;
 	}
 
 
 	template<typename ...Args>
-	UnFormatError UnFormatChar(const char* const buffer, const std::string_view format, Args&& ...args) {
-		Fmt::UnFormater formater(format.data(), format.size(), buffer, 0);
-		return formater.MainUnFormat(args...);
+	UnFormatError UnFormat(const std::string_view buffer, const std::string_view format, Args&& ...args) {
+		Fmt::UnFormater formater(format, buffer);
+		return formater.MainUnFormat(std::forward<Args>(args)...);
 	}
 }

@@ -63,8 +63,8 @@ namespace CPPTools::Fmt {
 				return false;
 			}
 			else {
-				if (formater.BufferIsEqNext('0'))		t = false;
-				else if (formater.BufferIsEqNext('1'))	t = true;
+				if (formater.BufferIsEqualForward('0'))		t = false;
+				else if (formater.BufferIsEqualForward('1'))	t = true;
 					else
 						return false;
 			}
@@ -79,7 +79,7 @@ namespace CPPTools::Fmt {
 			formater.BufferPushBack(t);
 		}
 		static bool Read(char& t, UnFormater& formater) {
-			t = formater.BufferGetAndNext();
+			t = formater.BufferGetAndForward();
 			return true;
 		}
 	};
@@ -189,7 +189,6 @@ namespace CPPTools::Fmt {
 
 
 	//------------------ STD Type ------------------//
-
 	template<>
 	struct FormatType<std::int8_t> {
 		static void Write(const std::int8_t t, Formater& formater) {
@@ -309,8 +308,8 @@ namespace CPPTools::Fmt {
 
 			data.SetMaxSize(SIZE);
 
-			const char* nextElement = data.ContainerPrintStyle == ContainerPrintStyle::NewLine ? "\n" : ", ";
-			std::size_t stride		= data.ContainerPrintStyle == ContainerPrintStyle::NewLine ? formater.GetStride() : 0;
+			const char* nextElement = data.ContainerPrintStyle == Detail::ContainerPrintStyle::CommaSpace ? "\n" : ", ";
+			std::size_t stride		= data.ContainerPrintStyle == Detail::ContainerPrintStyle::CommaSpace ? formater.GetStride() : 0;
 
 			const T* begin = t + data.Begin;
 			const T* end = begin + data.Size;

@@ -13,7 +13,7 @@ namespace CPPTools::Fmt {
 			formater.BufferPushBack('m');
 
 			formater.AddNoStride(3);
-
+			
 
 			formater.GetColorMem().IsSetColor = false;
 		}
@@ -43,10 +43,10 @@ namespace CPPTools::Fmt {
 		}
 
 		static bool Read(Detail::AnsiColorFG& t, UnFormater& formater) {
-			if (formater.BufferIsEqNext('\033'))
-				if (formater.BufferIsEqNext('[')) {
+			if (formater.BufferIsEqualForward('\033'))
+				if (formater.BufferIsEqualForward('[')) {
 					formater.BufferUnParseUInt<std::uint8_t>((std::uint8_t&)t);
-					if (formater.BufferIsEqNext('m'))
+					if (formater.BufferIsEqualForward('m'))
 						return true;
 				}
 			return false;
@@ -73,10 +73,10 @@ namespace CPPTools::Fmt {
 		}
 
 		static bool Read(Detail::AnsiColorBG& t, UnFormater& formater) {
-			if (formater.BufferIsEqNext('\033'))
-				if (formater.BufferIsEqNext('[')) {
+			if (formater.BufferIsEqualForward('\033'))
+				if (formater.BufferIsEqualForward('[')) {
 					formater.BufferUnParseUInt<std::uint8_t>((std::uint8_t&)t);
-					if (formater.BufferIsEqNext('m'))	return true;
+					if (formater.BufferIsEqualForward('m'))	return true;
 				}
 			return false;
 		}

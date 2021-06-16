@@ -47,14 +47,14 @@ namespace CPPTools {
 		m_SeverityMin = severityMin;
 	}
 
-	void LogSystem::SetBaseFormat(const char* const fmt)
+	void LogSystem::SetBaseFormat(std::string_view basetFmt)
 	{
-		Fmt::FormatInChar(m_FmtBuffer, "#{color}{}", fmt);
+		Fmt::FormatInChar(m_FmtBuffer, "{{color}{}", basetFmt);
 	}
 
-	void LogSystem::SetFormat(const char* const fmt)
+	void LogSystem::SetFormat(std::string_view basetFmt)
 	{
-		Fmt::FormatInChar(m_FmtBuffer, "{}", fmt);
+		Fmt::FormatInChar(m_FmtBuffer, "{}", basetFmt);
 	}
 
 	void LogSystem::ResetFormat()

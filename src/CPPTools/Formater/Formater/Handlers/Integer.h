@@ -16,9 +16,9 @@ namespace CPPTools::Fmt::FormatFunc {
 		T i_ = i;
 		std::int8_t nb = 0;
 		while (i_ > 0)		{ i_ /= 10; ++nb; }
-		formater.BufferShiftAdd(nb - 1);
+		formater.BufferForward((std::size_t)(nb - 1));
 		while (i > 0)		{ formater.BufferPushReverse(i % 10 + '0'); i /= 10; }
-		formater.BufferShiftAdd(nb + 1);
+		formater.BufferForward((std::size_t)(nb + 1));
 	}
 
 	template<typename T>
@@ -42,9 +42,9 @@ namespace CPPTools::Fmt::FormatFunc {
 		}
 
 		if (i < 0)		{ formater.BufferPushBack('-'); i = -i; }
-		formater.BufferShiftAdd(nb - 1);
+		formater.BufferForward((std::size_t)(nb - 1));
 		while (i > 0)	{ formater.BufferPushReverse(i % 10 + '0'); i /= 10; }
-		formater.BufferShiftAdd(nb + 1);
+		formater.BufferForward((std::size_t)(nb + 1));
 
 		if (st == Detail::ShiftType::Left)		while (shift-- > 0) formater.BufferPushBack(' ');
 	}
@@ -53,7 +53,7 @@ namespace CPPTools::Fmt::FormatFunc {
 	//-------------------- Int Bin --------------------//
 
 	template<typename T>
-	void FormaterParseIntAsBin(Formater& formater, T i, std::int8_t def) {
+	void FormaterParseIntAsBin(Formater& formater, T i, std::int16_t def) {
 		if (def < 3)	def = sizeof(T) * 8;
 
 		if (i < 0)		formater.BufferPushBack('1');
@@ -68,7 +68,7 @@ namespace CPPTools::Fmt::FormatFunc {
 	}
 
 	template<typename T>
-	void FormaterParseIntAsBin(Formater& formater, T i, std::int8_t def, Detail::ShiftType st, std::int32_t shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
+	void FormaterParseIntAsBin(Formater& formater, T i, std::int16_t def, Detail::ShiftType st, std::int32_t shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
 		if (def < 3)	def = sizeof(T) * 8;
 		std::uint64_t mask = (std::uint64_t)1 << (def - 2);
 		shift -= def;
@@ -90,12 +90,12 @@ namespace CPPTools::Fmt::FormatFunc {
 	//-------------------- Int Hex --------------------//
 
 	template<typename T>
-	void FormaterParseIntAsHex(Formater& formater, T i, std::int8_t def) {
+	void FormaterParseIntAsHex(Formater& formater, T i, std::int16_t def) {
 		static char arr[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 	}
 
 	template<typename T>
-	void FormaterParseIntAsHex(Formater& formater, T i, std::int8_t def, Detail::ShiftType st, std::int32_t shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
+	void FormaterParseIntAsHex(Formater& formater, T i, std::int16_t def, Detail::ShiftType st, std::int32_t shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
 		static char arr[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 	}
 
@@ -103,10 +103,10 @@ namespace CPPTools::Fmt::FormatFunc {
 	//-------------------- Oct --------------------//
 
 	template<typename T>
-	void FormaterParseIntAsOct(Formater& formater, T i, std::int8_t def) {}
+	void FormaterParseIntAsOct(Formater& formater, T i, std::int16_t def) {}
 
 	template<typename T>
-	void FormaterParseIntAsOct(Formater& formater, T i, std::int8_t def, Detail::ShiftType st, std::int32_t shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {}
+	void FormaterParseIntAsOct(Formater& formater, T i, std::int16_t def, Detail::ShiftType st, std::int32_t shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {}
 
 
 
@@ -122,9 +122,9 @@ namespace CPPTools::Fmt::FormatFunc {
 		T i_ = i;
 		int nb = 0;
 		while (i_ > 0)			{ i_ /= 10; ++nb; }
-		formater.BufferShiftAdd(nb - 1);
+		formater.BufferForward((std::size_t)(nb - 1));
 		while (i > 0)			{ formater.BufferPushReverse(i % 10 + '0'); i /= 10; }
-		formater.BufferShiftAdd(nb + 1);
+		formater.BufferForward((std::size_t)(nb + 1));
 	}
 
 	template<typename T>
@@ -145,9 +145,9 @@ namespace CPPTools::Fmt::FormatFunc {
 			return;
 		}
 
-		formater.BufferShiftAdd(nb - 1);
+		formater.BufferForward((std::size_t)(nb - 1));
 		while (i > 0) { formater.BufferPushReverse(i % 10 + '0'); i /= 10; }
-		formater.BufferShiftAdd(nb + 1);
+		formater.BufferForward((std::size_t)(nb + 1));
 
 		if (st == Detail::ShiftType::Left)
 			while (shift-- > 0) formater.BufferPushBack(' ');

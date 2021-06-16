@@ -10,15 +10,18 @@
 
 namespace CPPTools::Fmt {
 
-	Formater::Formater(const char* const format, std::size_t formatSize, char* const buffer, std::size_t bufferSize)
-		: m_Buffer(buffer), m_SubBuffer(buffer), m_BufferSize(bufferSize), m_Format(format), m_SubFormat(format), m_FormatSize(formatSize)
+	Formater::Formater(const std::string_view format, char* const buffer, const std::size_t bufferSize)
+		: m_Buffer(buffer)
+		, m_SubBuffer(buffer)
+		, m_BufferEnd(buffer + bufferSize)
+		, m_BufferSize(bufferSize)
+		, m_Format(format.data())
+		, m_SubFormat(format.data())
+		, m_FormatEnd(format.data() + format.size())
+		, m_FormatSize(format.size())
 	{
+		*(m_BufferEnd - 1) = 0;
 	}
-
-	void Formater::FormatPrintRec(std::uint8_t idx) { }
-	void Formater::ParameterDataRec(std::uint8_t idx) { }
-	void Formater::FormatPrintRecNamedArgs(const char* const name) { }
-
 
 	void Formater::CheckEndStr() {
 		if (m_ColorMem.IsSetColor)
@@ -42,7 +45,7 @@ namespace CPPTools::Fmt {
 	}
 
 	 std::uint8_t Formater::GetColorFG() {
-		 std::uint8_t step = (std::uint8_t)(FormatIsEqNext('+') ? Detail::AnsiColorFG::DBStep : Detail::AnsiColorFG::DStep);
+		 std::uint8_t step = (std::uint8_t)(FormatIsEqualForward('+') ? Detail::AnsiColorFG::DBStep : Detail::AnsiColorFG::DStep);
 		 std::uint8_t code = GetColorCode();
 		if (code == std::numeric_limits<std::uint8_t>::max())
 			code = (std::uint8_t)Detail::AnsiColorFG::Default;
@@ -52,7 +55,7 @@ namespace CPPTools::Fmt {
 	}
 
 	 std::uint8_t Formater::GetColorBG() {
-		 std::uint8_t step = (std::uint8_t)(FormatIsEqNext('+') ? Detail::AnsiColorBG::DBStep : Detail::AnsiColorBG::DStep);
+		 std::uint8_t step = (std::uint8_t)(FormatIsEqualForward('+') ? Detail::AnsiColorBG::DBStep : Detail::AnsiColorBG::DStep);
 		 std::uint8_t code = GetColorCode();
 		if (code == std::numeric_limits<std::uint8_t>::max())
 			code = (std::uint8_t)Detail::AnsiColorBG::Default;
@@ -62,13 +65,13 @@ namespace CPPTools::Fmt {
 	}
 
 	void Formater::ColorValuePrint() {
-		if (FormatIsEqNext(':')) {
-			FormatParamIgnoreSpace();
+		if (FormatIsEqualForward(':')) {
+			FormatIgnoreSpace();
 			Detail::AnsiColor color;
 			color.Fg = (Detail::AnsiColorFG)GetColorFG();
 			FormatParamGoTo(',');
-			if (FormatIsEqNext(',')) {
-				FormatParamIgnoreSpace();
+			if (FormatIsEqualForward(',')) {
+				FormatIgnoreSpace();
 				color.Bg = (Detail::AnsiColorBG)GetColorBG();
 			}
 			FormatType<Detail::AnsiColor>::Write(color, *this);
@@ -87,21 +90,6 @@ namespace CPPTools::Fmt {
 		FormatType<std::chrono::nanoseconds>::Write(ns, *this);
 	}
 
-
-	bool Formater::FormatNextIsSame(const char* str) {
-		const char* format = m_SubFormat;
-		bool isSame = true;
-		while (isSame && *str != 0 && *format != '}') {
-			if (*str++ != *format++)
-				isSame = false;
-		}
-		if (isSame && *str != 0)
-			isSame = false;
-		if (isSame)
-			m_SubFormat = format;
-		return isSame;
-	}
-
 	 std::uint8_t Formater::GetWordFromList(const char* formatTypes[],  std::uint8_t count) {
 		 std::uint8_t res = std::numeric_limits< std::uint8_t>::max();
 		for (int idx = 0; idx < count; ++idx) {
@@ -118,14 +106,14 @@ namespace CPPTools::Fmt {
 	{
 		if (FormatIsEndOfParameter())		return false;
 		while (!FormatIsEndOfParameter()) {
-			FormatNext();
-			FormatParamIgnoreSpace();
+			FormatForward();
+			FormatIgnoreSpace();
 
 			for(std::uint8_t i = 0; i < size; ++i) {
 				const char* fType = formatTypes[i];
 				std::uint8_t idxType = 0;
 				while (*fType != 0 && i != size) {
-					if(FormatIsEqNext(*fType)) {
+					if(FormatIsEqualForward(*fType)) {
 						arr[i].Type = *fType;
 						FormatReadInt(arr[i].Value);
 						arr[i].IdxType = idxType;

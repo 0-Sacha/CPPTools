@@ -10,7 +10,7 @@ namespace CPPTools::Fmt {
 	struct NamedArgs
 	{
 
-		NamedArgs(const T& t)
+		NamedArgs(T& t)
 			: m_Value(t) {}
 
 	public:
@@ -24,7 +24,7 @@ namespace CPPTools::Fmt {
 		inline const T& GetValue() const { return m_Value; }
 
 	protected:
-		const T& m_Value;
+		T& m_Value;
 	};
 
 	template<typename T>
@@ -47,7 +47,7 @@ namespace CPPTools::Fmt {
 	struct CharPtNamedArgs : public NamedArgs<T>
 	{
 
-		CharPtNamedArgs(const char* const name, const T& t)
+		CharPtNamedArgs(const char* const name, T& t)
 			: NamedArgs(t), m_Name(name) {}
 
 	public:
@@ -80,10 +80,10 @@ namespace CPPTools::Fmt {
 	struct StringNamedArgs : public NamedArgs<T>
 	{
 
-		StringNamedArgs(const std::string& name, const T& t)
+		StringNamedArgs(const std::string& name, T& t)
 			: NamedArgs(t), m_Name(name) {}
 
-		StringNamedArgs(std::string&& name, const T& t)
+		StringNamedArgs(std::string&& name, T& t)
 			: NamedArgs(t), m_Name(std::move(name)) {}
 
 	public:
