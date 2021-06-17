@@ -30,12 +30,9 @@ namespace CPPTools::Instrumentation {
 		double millis = micro / 1000;
 		double sec = millis / 1000;
 
-		if (sec > 1.5f)
-			m_Link.GetLogger().LogTrace("{} : {} seconds", m_Name, sec);
-		else if (millis > 5.0f)
-			m_Link.GetLogger().LogTrace("{} : {} ms", m_Name, millis);
-		else
-			m_Link.GetLogger().LogTrace("{} : {} us", m_Name, micro);
+		if (sec > 1.5f)				m_Link.GetLogger().LogTrace("{} : {} seconds", m_Name, sec);
+		else if (millis > 5.0f)		m_Link.GetLogger().LogTrace("{} : {} ms", m_Name, millis);
+		else						m_Link.GetLogger().LogTrace("{} : {} us", m_Name, micro);
 
 		m_Link.WriteProfile(this);
 		m_IsStoped = true;
@@ -85,7 +82,7 @@ namespace CPPTools::Instrumentation {
 		const char* newLine = m_ProfilesCount++ ? ",\n" : "";
 
 		Fmt::FilePrint(m_File,
-			R"({}#{"cat":"function","dur":{},"name":"{}","ph":"X","pid":{},"tid":{},"ts":{}})",
+			std::string_view(R"({}#{"cat":"function","dur":{},"name":"{}","ph":"X","pid":{},"tid":{},"ts":{}})"),
 			newLine,
 			dur,
 			name,
@@ -115,7 +112,7 @@ namespace CPPTools::Instrumentation {
 	}
 
 	void Profiler::WriteHeaderFile() {
-		Fmt::FilePrint(m_File, "{}", "{\"otherData\": {},\"traceEvents\":[\n");
+		Fmt::FilePrint(m_File, "{\"otherData\": {},\"traceEvents\":[\n");
 	}
 
 	void Profiler::WriteFooter() {

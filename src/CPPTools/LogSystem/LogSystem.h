@@ -101,11 +101,11 @@ namespace CPPTools {
 
 
 namespace CPPTools::Fmt {
-	template<>
-	struct FormatType<LogSystem::LogSystem::LogSeverity>
+	template<typename FormatContext>
+	struct FormatType<LogSystem::LogSystem::LogSeverity, FormatContext>
 	{
-		static void Write(const LogSystem::LogSeverity t, Formater& formater) {
-			switch(t)
+		static void Write(const LogSystem::LogSeverity t, FormatContext& formater) {
+			switch (t)
 			{
 			case LogSystem::LogSeverity::Trace:
 				FormatType<Detail::AnsiColorFG>::Write(Detail::AnsiColorFG::BrightBlack, formater);
@@ -126,10 +126,10 @@ namespace CPPTools::Fmt {
 		}
 	};
 
-	template<>
-	struct FormatType<LogSystem::LogStatus>
+	template<typename FormatContext>
+	struct FormatType<LogSystem::LogStatus, FormatContext>
 	{
-		static void Write(const LogSystem::LogStatus status, Formater& formater) {
+		static void Write(const LogSystem::LogStatus status, FormatContext& formater) {
 			if (status == LogSystem::LogStatus::OK)			formater.LittleFormat("[{:C:green}]", " OK ");
 			else if (status == LogSystem::LogStatus::FAIL)	formater.LittleFormat("[{:C:red}]", "FAIL");
 		}
@@ -145,8 +145,8 @@ namespace CPPTools {
 	void LogSystem::Log(LogSeverity severity, const std::string_view format, Args&& ...args) const {
 		if (severity >= m_SeverityMin) {
 			char formatBuffer[800];
-			Fmt::FormatInChar(formatBuffer, m_FmtBuffer, FORMAT_CSTR("color", "{color}"), FORMAT_CSTR("name", m_Name), FORMAT_CSTR("data", format));
-			Fmt::FilePrintLn<800>(m_Stream, formatBuffer, std::forward<Args>(args)..., FORMAT_CSTR("color", severity));
+			Fmt::FormatInChar<char>(formatBuffer, m_FmtBuffer, FORMAT_CSTR("color", "{color}"), FORMAT_CSTR("name", m_Name), FORMAT_CSTR("data", format));
+			Fmt::FilePrintLn<char>(m_Stream, formatBuffer, std::forward<Args>(args)..., FORMAT_CSTR("color", severity));
 		}
 	}
 
@@ -180,7 +180,7 @@ namespace CPPTools {
 	template<typename T>
 	void LogSystem::Log(LogSeverity severity, T&& t) const {
 		if (severity >= m_SeverityMin)
-			Fmt::FilePrintLn<500>(m_Stream, m_FmtBuffer, FORMAT_CSTR("data", t), FORMAT_CSTR("color", severity), FORMAT_CSTR("name", m_Name));
+			Fmt::FilePrintLn<char>(m_Stream, m_FmtBuffer, FORMAT_CSTR("data", t), FORMAT_CSTR("color", severity), FORMAT_CSTR("name", m_Name));
 	}
 
 	template<typename T>
@@ -218,7 +218,7 @@ namespace CPPTools {
 	void LogSystem::Log(LogStatus status, const std::string_view format, Args&& ...args) const {
 		char formatBuffer[500];
 		Fmt::FormatInChar(formatBuffer, m_FmtBuffer, FORMAT_CSTR("color", "{color}"), FORMAT_CSTR("name", m_Name), FORMAT_CSTR("data", format));
-		Fmt::FilePrintLn<500>(m_Stream, formatBuffer, std::forward<Args>(args)..., FORMAT_CSTR("color", status));
+		Fmt::FilePrintLn(m_Stream, formatBuffer, std::forward<Args>(args)..., FORMAT_CSTR("color", status));
 	}
 
 	template<typename ...Args>
@@ -236,7 +236,7 @@ namespace CPPTools {
 
 	template<typename T>
 	void LogSystem::Log(LogStatus status, T&& t) const {
-		Fmt::FilePrintLn<500>(m_Stream, m_FmtBuffer, FORMAT_CSTR("data", t), FORMAT_CSTR("color", status), FORMAT_CSTR("name", m_Name));
+		Fmt::FilePrintLn(m_Stream, m_FmtBuffer, FORMAT_CSTR("data", t), FORMAT_CSTR("color", status), FORMAT_CSTR("name", m_Name));
 	}
 
 	template<typename T>
