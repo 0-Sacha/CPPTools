@@ -49,12 +49,12 @@ namespace CPPTools {
 
 	void LogSystem::SetBaseFormat(std::string_view basetFmt)
 	{
-		Fmt::FormatInChar<char>(m_FmtBuffer, "{{color}{}", basetFmt);
+		Fmt::FormatInChar(m_FmtBuffer, "{{color}{}", basetFmt);
 	}
 
 	void LogSystem::SetFormat(std::string_view basetFmt)
 	{
-		Fmt::FormatInChar<char>(m_FmtBuffer, "{}", basetFmt);
+		Fmt::FormatInChar(m_FmtBuffer, "{}", basetFmt);
 	}
 
 	void LogSystem::ResetFormat()

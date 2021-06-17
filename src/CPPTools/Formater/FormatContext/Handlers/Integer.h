@@ -8,21 +8,21 @@ namespace CPPTools::Fmt::FormatFunc {
 	//-------------------- Int --------------------//
 	//---------------------------------------------//
 
-	template<typename T, typename Char>
-	void FormatContextWriteInt(BasicFormatContext<Char>& formater, T i) {
-		if (i == 0) { formater.BufferPushBack('0'); return; }
-		if (i < 0)	{ formater.BufferPushBack('-'); i = -i; }
+	template<typename T, typename CharFormat, typename CharBuffer>
+	void FormatContextWriteInt(BasicFormatContext<CharFormat, CharBuffer>& context, T i) {
+		if (i == 0) { context.BufferPushBack('0'); return; }
+		if (i < 0)	{ context.BufferPushBack('-'); i = -i; }
 
 		T i_ = i;
 		std::int8_t nb = 0;
 		while (i_ > 0)		{ i_ /= 10; ++nb; }
-		formater.BufferForward((std::size_t)(nb - 1));
-		while (i > 0)		{ formater.BufferPushReverse(i % 10 + '0'); i /= 10; }
-		formater.BufferForward((std::size_t)(nb + 1));
+		context.BufferForward((std::size_t)(nb - 1));
+		while (i > 0)		{ context.BufferPushReverse(i % 10 + '0'); i /= 10; }
+		context.BufferForward((std::size_t)(nb + 1));
 	}
 
-	template<typename T, typename Char>
-	void FormatContextWriteInt(BasicFormatContext<Char>& formater, T i, Detail::ShiftType st, std::int32_t shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
+	template<typename T, typename CharFormat, typename CharBuffer>
+	void FormatContextWriteInt(BasicFormatContext<CharFormat, CharBuffer>& context, T i, Detail::ShiftType st, std::int32_t shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
 		T i_ = i < 0 ? -i : i;
 		std::int8_t nb = 0;
 
@@ -31,82 +31,82 @@ namespace CPPTools::Fmt::FormatFunc {
 		if (i < 0)				--shift;
 		
 		if (st == Detail::ShiftType::Right) {
-			if (sp == Detail::ShiftPrint::Space)		{ while (shift-- > 0) formater.BufferPushBack(' '); }
-			else if (sp == Detail::ShiftPrint::Zeros)	{ while (shift-- > 0) formater.BufferPushBack('0'); }
+			if (sp == Detail::ShiftPrint::Space)		{ while (shift-- > 0) context.BufferPushBack(' '); }
+			else if (sp == Detail::ShiftPrint::Zeros)	{ while (shift-- > 0) context.BufferPushBack('0'); }
 		}
 
 		if (i == 0) {
-			--shift; formater.BufferPushBack('0');
-			if (st == Detail::ShiftType::Left)	while (shift-- > 0) formater.BufferPushBack(' ');
+			--shift; context.BufferPushBack('0');
+			if (st == Detail::ShiftType::Left)	while (shift-- > 0) context.BufferPushBack(' ');
 			return;
 		}
 
-		if (i < 0)		{ formater.BufferPushBack('-'); i = -i; }
-		formater.BufferForward((std::size_t)(nb - 1));
-		while (i > 0)	{ formater.BufferPushReverse(i % 10 + '0'); i /= 10; }
-		formater.BufferForward((std::size_t)(nb + 1));
+		if (i < 0)		{ context.BufferPushBack('-'); i = -i; }
+		context.BufferForward((std::size_t)(nb - 1));
+		while (i > 0)	{ context.BufferPushReverse(i % 10 + '0'); i /= 10; }
+		context.BufferForward((std::size_t)(nb + 1));
 
-		if (st == Detail::ShiftType::Left)		while (shift-- > 0) formater.BufferPushBack(' ');
+		if (st == Detail::ShiftType::Left)		while (shift-- > 0) context.BufferPushBack(' ');
 	}
 
 
 	//-------------------- Int Bin --------------------//
 
-	template<typename T, typename Char>
-	void FormatContextWriteIntAsBin(BasicFormatContext<Char>& formater, T i, std::int16_t def) {
+	template<typename T, typename CharFormat, typename CharBuffer>
+	void FormatContextWriteIntAsBin(BasicFormatContext<CharFormat, CharBuffer>& context, T i, std::int16_t def) {
 		if (def < 3)	def = sizeof(T) * 8;
 
-		if (i < 0)		formater.BufferPushBack('1');
-		else			formater.BufferPushBack('0');
+		if (i < 0)		context.BufferPushBack('1');
+		else			context.BufferPushBack('0');
 
 		std::uint64_t mask = (std::uint64_t)1 << (def - 2);
 		while (mask != 0) {
-			if (i & mask)	formater.BufferPushBack('1');
-			else			formater.BufferPushBack('0');
+			if (i & mask)	context.BufferPushBack('1');
+			else			context.BufferPushBack('0');
 			mask = mask >> 1;
 		}
 	}
 
-	template<typename T, typename Char>
-	void FormatContextWriteIntAsBin(BasicFormatContext<Char>& formater, T i, std::int16_t def, Detail::ShiftType st, std::int32_t shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
+	template<typename T, typename CharFormat, typename CharBuffer>
+	void FormatContextWriteIntAsBin(BasicFormatContext<CharFormat, CharBuffer>& context, T i, std::int16_t def, Detail::ShiftType st, std::int32_t shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
 		if (def < 3)	def = sizeof(T) * 8;
 		std::uint64_t mask = (std::uint64_t)1 << (def - 2);
 		shift -= def;
 
-		if (st == Detail::ShiftType::Right)		while (shift-- > 0) formater.BufferPushBack(' ');
+		if (st == Detail::ShiftType::Right)		while (shift-- > 0) context.BufferPushBack(' ');
 
-		if (i < 0)	formater.BufferPushBack('1');
-		else		formater.BufferPushBack('0');
+		if (i < 0)	context.BufferPushBack('1');
+		else		context.BufferPushBack('0');
 
 		while (mask != 0) {
-			if (i & mask)	formater.BufferPushBack('1');
-			else			formater.BufferPushBack('0');
+			if (i & mask)	context.BufferPushBack('1');
+			else			context.BufferPushBack('0');
 			mask = mask >> 1;
 		}
-		if (st == Detail::ShiftType::Left)		while (shift-- > 0)		formater.BufferPushBack(' ');
+		if (st == Detail::ShiftType::Left)		while (shift-- > 0)		context.BufferPushBack(' ');
 	}
 
 
 	//-------------------- Int Hex --------------------//
 
-	template<typename T, typename Char>
-	void FormatContextWriteIntAsHex(BasicFormatContext<Char>& formater, T i, std::int16_t def) {
+	template<typename T, typename CharFormat, typename CharBuffer>
+	void FormatContextWriteIntAsHex(BasicFormatContext<CharFormat, CharBuffer>& context, T i, std::int16_t def) {
 		static char arr[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 	}
 
-	template<typename T, typename Char>
-	void FormatContextWriteIntAsHex(BasicFormatContext<Char>& formater, T i, std::int16_t def, Detail::ShiftType st, std::int32_t shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
+	template<typename T, typename CharFormat, typename CharBuffer>
+	void FormatContextWriteIntAsHex(BasicFormatContext<CharFormat, CharBuffer>& context, T i, std::int16_t def, Detail::ShiftType st, std::int32_t shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
 		static char arr[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 	}
 
 
 	//-------------------- Oct --------------------//
 
-	template<typename T, typename Char>
-	void FormatContextWriteIntAsOct(BasicFormatContext<Char>& formater, T i, std::int16_t def) {}
+	template<typename T, typename CharFormat, typename CharBuffer>
+	void FormatContextWriteIntAsOct(BasicFormatContext<CharFormat, CharBuffer>& context, T i, std::int16_t def) {}
 
-	template<typename T, typename Char>
-	void FormatContextWriteIntAsOct(BasicFormatContext<Char>& formater, T i, std::int16_t def, Detail::ShiftType st, std::int32_t shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {}
+	template<typename T, typename CharFormat, typename CharBuffer>
+	void FormatContextWriteIntAsOct(BasicFormatContext<CharFormat, CharBuffer>& context, T i, std::int16_t def, Detail::ShiftType st, std::int32_t shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {}
 
 
 
@@ -115,84 +115,84 @@ namespace CPPTools::Fmt::FormatFunc {
 	//-------------------- UInt --------------------//
 	//----------------------------------------------//
 
-	template<typename T, typename Char>
-	void FormatContextWriteUInt(BasicFormatContext<Char>& formater, T i) {
-		if (i == 0) { formater.BufferPushBack('0'); return; }
+	template<typename T, typename CharFormat, typename CharBuffer>
+	void FormatContextWriteUInt(BasicFormatContext<CharFormat, CharBuffer>& context, T i) {
+		if (i == 0) { context.BufferPushBack('0'); return; }
 
 		T i_ = i;
 		int nb = 0;
 		while (i_ > 0)			{ i_ /= 10; ++nb; }
-		formater.BufferForward((std::size_t)(nb - 1));
-		while (i > 0)			{ formater.BufferPushReverse(i % 10 + '0'); i /= 10; }
-		formater.BufferForward((std::size_t)(nb + 1));
+		context.BufferForward((std::size_t)(nb - 1));
+		while (i > 0)			{ context.BufferPushReverse(i % 10 + '0'); i /= 10; }
+		context.BufferForward((std::size_t)(nb + 1));
 	}
 
-	template<typename T, typename Char>
-	void FormatContextWriteUInt(BasicFormatContext<Char>& formater, T i, Detail::ShiftType st, std::int32_t shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
+	template<typename T, typename CharFormat, typename CharBuffer>
+	void FormatContextWriteUInt(BasicFormatContext<CharFormat, CharBuffer>& context, T i, Detail::ShiftType st, std::int32_t shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
 		T i_ = i;
 		std::int8_t nb = 0;
 		while (i_ > 0)	{ i_ /= 10; ++nb; --shift; }
 		if (i == 0)		--shift;
 
 		if (st == Detail::ShiftType::Right) {
-			if (sp == Detail::ShiftPrint::Space)		{ while (shift-- > 0) formater.BufferPushBack(' '); }
-			else if (sp == Detail::ShiftPrint::Zeros)	{ while (shift-- > 0) formater.BufferPushBack('0'); }
+			if (sp == Detail::ShiftPrint::Space)		{ while (shift-- > 0) context.BufferPushBack(' '); }
+			else if (sp == Detail::ShiftPrint::Zeros)	{ while (shift-- > 0) context.BufferPushBack('0'); }
 		}
 
 		if (i == 0) {
-			formater.BufferPushBack('0');
-			if (st == Detail::ShiftType::Left)		while (shift-- > 0) formater.BufferPushBack(' ');
+			context.BufferPushBack('0');
+			if (st == Detail::ShiftType::Left)		while (shift-- > 0) context.BufferPushBack(' ');
 			return;
 		}
 
-		formater.BufferForward((std::size_t)(nb - 1));
-		while (i > 0) { formater.BufferPushReverse(i % 10 + '0'); i /= 10; }
-		formater.BufferForward((std::size_t)(nb + 1));
+		context.BufferForward((std::size_t)(nb - 1));
+		while (i > 0) { context.BufferPushReverse(i % 10 + '0'); i /= 10; }
+		context.BufferForward((std::size_t)(nb + 1));
 
 		if (st == Detail::ShiftType::Left)
-			while (shift-- > 0) formater.BufferPushBack(' ');
+			while (shift-- > 0) context.BufferPushBack(' ');
 	}
 
 
 	//-------------------- UInt Bin --------------------//
 
-	template<typename T, typename Char>
-	void FormatContextWriteUIntAsBin(BasicFormatContext<Char>& formater, T i, std::int16_t def) {
+	template<typename T, typename CharFormat, typename CharBuffer>
+	void FormatContextWriteUIntAsBin(BasicFormatContext<CharFormat, CharBuffer>& context, T i, std::int16_t def) {
 		if (def < 2)	def = sizeof(T) * 8;
 		std::size_t mask = (std::size_t)1 << (def - 1);
 		while (mask != 0) {
-			if (i & mask)	formater.BufferPushBack('1');
-			else			formater.BufferPushBack('0');
+			if (i & mask)	context.BufferPushBack('1');
+			else			context.BufferPushBack('0');
 			mask = mask >> 1;
 		}
 	}
 
-	template<typename T, typename Char>
-	void FormatContextWriteUIntAsBin(BasicFormatContext<Char>& formater, T i, std::int16_t def, Detail::ShiftType st, std::int32_t shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
+	template<typename T, typename CharFormat, typename CharBuffer>
+	void FormatContextWriteUIntAsBin(BasicFormatContext<CharFormat, CharBuffer>& context, T i, std::int16_t def, Detail::ShiftType st, std::int32_t shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
 		if (def < 2)	def = sizeof(T) * 8;
 		T i_ = i;
 		std::uint64_t mask = (std::uint64_t)1 << (def - 1);
 		shift -= def;
 
-		if (st == Detail::ShiftType::Right)		while (shift-- > 0) formater.BufferPushBack(' ');
+		if (st == Detail::ShiftType::Right)		while (shift-- > 0) context.BufferPushBack(' ');
 
-		if (i < 0)	formater.BufferPushBack('1');
-		else		formater.BufferPushBack('0');
+		if (i < 0)	context.BufferPushBack('1');
+		else		context.BufferPushBack('0');
 
 		while (mask != 0) {
-			if (i & mask)	formater.BufferPushBack('1');
-			else			formater.BufferPushBack('0');
+			if (i & mask)	context.BufferPushBack('1');
+			else			context.BufferPushBack('0');
 			mask = mask >> 1;
 		}
 		if (st == Detail::ShiftType::Left)
-			while (shift-- > 0)			formater.BufferPushBack(' ');
+			while (shift-- > 0)			context.BufferPushBack(' ');
 	}
 
 
 	//-------------------- UInt Hex --------------------//
 
-	template<typename T, typename Char>
-	void FormatContextWriteUIntAsHex(BasicFormatContext<Char>& formater, T i, std::int16_t def) {
+	template<typename T, typename CharFormat, typename CharBuffer>
+	void FormatContextWriteUIntAsHex(BasicFormatContext<CharFormat, CharBuffer>& context, T i, std::int16_t def) {
 		static char arr[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 
 		std::size_t mask = (std::size_t)0b1111;
@@ -207,13 +207,13 @@ namespace CPPTools::Fmt::FormatFunc {
 		--def;
 		while (mask != 0) {
 			std::size_t k = ((std::size_t)i & mask) >> (def--) * 4;
-			formater.BufferPushBack(arr[k]);
+			context.BufferPushBack(arr[k]);
 			mask = mask >> 4;
 		}
 	}
 
-	template<typename T, typename Char>
-	void FormatContextWriteUIntAsHex(BasicFormatContext<Char>& formater, T i, std::int16_t def, Detail::ShiftType st, std::int32_t shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
+	template<typename T, typename CharFormat, typename CharBuffer>
+	void FormatContextWriteUIntAsHex(BasicFormatContext<CharFormat, CharBuffer>& context, T i, std::int16_t def, Detail::ShiftType st, std::int32_t shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
 		static char arr[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 	}
 
@@ -221,9 +221,9 @@ namespace CPPTools::Fmt::FormatFunc {
 
 	//-------------------- UInt Oct --------------------//
 
-	template<typename T, typename Char>
-	void FormatContextWriteUIntAsOct(BasicFormatContext<Char>& formater, T i, std::int16_t def) {}
+	template<typename T, typename CharFormat, typename CharBuffer>
+	void FormatContextWriteUIntAsOct(BasicFormatContext<CharFormat, CharBuffer>& context, T i, std::int16_t def) {}
 
-	template<typename T, typename Char>
-	void FormatContextWriteUIntAsOct(BasicFormatContext<Char>& formater, T i, std::int16_t def, Detail::ShiftType st, std::int32_t shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {}
+	template<typename T, typename CharFormat, typename CharBuffer>
+	void FormatContextWriteUIntAsOct(BasicFormatContext<CharFormat, CharBuffer>& context, T i, std::int16_t def, Detail::ShiftType st, std::int32_t shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {}
 }

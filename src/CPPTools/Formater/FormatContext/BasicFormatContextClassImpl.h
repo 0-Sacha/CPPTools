@@ -8,8 +8,8 @@
 
 namespace CPPTools::Fmt {
 
-	template<typename Char>
-	BasicFormatContext<Char>::BasicFormatContext(const std::basic_string_view<Char> format, Char* const buffer, const std::size_t bufferSize)
+	template<typename CharFormat, typename CharBuffer>
+	BasicFormatContext<CharFormat, CharBuffer>::BasicFormatContext(const std::basic_string_view<CharFormat> format, CharBuffer* const buffer, const std::size_t bufferSize)
 		: m_Buffer(buffer)
 		, m_SubBuffer(buffer)
 		, m_BufferEnd(buffer + bufferSize)
@@ -22,14 +22,30 @@ namespace CPPTools::Fmt {
 		*(m_BufferEnd - 1) = 0;
 	}
 
-	template<typename Char>
-	void BasicFormatContext<Char>::CheckEndStr() {
-		if (m_ColorMem.IsSetColor)
-			FormatType<Detail::ResetAnsiColor, BasicFormatContext<Char>>::Write(Detail::RESET_ANSI_COLOR, *this);
+
+	template<typename CharFormat, typename CharBuffer>
+	template<typename OldCharFormat>
+	BasicFormatContext<CharFormat, CharBuffer>::BasicFormatContext(const std::basic_string_view<CharFormat> format, const BasicFormatContext<OldCharFormat, CharBuffer>& oldContext)
+		: m_Buffer(oldContext.m_Buffer)
+		, m_SubBuffer(oldContext.m_SubBuffer)
+		, m_BufferEnd(oldContext.m_BufferEnd)
+		, m_BufferSize(oldContext.m_BufferSize)
+		, m_Format(format.data())
+		, m_SubFormat(format.data())
+		, m_FormatEnd(format.data() + format.size())
+		, m_FormatSize(format.size())
+	{
 	}
 
-	template<typename Char>
-	std::uint8_t BasicFormatContext<Char>::GetColorCode() {
+
+	template<typename CharFormat, typename CharBuffer>
+	void BasicFormatContext<CharFormat, CharBuffer>::CheckEndStr() {
+		if (m_ColorMem.IsSetColor)
+			FormatType<Detail::ResetAnsiColor, BasicFormatContext<CharFormat, CharBuffer>>::Write(Detail::RESET_ANSI_COLOR, *this);
+	}
+
+	template<typename CharFormat, typename CharBuffer>
+	std::uint8_t BasicFormatContext<CharFormat, CharBuffer>::GetColorCode() {
 		static const char* colorCode[8] = {
 			"black",
 			"red",
@@ -44,8 +60,8 @@ namespace CPPTools::Fmt {
 		return GetWordFromList(colorCode, 8);
 	}
 
-	template<typename Char>
-	std::uint8_t BasicFormatContext<Char>::GetColorFG() {
+	template<typename CharFormat, typename CharBuffer>
+	std::uint8_t BasicFormatContext<CharFormat, CharBuffer>::GetColorFG() {
 		std::uint8_t step = (std::uint8_t)(FormatIsEqualForward('+') ? Detail::AnsiColorFG::DBStep : Detail::AnsiColorFG::DStep);
 		std::uint8_t code = GetColorCode();
 		if (code == (std::numeric_limits<std::uint8_t>::max)())
@@ -55,8 +71,8 @@ namespace CPPTools::Fmt {
 		return code;
 	}
 
-	template<typename Char>
-	std::uint8_t BasicFormatContext<Char>::GetColorBG() {
+	template<typename CharFormat, typename CharBuffer>
+	std::uint8_t BasicFormatContext<CharFormat, CharBuffer>::GetColorBG() {
 		std::uint8_t step = (std::uint8_t)(FormatIsEqualForward('+') ? Detail::AnsiColorBG::DBStep : Detail::AnsiColorBG::DStep);
 		std::uint8_t code = GetColorCode();
 		if (code == (std::numeric_limits<std::uint8_t>::max)())	code = (std::uint8_t)Detail::AnsiColorBG::Default;
@@ -64,8 +80,8 @@ namespace CPPTools::Fmt {
 		return code;
 	}
 
-	template<typename Char>
-	void BasicFormatContext<Char>::ColorValuePrint() {
+	template<typename CharFormat, typename CharBuffer>
+	void BasicFormatContext<CharFormat, CharBuffer>::ColorValuePrint() {
 		if (FormatIsEqualForward(':')) {
 			FormatIgnoreSpace();
 			Detail::AnsiColor color;
@@ -75,25 +91,26 @@ namespace CPPTools::Fmt {
 				FormatIgnoreSpace();
 				color.Bg = (Detail::AnsiColorBG)GetColorBG();
 			}
-			FormatType<Detail::AnsiColor, BasicFormatContext<Char>>::Write(color, *this);
+			FormatType<Detail::AnsiColor, BasicFormatContext<CharFormat, CharBuffer>>::Write(color, *this);
 		}
-		else	FormatType<Detail::ResetAnsiColor, BasicFormatContext<Char>>::Write(Detail::RESET_ANSI_COLOR, *this);
+		else	FormatType<Detail::ResetAnsiColor, BasicFormatContext<CharFormat, CharBuffer>>::Write(Detail::RESET_ANSI_COLOR, *this);
 	}
 
-	template<typename Char>
-	void BasicFormatContext<Char>::TimerValuePrint() {
+	template<typename CharFormat, typename CharBuffer>
+	void BasicFormatContext<CharFormat, CharBuffer>::TimerValuePrint() {
 		std::chrono::nanoseconds ns = std::chrono::high_resolution_clock::now() - GetAPI().GetTimeShift();
-		FormatType<std::chrono::nanoseconds, BasicFormatContext<Char>>::Write(ns, *this);
+		FormatType<std::chrono::nanoseconds, BasicFormatContext<CharFormat, CharBuffer>>::Write(ns, *this);
 	}
 
-	template<typename Char>
-	void BasicFormatContext<Char>::DateValuePrint() {
+	template<typename CharFormat, typename CharBuffer>
+	void BasicFormatContext<CharFormat, CharBuffer>::DateValuePrint() {
 		std::chrono::nanoseconds ns = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()) + GetAPI().GetHoursShift();
-		FormatType<std::chrono::nanoseconds, BasicFormatContext<Char>>::Write(ns, *this);
+		FormatType<std::chrono::nanoseconds, BasicFormatContext<CharFormat, CharBuffer>>::Write(ns, *this);
 	}
 
-	template<typename Char>
-	std::uint8_t BasicFormatContext<Char>::GetWordFromList(const char* formatTypes[], std::uint8_t count) {
+	template<typename CharFormat, typename CharBuffer>
+	template<typename CharList>
+	std::uint8_t BasicFormatContext<CharFormat, CharBuffer>::GetWordFromList(const CharList* formatTypes[], std::uint8_t count) {
 		std::uint8_t res = (std::numeric_limits< std::uint8_t>::max)();
 		for (int idx = 0; idx < count; ++idx) {
 			if (FormatNextIsSame(formatTypes[idx])) {
@@ -101,23 +118,23 @@ namespace CPPTools::Fmt {
 				idx = count;
 			}
 		}
-		return res;
+		return res;	
 	}
 
-
-	template<typename Char>
-	bool BasicFormatContext<Char>::GetFormatType(const char* formatTypes[], FormatSpecifierIDX* arr,  std::uint8_t size)
+	/* FFIND-DEPRECATED
+	template<typename CharFormat, typename CharBuffer>
+	bool BasicFormatContext<CharFormat, CharBuffer>::GetFormatType(const char* formatTypes[], FormatSpecifierIDX* arr, std::uint8_t size)
 	{
 		if (FormatIsEndOfParameter())		return false;
 		while (!FormatIsEndOfParameter()) {
 			FormatForward();
 			FormatIgnoreSpace();
 
-			for(std::uint8_t i = 0; i < size; ++i) {
+			for (std::uint8_t i = 0; i < size; ++i) {
 				const char* fType = formatTypes[i];
 				std::uint8_t idxType = 0;
 				while (*fType != 0 && i != size) {
-					if(FormatIsEqualForward(*fType)) {
+					if (FormatIsEqualForward(*fType)) {
 						arr[i].Type = *fType;
 						FormatReadInt(arr[i].Value);
 						arr[i].IdxType = idxType;
@@ -132,50 +149,52 @@ namespace CPPTools::Fmt {
 		}
 		return true;
 	}
+	*/
 
-	template<typename Char>
-	void BasicFormatContext<Char>::ReloadColor()
+
+	template<typename CharFormat, typename CharBuffer>
+	void BasicFormatContext<CharFormat, CharBuffer>::ReloadColor()
 	{
 		if(m_ColorMem.IsSetColor) {
 			if(m_ColorMem.FgType == Detail::AnsiColorFGType::AnsiColor) {
 
 				if (m_ColorMem.BgType == Detail::AnsiColorBGType::AnsiColor)
-					FormatType<Detail::AnsiColor, BasicFormatContext<Char>>::Write(m_ColorMem.Color, *this);
+					FormatType<Detail::AnsiColor, BasicFormatContext<CharFormat, CharBuffer>>::Write(m_ColorMem.Color, *this);
 				else if (m_ColorMem.BgType == Detail::AnsiColorBGType::AnsiColor24b) {
-					FormatType<Detail::AnsiColorFG, BasicFormatContext<Char>>::Write(m_ColorMem.Color.Fg, *this);
-					FormatType<Detail::AnsiColor24bBG, BasicFormatContext<Char>>::Write(m_ColorMem.Color24bits.Bg, *this);
+					FormatType<Detail::AnsiColorFG, BasicFormatContext<CharFormat, CharBuffer>>::Write(m_ColorMem.Color.Fg, *this);
+					FormatType<Detail::AnsiColor24bBG, BasicFormatContext<CharFormat, CharBuffer>>::Write(m_ColorMem.Color24bits.Bg, *this);
 				} else {
-					FormatType<Detail::AnsiColorFG, BasicFormatContext<Char>>::Write(m_ColorMem.Color.Fg, *this);
-					FormatType<Detail::AnsiColorBG, BasicFormatContext<Char>>::Write(Detail::AnsiColorBG::Default, *this);
+					FormatType<Detail::AnsiColorFG, BasicFormatContext<CharFormat, CharBuffer>>::Write(m_ColorMem.Color.Fg, *this);
+					FormatType<Detail::AnsiColorBG, BasicFormatContext<CharFormat, CharBuffer>>::Write(Detail::AnsiColorBG::Default, *this);
 				}
 
 			} else if (m_ColorMem.FgType == Detail::AnsiColorFGType::AnsiColor24b) {
 
 				if (m_ColorMem.BgType == Detail::AnsiColorBGType::AnsiColor) {
-					FormatType<Detail::AnsiColor24bFG, BasicFormatContext<Char>>::Write(m_ColorMem.Color24bits.Fg, *this);
-					FormatType<Detail::AnsiColorBG, BasicFormatContext<Char>>::Write(m_ColorMem.Color.Bg, *this);
+					FormatType<Detail::AnsiColor24bFG, BasicFormatContext<CharFormat, CharBuffer>>::Write(m_ColorMem.Color24bits.Fg, *this);
+					FormatType<Detail::AnsiColorBG, BasicFormatContext<CharFormat, CharBuffer>>::Write(m_ColorMem.Color.Bg, *this);
 				}
 				else if (m_ColorMem.BgType == Detail::AnsiColorBGType::AnsiColor24b)
-					FormatType<Detail::AnsiColor24b, BasicFormatContext<Char>>::Write(m_ColorMem.Color24bits, *this);
+					FormatType<Detail::AnsiColor24b, BasicFormatContext<CharFormat, CharBuffer>>::Write(m_ColorMem.Color24bits, *this);
 				else {
-					FormatType<Detail::AnsiColor24bFG, BasicFormatContext<Char>>::Write(m_ColorMem.Color24bits.Fg, *this);
-					FormatType<Detail::AnsiColorBG, BasicFormatContext<Char>>::Write(Detail::AnsiColorBG::Default, *this);
+					FormatType<Detail::AnsiColor24bFG, BasicFormatContext<CharFormat, CharBuffer>>::Write(m_ColorMem.Color24bits.Fg, *this);
+					FormatType<Detail::AnsiColorBG, BasicFormatContext<CharFormat, CharBuffer>>::Write(Detail::AnsiColorBG::Default, *this);
 				}
 
 			} else {
 
 				if (m_ColorMem.BgType == Detail::AnsiColorBGType::AnsiColor) {
-					FormatType<Detail::AnsiColorFG, BasicFormatContext<Char>>::Write(Detail::AnsiColorFG::Default, *this);
-					FormatType<Detail::AnsiColorBG, BasicFormatContext<Char>>::Write(m_ColorMem.Color.Bg, *this);
+					FormatType<Detail::AnsiColorFG, BasicFormatContext<CharFormat, CharBuffer>>::Write(Detail::AnsiColorFG::Default, *this);
+					FormatType<Detail::AnsiColorBG, BasicFormatContext<CharFormat, CharBuffer>>::Write(m_ColorMem.Color.Bg, *this);
 				} else if (m_ColorMem.BgType == Detail::AnsiColorBGType::AnsiColor24b) {
-					FormatType<Detail::AnsiColorFG, BasicFormatContext<Char>>::Write(Detail::AnsiColorFG::Default, *this);
-					FormatType<Detail::AnsiColor24bBG, BasicFormatContext<Char>>::Write(m_ColorMem.Color24bits.Bg, *this);
+					FormatType<Detail::AnsiColorFG, BasicFormatContext<CharFormat, CharBuffer>>::Write(Detail::AnsiColorFG::Default, *this);
+					FormatType<Detail::AnsiColor24bBG, BasicFormatContext<CharFormat, CharBuffer>>::Write(m_ColorMem.Color24bits.Bg, *this);
 				} else {
-					FormatType<Detail::ResetAnsiColor, BasicFormatContext<Char>>::Write(Detail::RESET_ANSI_COLOR, *this);
+					FormatType<Detail::ResetAnsiColor, BasicFormatContext<CharFormat, CharBuffer>>::Write(Detail::RESET_ANSI_COLOR, *this);
 				}
 
 			}
 		} else
-			FormatType<Detail::ResetAnsiColor, BasicFormatContext<Char>>::Write(Detail::RESET_ANSI_COLOR, *this);
+			FormatType<Detail::ResetAnsiColor, BasicFormatContext<CharFormat, CharBuffer>>::Write(Detail::RESET_ANSI_COLOR, *this);
 	}
 }
