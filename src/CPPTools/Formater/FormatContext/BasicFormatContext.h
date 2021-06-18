@@ -12,10 +12,8 @@ namespace CPPTools::Fmt {
 
 	template<typename CharFormat = char, typename CharBuffer = CharFormat>
 	class BasicFormatContext {
-
 	public:
 		BasicFormatContext(const std::basic_string_view<CharFormat> format, CharBuffer* const buffer, const std::size_t bufferSize);
-		
 		
 		template<typename OldCharFormat>
 		BasicFormatContext(const std::basic_string_view<CharFormat> format, const BasicFormatContext<OldCharFormat, CharBuffer>& oldContext);
@@ -36,10 +34,10 @@ namespace CPPTools::Fmt {
 		std::size_t m_FormatSize;			// Do not count the end char
 
 		// Stride (mostly for container and new line format-style)
-		std::size_t m_NoStride = 0;
+		std::size_t m_NoStride;
 
 		// For handling color / format data and idx (for not specified parameter)
-		std::uint8_t			m_ValuesIdx = 0;
+		FormatIdx				m_ValuesIdx;
 		FormatData				m_FormatData;
 		Detail::AnsiColorMem	m_ColorMem;
 
@@ -65,46 +63,45 @@ namespace CPPTools::Fmt {
 
 	private:
 		/////---------- Default Print Rec ----------/////
-		void FormatPrintRec(std::uint8_t idx)										{}
+		void FormatTypeFromIdx(FormatIdx idx)										{}
 		template<typename T, typename ...Args>
-		void FormatPrintRec(std::uint8_t idx, const T& t, Args&& ...args);
+		void FormatTypeFromIdx(FormatIdx idx, const T& t, Args&& ...args);
 
-		/////---------- NamedArgs Print Rec ----------/////
-		void FormatPrintRecNamedArgs(const CharFormat* const name)						{}
-		template<typename T, typename ...Args>
-		void FormatPrintRecNamedArgs(const CharFormat* const name, const FCNamedArgs<T, CharFormat>& t, Args&& ...args);
+		/////---------- Get NamedArgs ----------/////
+		void GetNamedArgsIdx(FormatIdx& idx, FormatIdx currentIdx)					{ idx = -1; }
 		template<typename T, typename ...Args, typename CharName>
-		void FormatPrintRecNamedArgs(const CharFormat* const name, const FCCStringNamedArgs<T, CharName, CharFormat>& t, Args&& ...args);
+		void GetNamedArgsIdx(FormatIdx& idx, FormatIdx currentIdx, const FCStringViewNamedArgs<T, CharName, CharFormat>& t, Args&& ...args);
 		template<typename T, typename ...Args, typename CharName>
-		void FormatPrintRecNamedArgs(const CharFormat* const name, const FCStringNamedArgs<T, CharName, CharFormat>& t, Args&& ...args);
+		void GetNamedArgsIdx(FormatIdx& idx, FormatIdx currentIdx, const FCStringNamedArgs<T, CharName, CharFormat>& t, Args&& ...args);
 		template<typename T, typename ...Args>
-		void FormatPrintRecNamedArgs(const CharFormat* const name, const T& t, Args&& ...args);
-
-		/////---------- Data Print Rec ----------/////
-		void ParameterDataRec(std::uint8_t idx)										{}
-		template<typename T, typename ...Args>
-		void ParameterDataRec(std::uint8_t idx, const T& t, Args&& ...args);
-
+		void GetNamedArgsIdx(FormatIdx& idx, FormatIdx currentIdx, const T& t, Args&& ...args);
+		template<typename CharToTest>
+		bool FormatNextIsANamedArgs(std::basic_string_view<CharToTest> sv);
 
 		/////---------- Impl ----------/////
 		template<typename ...Args>
-		void ParameterType(Args&& ...args);
+		bool GetFormatIdx(FormatIdx& i, Args&& ...args);
+		template<typename ...Args>
+		bool ParameterPrint(Args&& ...args);
 		template<typename ...Args>
 		void ParameterData(Args&& ...args);
 
 	public:
 		template<typename ...Args>
 		void Format(Args&& ...args);
-		template<typename NewCharFormat = char, typename ...Args>
+		template<typename NewCharFormat, typename ...Args>
 		void LittleFormat(const std::basic_string_view<NewCharFormat> format, Args&& ...args);
+		template<typename ...Args>
+		void LittleFormat(const std::basic_string_view<CharFormat> format, Args&& ...args);
+
 		template<typename CharType, std::size_t SIZE, typename ...Args>
 		inline void LittleFormat(const CharType (&format)[SIZE], Args&& ...args)	{ LittleFormat(std::basic_string_view<CharType>(format), std::forward<Args>(args)...); }
 		template<typename ...Args>
 		void MainFormat(Args&& ...args);
 
 	private:
-		template<typename CharList>
-		std::uint8_t GetWordFromList(const CharList* formatTypes[], std::uint8_t count);
+		template<typename CharList, std::size_t SIZE>
+		std::size_t GetWordFromList(const std::basic_string_view<CharList> (&formatTypes)[SIZE]);
 
 		void CheckEndStr();
 		void ColorValuePrint();
@@ -118,6 +115,7 @@ namespace CPPTools::Fmt {
 	public:
 		template<typename T> bool FormatReadInt(T& i);
 		template<typename T> bool FormatReadUInt(T& i);
+		template<typename T, typename ...Args> bool FormatReadParameter(T& i, Args&& ...args);
 
 	public:
 		// Integer
@@ -143,6 +141,7 @@ namespace CPPTools::Fmt {
 		inline void FormatForward()													{ if (FormatCanMoveForward()) ++m_SubFormat; }
 		inline void FormatForwardNoCheck()											{ ++m_SubFormat; }
 		inline void FormatBackward()												{ if (FormatCanMoveBackward()) --m_SubFormat; }
+		inline void FormatBackwardNoCheck()											{ --m_SubFormat; }
 		inline void FormatForward(const std::size_t size)							{ m_SubFormat += size; if (!FormatCanMoveForward()) m_SubFormat = m_FormatEnd; }
 		inline void FormatBackward(const std::size_t size)							{ m_SubFormat -= size; if (!FormatCanMoveBackward()) m_SubFormat = m_Format; }
 		
@@ -163,13 +162,9 @@ namespace CPPTools::Fmt {
 		inline bool FormatNextIsNotEqualForward(const CharFormat c)					{ if (FormatNextIsNotEqualTo(c)) { FormatForward(); return true; } return false; }
 
 		template<typename CharToTest>
-		bool FormatNextIsSame(const CharToTest* str) {
-			const CharFormat* prevSubFormat = m_SubFormat; bool isSame = true;
-			while (isSame && *str != 0 && FormatCanMoveForward())	isSame = FormatGetAndForwardNoCheck() == *str++;
-			if (isSame && *str != 0)								isSame = false;
-			if (!isSame)											m_SubFormat = prevSubFormat;
-			return isSame;
-		}
+		bool FormatNextIsSame(std::basic_string_view<CharToTest> sv);
+		template<std::size_t SIZE, typename CharToTest>
+		inline bool FormatNextIsSame(const CharToTest(&data)[SIZE])					{ return FormatNextIsSame(std::basic_string_view<CharToTest>(data)); }
 
 		inline bool FormatIsLowerCase() const										{ return FormatGet() >= 'a' && FormatGet() <= 'z'; }
 		inline bool FormatIsUpperCase() const										{ return FormatGet() >= 'A' && FormatGet() <= 'Z'; }
@@ -178,20 +173,20 @@ namespace CPPTools::Fmt {
 		// Format commands
 		inline void FormatIgnoreSpace()												{ while (FormatIsEqualTo(' ') && FormatCanMoveForward()) FormatForwardNoCheck(); }
 
-		inline void FormatGoTo(const CharFormat c)													{ while (FormatIsNotEqualTo(c) && FormatCanMoveForward())														FormatForwardNoCheck(); }
-		inline void FormatGoTo(const CharFormat c0, const CharFormat c1)							{ while (FormatIsNotEqualTo(c0) && FormatIsNotEqualTo(c1) && FormatCanMoveForward())							FormatForwardNoCheck(); }
-		inline void FormatGoTo(const CharFormat c0, const CharFormat c1, const CharFormat c2)		{ while (FormatIsNotEqualTo(c0) && FormatIsNotEqualTo(c1) && FormatIsNotEqualTo(c2) && FormatCanMoveForward())	FormatForwardNoCheck(); }
-		inline void FormatGoToNext(const CharFormat c)												{ while (FormatIsNotEqualTo(c) && FormatCanMoveForward())														FormatForwardNoCheck();	FormatForward(); }
-		inline void FormatGoToNext(const CharFormat c0, const CharFormat c1)						{ while (FormatIsNotEqualTo(c0) && FormatIsNotEqualTo(c1) && FormatCanMoveForward())							FormatForwardNoCheck();	FormatForward(); }
-		inline void FormatGoToNext(const CharFormat c0, const CharFormat c1, const CharFormat c2)	{ while (FormatIsNotEqualTo(c0) && FormatIsNotEqualTo(c1) && FormatIsNotEqualTo(c2) && FormatCanMoveForward())	FormatForwardNoCheck();	FormatForward(); }
+		inline void FormatGoTo(const CharFormat c)														{ while (FormatIsNotEqualTo(c) && FormatCanMoveForward())														FormatForwardNoCheck(); }
+		inline void FormatGoTo(const CharFormat c0, const CharFormat c1)								{ while (FormatIsNotEqualTo(c0) && FormatIsNotEqualTo(c1) && FormatCanMoveForward())							FormatForwardNoCheck(); }
+		inline void FormatGoTo(const CharFormat c0, const CharFormat c1, const CharFormat c2)			{ while (FormatIsNotEqualTo(c0) && FormatIsNotEqualTo(c1) && FormatIsNotEqualTo(c2) && FormatCanMoveForward())	FormatForwardNoCheck(); }
+		inline void FormatGoToForward(const CharFormat c)												{ while (FormatIsNotEqualTo(c) && FormatCanMoveForward())														FormatForwardNoCheck();	FormatForward(); }
+		inline void FormatGoToForward(const CharFormat c0, const CharFormat c1)							{ while (FormatIsNotEqualTo(c0) && FormatIsNotEqualTo(c1) && FormatCanMoveForward())							FormatForwardNoCheck();	FormatForward(); }
+		inline void FormatGoToForward(const CharFormat c0, const CharFormat c1, const CharFormat c2)	{ while (FormatIsNotEqualTo(c0) && FormatIsNotEqualTo(c1) && FormatIsNotEqualTo(c2) && FormatCanMoveForward())	FormatForwardNoCheck();	FormatForward(); }
 
 		// Format commands in parameter (add check to '}' to avoid skip the end of the format specifier)
-		inline void FormatParamGoTo(const CharFormat c)													{ while (FormatIsNotEqualTo('}') && FormatIsNotEqualTo(c) && FormatCanMoveForward())														FormatForwardNoCheck(); }
-		inline void FormatParamGoTo(const CharFormat c0, const CharFormat c1)							{ while (FormatIsNotEqualTo('}') && FormatIsNotEqualTo(c0) && FormatIsNotEqualTo(c1) && FormatCanMoveForward())								FormatForwardNoCheck(); }
-		inline void FormatParamGoTo(const CharFormat c0, const CharFormat c1, const CharFormat c2)		{ while (FormatIsNotEqualTo('}') && FormatIsNotEqualTo(c0) && FormatIsNotEqualTo(c1) && FormatIsNotEqualTo(c2) && FormatCanMoveForward())	FormatForwardNoCheck(); }
-		inline void FormatParamGoToNext(const CharFormat c)												{ while (FormatIsNotEqualTo('}') && FormatIsNotEqualTo(c) && FormatCanMoveForward())														FormatForwardNoCheck();	FormatForward(); }
-		inline void FormatParamGoToNext(const CharFormat c0, const CharFormat c1)						{ while (FormatIsNotEqualTo('}') && FormatIsNotEqualTo(c0) && FormatIsNotEqualTo(c1) && FormatCanMoveForward())								FormatForwardNoCheck();	FormatForward(); }
-		inline void FormatParamGoToNext(const CharFormat c0, const CharFormat c1, const CharFormat c2)	{ while (FormatIsNotEqualTo('}') && FormatIsNotEqualTo(c0) && FormatIsNotEqualTo(c1) && FormatIsNotEqualTo(c2) && FormatCanMoveForward())	FormatForwardNoCheck();	FormatForward(); }
+		inline void FormatParamGoTo(const CharFormat c)														{ while (FormatIsNotEqualTo('}') && FormatIsNotEqualTo(c) && FormatCanMoveForward())														FormatForwardNoCheck(); }
+		inline void FormatParamGoTo(const CharFormat c0, const CharFormat c1)								{ while (FormatIsNotEqualTo('}') && FormatIsNotEqualTo(c0) && FormatIsNotEqualTo(c1) && FormatCanMoveForward())								FormatForwardNoCheck(); }
+		inline void FormatParamGoTo(const CharFormat c0, const CharFormat c1, const CharFormat c2)			{ while (FormatIsNotEqualTo('}') && FormatIsNotEqualTo(c0) && FormatIsNotEqualTo(c1) && FormatIsNotEqualTo(c2) && FormatCanMoveForward())	FormatForwardNoCheck(); }
+		inline void FormatParamGoToForward(const CharFormat c)												{ while (FormatIsNotEqualTo('}') && FormatIsNotEqualTo(c) && FormatCanMoveForward())														FormatForwardNoCheck();	FormatForward(); }
+		inline void FormatParamGoToForward(const CharFormat c0, const CharFormat c1)						{ while (FormatIsNotEqualTo('}') && FormatIsNotEqualTo(c0) && FormatIsNotEqualTo(c1) && FormatCanMoveForward())								FormatForwardNoCheck();	FormatForward(); }
+		inline void FormatParamGoToForward(const CharFormat c0, const CharFormat c1, const CharFormat c2)	{ while (FormatIsNotEqualTo('}') && FormatIsNotEqualTo(c0) && FormatIsNotEqualTo(c1) && FormatIsNotEqualTo(c2) && FormatCanMoveForward())	FormatForwardNoCheck();	FormatForward(); }
 
 
 	public:
@@ -240,15 +235,6 @@ namespace CPPTools::Fmt {
 		inline void WriteUntilEndOfParameterOr(const CharFormat c)												{ while (FormatIsNotEqualTo(c) && FormatIsNotEqualTo('}') && FormatCanMoveForward())														CopyFormatToBuffer(); }
 		inline void WriteUntilEndOfParameterOr(const CharFormat c0, const CharFormat c1)						{ while (FormatIsNotEqualTo(c0) && FormatIsNotEqualTo(c1) && FormatIsNotEqualTo('}') && FormatCanMoveForward())								CopyFormatToBuffer(); }
 		inline void WriteUntilEndOfParameterOr(const CharFormat c0, const CharFormat c1, const CharFormat c2)	{ while (FormatIsNotEqualTo(c0) && FormatIsNotEqualTo(c1) && FormatIsNotEqualTo(c2) && FormatIsNotEqualTo('}') && FormatCanMoveForward())	CopyFormatToBuffer(); }
-
-		inline bool CheckForEscape() {
-			if (FormatNextIsEqualForward('{')) {
-				FormatForward();
-				BufferPushBack('{');
-				return true;
-			}
-			return false;
-		}
 	};
 
 	using CFormatContext = BasicFormatContext<char, char>;

@@ -6,7 +6,7 @@
 namespace CPPTools::Fmt::FormatFunc {
 
 	template<typename T, typename CharFormat, typename CharBuffer>
-	void FormatContextWriteFloat(BasicFormatContext<CharFormat, CharBuffer>& context, T i, std::int16_t nbDecimal) {
+	void FormatContextWriteFloat(BasicFormatContext<CharFormat, CharBuffer>& context, T i, FormatDataType nbDecimal) {
 		FormatContextWriteInt<std::intmax_t>(context, (std::intmax_t)i);
 		context.BufferPushBack('.');
 		if (i < 0)	i = -i;
@@ -19,7 +19,7 @@ namespace CPPTools::Fmt::FormatFunc {
 	}
 
 	template<typename T, typename CharFormat, typename CharBuffer>
-	void FormatContextWriteFloat(BasicFormatContext<CharFormat, CharBuffer>& context, T i, std::int16_t nbDecimal, Detail::ShiftType st, std::int32_t shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
+	void FormatContextWriteFloat(BasicFormatContext<CharFormat, CharBuffer>& context, T i, FormatDataType nbDecimal, Detail::ShiftType st, FormatDataType shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
 		--shift;
 
 		if (st == Detail::ShiftType::Right)

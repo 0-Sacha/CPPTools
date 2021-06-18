@@ -3,88 +3,51 @@
 #include "FormatType.h"
 
 namespace CPPTools::Fmt {
-
-	/////---------- NamedArgs ----------/////
-	template<typename T, typename CharFormatContext = char>
-	struct FCNamedArgs
-	{
-	public:
-		FCNamedArgs(const T& t)
-			: m_Value(t) {}
-
-	public:
-		virtual bool IsRightNameImpl(const CharFormatContext* str) const = 0;
-		inline bool IsRightName(const CharFormatContext* str) const {
-			return IsRightNameImpl(str);
-		}
-
-	public:
-		inline const T& GetValue() const { return m_Value; }
-
-	protected:
-		const T& m_Value;
-	};
-
-	template<typename T, typename CharFormat, typename CharBuffer>
-	struct FormatType<FCNamedArgs<T, CharFormat>, BasicFormatContext<CharFormat, CharBuffer>>
-	{
-		inline static void Write(const FCNamedArgs<T>& t, BasicFormatContext<CharFormat, CharBuffer>& context) {
-			FormatType<GetBaseType<T>, BasicFormatContext<CharFormat, CharBuffer>>::Write(t.GetValue(), context);
-		}
-	};
-}
-
-
-namespace CPPTools::Fmt {
-	/////---------- C-style CStringNamedArgs ----------/////
+	/////---------- string_view NamedArgs Do not allocate memory (Best) ----------/////
 	template<typename T, typename CharName = char, typename CharFormatContext = char>
-	struct FCCStringNamedArgs : public FCNamedArgs<T, CharFormatContext>
+	struct FCStringViewNamedArgs
 	{
+		template<std::size_t SIZE>
+		FCStringViewNamedArgs(const CharName (&name)[SIZE], const T& t)
+			: m_Name(name), value(t) {}
 
-		FCCStringNamedArgs(const CharName* const name, const T& t)
-			: FCNamedArgs(t), m_Name(name) {}
+		FCStringViewNamedArgs(const std::basic_string_view<CharName> name, const T& t)
+			: m_Name(name), value(t) {}
 
 	public:
-		bool IsRightNameImpl(const CharFormatContext* str) const override {
-			const CharName* subName = m_Name;
-			while (*str++ == *subName++);
-			--subName;
-			return *subName == 0;
-		}
+		const T& GetValue() const								{ return value; }
+		const std::basic_string_view<CharName> GetName() const	{ return m_Name; }
 
 	protected:
-		const CharName* m_Name;
+		std::basic_string_view<CharName> m_Name;
+		const T& value;
 	};
 
 	template<typename T, typename CharName, typename CharFormat, typename CharBuffer>
-	struct FormatType<FCCStringNamedArgs<T, CharName, CharFormat>, BasicFormatContext<CharFormat, CharBuffer>>
+	struct FormatType<FCStringViewNamedArgs<T, CharName, CharFormat>, BasicFormatContext<CharFormat, CharBuffer>>
 	{
-		inline static void Write(const FCCStringNamedArgs<T, CharName, CharFormat>& t, BasicFormatContext<CharFormat, CharBuffer>& context) {
+		inline static void Write(const FCStringViewNamedArgs<T, CharName, CharFormat>& t, BasicFormatContext<CharFormat, CharBuffer>& context) {
 			FormatType<GetBaseType<T>, BasicFormatContext<CharFormat, CharBuffer>>::Write(t.GetValue(), context);
 		}
 	};
 
 
-	/////---------- c++-style StringNamedArgs ----------/////
+	/////---------- stringNamedArgs Allocate memory (Only if necessary) ----------/////
 	template<typename T, typename CharName = char, typename CharFormatContext = char>
-	struct FCStringNamedArgs : public FCNamedArgs<T, CharFormatContext>
+	struct FCStringNamedArgs
 	{
+		FCStringNamedArgs(const std::string& str, const T& t)
+			: m_Name(name), value(t) {}
 
-		FCStringNamedArgs(const std::basic_string<CharName>& name, const T& t)
-			: FCNamedArgs(t), m_Name(name) {}
-
-		FCStringNamedArgs(std::basic_string<CharName>&& name, const T& t)
-			: FCNamedArgs(t), m_Name(std::move(name)) {}
+		FCStringNamedArgs(std::string&& str, const T& t)
+			: m_Name(std::move(name)), value(t) {}
 
 	public:
-		bool IsRightNameImpl(const CharFormatContext* str) const override {
-			const CharName* subName = m_Name.data();
-			while (*str++ == *subName++);
-			--subName;
-			return *subName == 0;
-		}
+		const T& GetValue() const								{ return value; }
+		const std::basic_string<CharName>& GetName() const		{ return m_Name; }
 
 	protected:
+		const T& value;
 		std::basic_string<CharName> m_Name;
 	};
 
@@ -98,7 +61,7 @@ namespace CPPTools::Fmt {
 }
 
 
-#define FORMAT(value)				CPPTools::Fmt::FCCStringNamedArgs(#value, value)
-#define FORMAT_CSTR(name, value)	CPPTools::Fmt::FCCStringNamedArgs(name, value)
+#define FORMAT(value)				CPPTools::Fmt::FCStringViewNamedArgs(#value, value)
+#define FORMAT_CSTR(name, value)	CPPTools::Fmt::FCStringViewNamedArgs(name, value)
 
 #define FORMAT_STR(name, value)		CPPTools::Fmt::FCStringNamedArgs(name, value)

@@ -27,14 +27,14 @@ namespace CPPTools::Fmt {
 	FormatData::FormatData(bool hasSpec
 		, bool baseValue
 		, ::CPPTools::Fmt::Detail::ValueIntPrint intPrint
-		, std::int16_t precision
-		, std::int16_t floatPrecision
-		, std::int16_t size
-		, std::int16_t begin
+		, FormatDataType precision
+		, FormatDataType floatPrecision
+		, FormatDataType size
+		, FormatDataType begin
 		, ::CPPTools::Fmt::Detail::ContainerPrintStyle containerPrintStyle
 		, ::CPPTools::Fmt::Detail::ShiftPrint shiftPrint
 		, ::CPPTools::Fmt::Detail::ShiftType shiftType
-		, std::uint8_t shiftValue)
+		, FormatDataType shiftValue)
 
 		: IsInit(true)
 		, HasSpec(hasSpec)

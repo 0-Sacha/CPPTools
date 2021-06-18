@@ -64,7 +64,7 @@ namespace CPPTools::Fmt {
 	{
 		static void Write(const Detail::AnsiColor& t, FormatContext& context) {
 			std::size_t size = context.GetCurrentBufferSize();
-			// context.LittleFormat("\033[{};{}m", (std::uint8_t)t.Fg, (std::uint8_t)t.Bg);
+			context.LittleFormat("\033[{};{}m", (std::uint8_t)t.Fg, (std::uint8_t)t.Bg);
 			context.AddNoStride(context.GetCurrentBufferSize() - size);
 
 			context.GetColorMem().IsSetColor = true;
@@ -79,7 +79,7 @@ namespace CPPTools::Fmt {
 	{
 		static void Write(const Detail::AnsiColor24bFG& t, FormatContext& context) {
 			std::size_t size = context.GetCurrentBufferSize();
-			// context.LittleFormat("\033[38;2;{};{};{}m", t.R, t.G, t.B);
+			context.LittleFormat("\033[38;2;{};{};{}m", t.R, t.G, t.B);
 			context.AddNoStride(context.GetCurrentBufferSize() - size);
 
 			context.GetColorMem().IsSetColor = true;
@@ -93,7 +93,7 @@ namespace CPPTools::Fmt {
 	{
 		static void Write(const Detail::AnsiColor24bBG& t, FormatContext& context) {
 			std::size_t size = context.GetCurrentBufferSize();
-			// context.LittleFormat("\033[48;2;{};{};{}m", t.R, t.G, t.B);
+			context.LittleFormat("\033[48;2;{};{};{}m", t.R, t.G, t.B);
 			context.AddNoStride(context.GetCurrentBufferSize() - size);
 
 			context.GetColorMem().IsSetColor = true;
@@ -107,7 +107,7 @@ namespace CPPTools::Fmt {
 	{
 		static void Write(const Detail::AnsiColor24b& t, FormatContext& context) {
 			std::size_t size = context.GetCurrentBufferSize();
-			// context.LittleFormat("\033[38;2;{};{};{};48;2;{};{};{}m", t.Fg.R, t.Fg.G, t.Fg.B, t.Bg.R, t.Bg.G, t.Bg.B);
+			context.LittleFormat("\033[38;2;{};{};{};48;2;{};{};{}m", t.Fg.R, t.Fg.G, t.Fg.B, t.Bg.R, t.Bg.G, t.Bg.B);
 			context.AddNoStride(context.GetCurrentBufferSize() - size);
 
 			context.GetColorMem().IsSetColor = true;

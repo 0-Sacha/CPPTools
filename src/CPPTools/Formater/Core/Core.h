@@ -5,46 +5,48 @@
 #include "BaseColor.h"
 #include "GetBaseType.h"
 
+namespace CPPTools::Fmt {
+	using FormatDataType = std::int16_t;
+}
+
 namespace CPPTools::Fmt::Detail {
 
-	enum class ValueType : std::uint8_t {
+	enum class ValueType : FormatDataType {
 		Param,
 		Color,
 		Time,
 		Fail = 255
 	};
 
-	enum class ValueIntPrint : std::uint8_t {
+	enum class ValueIntPrint : FormatDataType {
 		Int,
 		Bin,
 		Hex,
 		Oct
 	};
 
-	enum class ShiftType : std::uint8_t {
+	enum class ShiftType : FormatDataType {
 		Nothing,
 		Right,
 		Left,
 		Center
 	};
 
-	enum class ShiftPrint : std::uint8_t {
+	enum class ShiftPrint : FormatDataType {
 		Space,
 		Zeros
 	};
 
-	enum class ContainerPrintStyle : std::uint8_t {
+	enum class ContainerPrintStyle : FormatDataType {
 		CommaSpace,
 		NewLine
 	};
 }
 
 namespace CPPTools::Fmt {
-	struct FormatSpecifierIDX {
-		char Type = 0;
-		std::int8_t Value = 0;
-		std::uint8_t IdxType = 0;
-	};
+
+	using FormatIdx = std::int8_t;
+	static const FormatIdx FormatIdxNotFound = -1;
 
 	struct FormatSpecifier {
 		char Type = 0;
@@ -60,14 +62,14 @@ namespace CPPTools::Fmt {
 		FormatData(bool hasSpec
 			, bool baseValue = false
 			, Detail::ValueIntPrint intPrint = Detail::ValueIntPrint::Int
-			, std::int16_t precision = 0
-			, std::int16_t floatPrecision = 3
-			, std::int16_t size = -1
-			, std::int16_t begin = 0
+			, FormatDataType precision = 0
+			, FormatDataType floatPrecision = 3
+			, FormatDataType size = -1
+			, FormatDataType begin = 0
 			, Detail::ContainerPrintStyle containerPrintStyle = Detail::ContainerPrintStyle::CommaSpace
 			, Detail::ShiftPrint shiftPrint = Detail::ShiftPrint::Space
 			, Detail::ShiftType shiftType = Detail::ShiftType::Nothing
-			, std::uint8_t shiftValue = 0);
+			, FormatDataType shiftValue = 0);
 
 	public:
 		void Clone(const FormatData& data);
@@ -78,17 +80,17 @@ namespace CPPTools::Fmt {
 		bool BaseValue;
 
 		Detail::ValueIntPrint IntPrint;
-		std::int16_t Precision;
-		std::int16_t FloatPrecision;
+		FormatDataType Precision;
+		FormatDataType FloatPrecision;
 
-		std::int16_t Size;
-		std::int16_t Begin;
+		FormatDataType Size;
+		FormatDataType Begin;
 
 		Detail::ContainerPrintStyle ContainerPrintStyle;
 
 		Detail::ShiftPrint ShiftPrint;
 		Detail::ShiftType ShiftType;
-		std::int16_t ShiftValue;
+		FormatDataType ShiftValue;
 
 		std::uint8_t SpecIdx;
 		std::array<FormatSpecifier, 10> Spec;
@@ -97,8 +99,8 @@ namespace CPPTools::Fmt {
 		bool HasChangeColor;
 
 	public:
-		inline void SetDefaultSize(std::int16_t size)	{ if (Size == -1) Size = size; }
-		inline void SetMaxSize(std::int16_t size)		{ if (Size == -1) SetDefaultSize(size); if(Begin + Size > size) Size = size - Begin; }
+		inline void SetDefaultSize(FormatDataType size)	{ if (Size == -1) Size = size; }
+		inline void SetMaxSize(FormatDataType size)		{ if (Size == -1) SetDefaultSize(size); if(Begin + Size > size) Size = size - Begin; }
 
 		const std::int8_t GetValueOf(const char c) const;
 		inline void AddSpecifier(const FormatSpecifier specifier) {

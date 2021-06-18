@@ -18,6 +18,8 @@ namespace CPPTools::Fmt {
 		, m_SubFormat(format.data())
 		, m_FormatEnd(format.data() + format.size())
 		, m_FormatSize(format.size())
+		, m_NoStride(0)
+		, m_ValuesIdx(0)
 	{
 		*(m_BufferEnd - 1) = 0;
 	}
@@ -34,7 +36,11 @@ namespace CPPTools::Fmt {
 		, m_SubFormat(format.data())
 		, m_FormatEnd(format.data() + format.size())
 		, m_FormatSize(format.size())
+		, m_NoStride(oldContext.m_NoStride)
+		, m_ValuesIdx(0)
 	{
+		m_FormatData.Clone(oldContext.m_FormatData);
+		m_ColorMem = oldContext.m_ColorMem;
 	}
 
 
@@ -46,7 +52,7 @@ namespace CPPTools::Fmt {
 
 	template<typename CharFormat, typename CharBuffer>
 	std::uint8_t BasicFormatContext<CharFormat, CharBuffer>::GetColorCode() {
-		static const char* colorCode[8] = {
+		static constexpr std::string_view colorCode[8] = {
 			"black",
 			"red",
 			"green",
@@ -57,7 +63,7 @@ namespace CPPTools::Fmt {
 			"white",
 		};
 
-		return GetWordFromList(colorCode, 8);
+		return GetWordFromList(colorCode);
 	}
 
 	template<typename CharFormat, typename CharBuffer>
@@ -109,49 +115,108 @@ namespace CPPTools::Fmt {
 	}
 
 	template<typename CharFormat, typename CharBuffer>
-	template<typename CharList>
-	std::uint8_t BasicFormatContext<CharFormat, CharBuffer>::GetWordFromList(const CharList* formatTypes[], std::uint8_t count) {
-		std::uint8_t res = (std::numeric_limits< std::uint8_t>::max)();
-		for (int idx = 0; idx < count; ++idx) {
+	template<typename CharList, std::size_t SIZE>
+	std::size_t BasicFormatContext<CharFormat, CharBuffer>::GetWordFromList(const std::basic_string_view<CharList> (&formatTypes)[SIZE]) {
+		std::uint8_t res = (std::numeric_limits<std::uint8_t>::max)();
+		for (int idx = 0; idx < SIZE; ++idx) {
 			if (FormatNextIsSame(formatTypes[idx])) {
-				res = idx;
-				idx = count;
+				res = idx; idx = SIZE;
 			}
 		}
 		return res;	
 	}
 
-	/* FFIND-DEPRECATED
+
 	template<typename CharFormat, typename CharBuffer>
-	bool BasicFormatContext<CharFormat, CharBuffer>::GetFormatType(const char* formatTypes[], FormatSpecifierIDX* arr, std::uint8_t size)
-	{
-		if (FormatIsEndOfParameter())		return false;
-		while (!FormatIsEndOfParameter()) {
-			FormatForward();
-			FormatIgnoreSpace();
-
-			for (std::uint8_t i = 0; i < size; ++i) {
-				const char* fType = formatTypes[i];
-				std::uint8_t idxType = 0;
-				while (*fType != 0 && i != size) {
-					if (FormatIsEqualForward(*fType)) {
-						arr[i].Type = *fType;
-						FormatReadInt(arr[i].Value);
-						arr[i].IdxType = idxType;
-						i = size;
-					}
-					++fType;
-					++idxType;
-				}
-			}
-
-			FormatParamGoTo(',');
-		}
-		return true;
+	template<typename CharToTest>
+	bool BasicFormatContext<CharFormat, CharBuffer>::FormatNextIsANamedArgs(std::basic_string_view<CharToTest> sv) {
+		const CharFormat* const prevSubFormat = m_SubFormat;
+		if (FormatNextIsSame(sv) && FormatIsEqualTo(':') || FormatIsEqualTo('}'))
+			return true;
+		m_SubFormat = prevSubFormat;
+		return false;
 	}
-	*/
+
+	template<typename CharFormat, typename CharBuffer>
+	template<typename CharToTest>
+	bool BasicFormatContext<CharFormat, CharBuffer>::FormatNextIsSame(std::basic_string_view<CharToTest> sv) {
+		const CharToTest* str = sv.data();
+		std::size_t size = sv.size();
+		const CharFormat* prevSubFormat = m_SubFormat;			bool isSame = true;
+		while (isSame && size-- != 0 && FormatCanMoveForward())
+			isSame = FormatGetAndForwardNoCheck() == *str++;
+		if (isSame && size == 0)
+			isSame = false;
+		if (!isSame)
+			m_SubFormat = prevSubFormat;
+		return isSame;
+	}
+	
+	// FFIND - EXPERIMENTAL
+	/////---------- FormatReadParameter ----------/////
+	template<typename ValueType, typename ...Args>
+	static inline void GetFormatValueAt(ValueType& value, FormatIdx idx) {}
+	template<typename ValueType, typename T, typename ...Args>
+	static inline void GetFormatValueAt(ValueType& value, FormatIdx idx, const T& t, Args&& ...args) {
+		if (idx != 0)	GetFormatValueAt(value, idx - 1, std::forward<Args>(args)...);
+	}
+	template<typename ValueType, typename ...Args>
+	static inline void GetFormatValueAt(ValueType& value, FormatIdx idx, const std::int8_t& t, Args&& ...args) {
+		if (idx == 0)	value = t;
+		else			GetFormatValueAt(value, idx - 1, std::forward<Args>(args)...);
+	}
+	template<typename ValueType, typename ...Args>
+	static inline void GetFormatValueAt(ValueType& value, FormatIdx idx, const std::uint8_t& t, Args&& ...args) {
+		if (idx == 0)	value = t;
+		else			GetFormatValueAt(value, idx - 1, std::forward<Args>(args)...);
+	}
+	template<typename ValueType, typename ...Args>
+	static inline void GetFormatValueAt(ValueType& value, FormatIdx idx, const std::int16_t& t, Args&& ...args) {
+		if (idx == 0)	value = t;
+		else			GetFormatValueAt(value, idx - 1, std::forward<Args>(args)...);
+	}
+	template<typename ValueType, typename ...Args>
+	static inline void GetFormatValueAt(ValueType& value, FormatIdx idx, const std::uint16_t& t, Args&& ...args) {
+		if (idx == 0)	value = t;
+		else			GetFormatValueAt(value, idx - 1, std::forward<Args>(args)...);
+	}
+	template<typename ValueType, typename ...Args>
+	static inline void GetFormatValueAt(ValueType& value, FormatIdx idx, const std::int32_t& t, Args&& ...args) {
+		if (idx == 0)	value = t;
+		else			GetFormatValueAt(value, idx - 1, std::forward<Args>(args)...);
+	}
+	template<typename ValueType, typename ...Args>
+	static inline void GetFormatValueAt(ValueType& value, FormatIdx idx, const std::uint32_t& t, Args&& ...args) {
+		if (idx == 0)	value = t;
+		else			GetFormatValueAt(value, idx - 1, std::forward<Args>(args)...);
+	}
+	template<typename ValueType, typename ...Args>
+	static inline void GetFormatValueAt(ValueType& value, FormatIdx idx, const std::int64_t& t, Args&& ...args) {
+		if (idx == 0)	value = t;
+		else			GetFormatValueAt(value, idx - 1, std::forward<Args>(args)...);
+	}
+	template<typename ValueType, typename ...Args>
+	static inline void GetFormatValueAt(ValueType& value, FormatIdx idx, const std::uint64_t& t, Args&& ...args) {
+		if (idx == 0)	value = t;
+		else			GetFormatValueAt(value, idx - 1, std::forward<Args>(args)...);
+	}
+	
+	template<typename CharFormat, typename CharBuffer>
+	template<typename T, typename ...Args>
+	bool BasicFormatContext<CharFormat, CharBuffer>::FormatReadParameter(T& i, Args&& ...args) {
+		const CharFormat* const mainSubFormat = m_SubFormat;
+		FormatIdx formatIdx;
+		if (GetFormatIdx(formatIdx, std::forward<Args>(args)...)) {
+			FormatForward();
+			GetFormatValueAt(i, formatIdx, std::forward<Args>(args)...);
+			return true;
+		}
+		m_SubFormat = mainSubFormat;
+		return false;
+	}
 
 
+	/////---------- ReloadColor ----------/////
 	template<typename CharFormat, typename CharBuffer>
 	void BasicFormatContext<CharFormat, CharBuffer>::ReloadColor()
 	{

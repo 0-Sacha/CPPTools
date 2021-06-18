@@ -22,7 +22,7 @@ namespace CPPTools::Fmt::FormatFunc {
 	}
 
 	template<typename T, typename CharFormat, typename CharBuffer>
-	void FormatContextWriteInt(BasicFormatContext<CharFormat, CharBuffer>& context, T i, Detail::ShiftType st, std::int32_t shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
+	void FormatContextWriteInt(BasicFormatContext<CharFormat, CharBuffer>& context, T i, Detail::ShiftType st, FormatDataType shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
 		T i_ = i < 0 ? -i : i;
 		std::int8_t nb = 0;
 
@@ -53,7 +53,7 @@ namespace CPPTools::Fmt::FormatFunc {
 	//-------------------- Int Bin --------------------//
 
 	template<typename T, typename CharFormat, typename CharBuffer>
-	void FormatContextWriteIntAsBin(BasicFormatContext<CharFormat, CharBuffer>& context, T i, std::int16_t def) {
+	void FormatContextWriteIntAsBin(BasicFormatContext<CharFormat, CharBuffer>& context, T i, FormatDataType def) {
 		if (def < 3)	def = sizeof(T) * 8;
 
 		if (i < 0)		context.BufferPushBack('1');
@@ -68,7 +68,7 @@ namespace CPPTools::Fmt::FormatFunc {
 	}
 
 	template<typename T, typename CharFormat, typename CharBuffer>
-	void FormatContextWriteIntAsBin(BasicFormatContext<CharFormat, CharBuffer>& context, T i, std::int16_t def, Detail::ShiftType st, std::int32_t shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
+	void FormatContextWriteIntAsBin(BasicFormatContext<CharFormat, CharBuffer>& context, T i, FormatDataType def, Detail::ShiftType st, FormatDataType shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
 		if (def < 3)	def = sizeof(T) * 8;
 		std::uint64_t mask = (std::uint64_t)1 << (def - 2);
 		shift -= def;
@@ -90,12 +90,12 @@ namespace CPPTools::Fmt::FormatFunc {
 	//-------------------- Int Hex --------------------//
 
 	template<typename T, typename CharFormat, typename CharBuffer>
-	void FormatContextWriteIntAsHex(BasicFormatContext<CharFormat, CharBuffer>& context, T i, std::int16_t def) {
+	void FormatContextWriteIntAsHex(BasicFormatContext<CharFormat, CharBuffer>& context, T i, FormatDataType def) {
 		static char arr[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 	}
 
 	template<typename T, typename CharFormat, typename CharBuffer>
-	void FormatContextWriteIntAsHex(BasicFormatContext<CharFormat, CharBuffer>& context, T i, std::int16_t def, Detail::ShiftType st, std::int32_t shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
+	void FormatContextWriteIntAsHex(BasicFormatContext<CharFormat, CharBuffer>& context, T i, FormatDataType def, Detail::ShiftType st, FormatDataType shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
 		static char arr[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 	}
 
@@ -103,10 +103,10 @@ namespace CPPTools::Fmt::FormatFunc {
 	//-------------------- Oct --------------------//
 
 	template<typename T, typename CharFormat, typename CharBuffer>
-	void FormatContextWriteIntAsOct(BasicFormatContext<CharFormat, CharBuffer>& context, T i, std::int16_t def) {}
+	void FormatContextWriteIntAsOct(BasicFormatContext<CharFormat, CharBuffer>& context, T i, FormatDataType def) {}
 
 	template<typename T, typename CharFormat, typename CharBuffer>
-	void FormatContextWriteIntAsOct(BasicFormatContext<CharFormat, CharBuffer>& context, T i, std::int16_t def, Detail::ShiftType st, std::int32_t shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {}
+	void FormatContextWriteIntAsOct(BasicFormatContext<CharFormat, CharBuffer>& context, T i, FormatDataType def, Detail::ShiftType st, std::int32_t shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {}
 
 
 
@@ -128,7 +128,7 @@ namespace CPPTools::Fmt::FormatFunc {
 	}
 
 	template<typename T, typename CharFormat, typename CharBuffer>
-	void FormatContextWriteUInt(BasicFormatContext<CharFormat, CharBuffer>& context, T i, Detail::ShiftType st, std::int32_t shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
+	void FormatContextWriteUInt(BasicFormatContext<CharFormat, CharBuffer>& context, T i, Detail::ShiftType st, FormatDataType shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
 		T i_ = i;
 		std::int8_t nb = 0;
 		while (i_ > 0)	{ i_ /= 10; ++nb; --shift; }
@@ -157,7 +157,7 @@ namespace CPPTools::Fmt::FormatFunc {
 	//-------------------- UInt Bin --------------------//
 
 	template<typename T, typename CharFormat, typename CharBuffer>
-	void FormatContextWriteUIntAsBin(BasicFormatContext<CharFormat, CharBuffer>& context, T i, std::int16_t def) {
+	void FormatContextWriteUIntAsBin(BasicFormatContext<CharFormat, CharBuffer>& context, T i, FormatDataType def) {
 		if (def < 2)	def = sizeof(T) * 8;
 		std::size_t mask = (std::size_t)1 << (def - 1);
 		while (mask != 0) {
@@ -168,7 +168,7 @@ namespace CPPTools::Fmt::FormatFunc {
 	}
 
 	template<typename T, typename CharFormat, typename CharBuffer>
-	void FormatContextWriteUIntAsBin(BasicFormatContext<CharFormat, CharBuffer>& context, T i, std::int16_t def, Detail::ShiftType st, std::int32_t shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
+	void FormatContextWriteUIntAsBin(BasicFormatContext<CharFormat, CharBuffer>& context, T i, FormatDataType def, Detail::ShiftType st, FormatDataType shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
 		if (def < 2)	def = sizeof(T) * 8;
 		T i_ = i;
 		std::uint64_t mask = (std::uint64_t)1 << (def - 1);
@@ -192,7 +192,7 @@ namespace CPPTools::Fmt::FormatFunc {
 	//-------------------- UInt Hex --------------------//
 
 	template<typename T, typename CharFormat, typename CharBuffer>
-	void FormatContextWriteUIntAsHex(BasicFormatContext<CharFormat, CharBuffer>& context, T i, std::int16_t def) {
+	void FormatContextWriteUIntAsHex(BasicFormatContext<CharFormat, CharBuffer>& context, T i, FormatDataType def) {
 		static char arr[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 
 		std::size_t mask = (std::size_t)0b1111;
@@ -213,7 +213,7 @@ namespace CPPTools::Fmt::FormatFunc {
 	}
 
 	template<typename T, typename CharFormat, typename CharBuffer>
-	void FormatContextWriteUIntAsHex(BasicFormatContext<CharFormat, CharBuffer>& context, T i, std::int16_t def, Detail::ShiftType st, std::int32_t shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
+	void FormatContextWriteUIntAsHex(BasicFormatContext<CharFormat, CharBuffer>& context, T i, FormatDataType def, Detail::ShiftType st, FormatDataType shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
 		static char arr[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 	}
 
@@ -222,8 +222,8 @@ namespace CPPTools::Fmt::FormatFunc {
 	//-------------------- UInt Oct --------------------//
 
 	template<typename T, typename CharFormat, typename CharBuffer>
-	void FormatContextWriteUIntAsOct(BasicFormatContext<CharFormat, CharBuffer>& context, T i, std::int16_t def) {}
+	void FormatContextWriteUIntAsOct(BasicFormatContext<CharFormat, CharBuffer>& context, T i, FormatDataType def) {}
 
 	template<typename T, typename CharFormat, typename CharBuffer>
-	void FormatContextWriteUIntAsOct(BasicFormatContext<CharFormat, CharBuffer>& context, T i, std::int16_t def, Detail::ShiftType st, std::int32_t shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {}
+	void FormatContextWriteUIntAsOct(BasicFormatContext<CharFormat, CharBuffer>& context, T i, FormatDataType def, Detail::ShiftType st, FormatDataType shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {}
 }

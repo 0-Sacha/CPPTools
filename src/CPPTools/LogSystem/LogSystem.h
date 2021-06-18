@@ -145,7 +145,7 @@ namespace CPPTools {
 	void LogSystem::Log(LogSeverity severity, const std::string_view format, Args&& ...args) const {
 		if (severity >= m_SeverityMin) {
 			char formatBuffer[1024];
-			Fmt::FormatInChar(formatBuffer, m_FmtBuffer, FORMAT_CSTR("color", "{color}"), FORMAT_CSTR("name", m_Name), FORMAT_CSTR("data", format));
+			Fmt::FormatInChar(formatBuffer, m_FmtBuffer, FORMAT_CSTR("name", m_Name), FORMAT_CSTR("data", format));
 			Fmt::FilePrintLn(m_Stream, formatBuffer, std::forward<Args>(args)..., FORMAT_CSTR("color", severity));
 		}
 	}
@@ -217,7 +217,7 @@ namespace CPPTools {
 	template<typename ...Args>
 	void LogSystem::Log(LogStatus status, const std::string_view format, Args&& ...args) const {
 		char formatBuffer[500];
-		Fmt::FormatInChar(formatBuffer, m_FmtBuffer, FORMAT_CSTR("color", "{color}"), FORMAT_CSTR("name", m_Name), FORMAT_CSTR("data", format));
+		Fmt::FormatInChar(formatBuffer, m_FmtBuffer, FORMAT_CSTR("name", m_Name), FORMAT_CSTR("data", format));
 		Fmt::FilePrintLn(m_Stream, formatBuffer, std::forward<Args>(args)..., FORMAT_CSTR("color", status));
 	}
 
