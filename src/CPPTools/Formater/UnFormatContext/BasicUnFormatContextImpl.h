@@ -3,8 +3,6 @@
 #include "BasicUnFormatContext.h"
 #include "BasicUnFormatContextClassImpl.h"
 
-#include "../FormatContext/BasicFormatContextImpl.h"
-
 
 #include "Handlers/FormatBufferReader.h"
 #include "Handlers/FormatReader.h"
@@ -21,51 +19,47 @@ namespace CPPTools::Fmt {
 	};
 
 	/////---------- Default Print Rec ----------/////
-	template<typename Char>
+	template<typename CharFormat, typename CharBuffer>
 	template<typename T, typename ...Args>
-	inline void BasicUnFormatContext<Char>::FormatReadRec(std::uint8_t idx, T& t, Args&& ...args) {
-		if (idx == 0)	FormatType<GetBaseType<T>>::Read(t, *this);
-		else			FormatReadRec(idx - 1, std::forward<Args>(args)...);
-	}
-
-	/////---------- NamedArgs Print Rec ----------/////
-	template<typename Char>
-	template<typename T, typename ...Args>
-	inline void BasicUnFormatContext<Char>::FormatReadRecNamedArgs(const Char* const name, UFCNamedArgs<T, BasicUnFormatContext<Char>>& t, Args&& ...args) {
-		if (t.IsRightName(name))	FormatType<UFCFormatArgs<T>>::Read(t, *this);
-		else						FormatReadRecNamedArgs(name, std::forward<Args>(args)...);
-	}
-
-	template<typename Char>
-	template<typename T, typename ...Args>
-	inline void BasicUnFormatContext<Char>::FormatReadRecNamedArgs(const Char* const name, UFCCStringNamedArgs<T, BasicUnFormatContext<Char>>& t, Args&& ...args) {
-		FormatReadRecNamedArgs(name, static_cast<UFCFormatArgs<T>&>(t), std::forward<Args>(args)...);
-	}
-
-	template<typename Char>
-	template<typename T, typename ...Args>
-	inline void BasicUnFormatContext<Char>::FormatReadRecNamedArgs(const Char* const name, UFCStringNamedArgs<T, BasicUnFormatContext<Char>>& t, Args&& ...args) {
-		FormatReadRecNamedArgs(name, static_cast<UFCFormatArgs<T>&>(t), std::forward<Args>(args)...);
-	}
-
-	template<typename Char>
-	template<typename T, typename ...Args>
-	inline void BasicUnFormatContext<Char>::FormatReadRecNamedArgs(const Char* const name, T& t, Args&& ...args) {
-		FormatReadRecNamedArgs(name, std::forward<Args>(args)...);
+	inline void BasicUnFormatContext<CharFormat, CharBuffer>::UnFormatTypeFromIdx(FormatIdx idx, T& t, Args&& ...args) {
+		if (idx == 0)	UnFormatType<GetBaseType<T>>::Read(t, *this);
+		else			UnFormatTypeFromIdx(idx - 1, std::forward<Args>(args)...);
 	}
 
 	/////---------- Data Print Rec ----------/////
-	template<typename Char>
+	template<typename CharFormat, typename CharBuffer>
+	inline void BasicUnFormatContext<CharFormat, CharBuffer>::GetParameterData(FormatIdx idx) {}
+
+	template<typename CharFormat, typename CharBuffer>
 	template<typename T, typename ...Args>
-	inline void BasicUnFormatContext<Char>::ParameterDataRec(std::uint8_t idx, const T& t, Args&& ...args) {
+	inline void BasicUnFormatContext<CharFormat, CharBuffer>::GetParameterData(FormatIdx idx, const T& t, Args&& ...args) {
 		if (idx == 0)	Detail::CopyFormatData<T>::Copy(m_FormatData, t);
-		else			ParameterDataRec(idx - 1, std::forward<Args>(args)...);
+		else			GetParameterData(idx - 1, std::forward<Args>(args)...);
+	}
+
+	/////---------- NamedArgs Print Rec ----------/////
+	template<typename CharFormat, typename CharBuffer>
+	template<typename T, typename ...Args, typename CharName>
+	inline void BasicUnFormatContext<CharFormat, CharBuffer>::GetNamedArgsIdx(FormatIdx& idx, FormatIdx currentIdx, const StringViewNamedArgs<T, CharName, CharFormat>& t, Args&& ...args) {
+		if (FormatNextIsANamedArgs(t.GetName()))	idx = currentIdx;
+		else										GetNamedArgsIdx(idx, currentIdx + 1, std::forward<Args>(args)...);
+	}
+	template<typename CharFormat, typename CharBuffer>
+	template<typename T, typename ...Args, typename CharName>
+	inline void BasicUnFormatContext<CharFormat, CharBuffer>::GetNamedArgsIdx(FormatIdx& idx, FormatIdx currentIdx, const StringNamedArgs<T, CharName, CharFormat>& t, Args&& ...args) {
+		if (FormatNextIsANamedArgs(t.GetName()))	idx = currentIdx;
+		else										GetNamedArgsIdx(idx, currentIdx + 1, std::forward<Args>(args)...);
+	}
+	template<typename CharFormat, typename CharBuffer>
+	template<typename T, typename ...Args>
+	inline void BasicUnFormatContext<CharFormat, CharBuffer>::GetNamedArgsIdx(FormatIdx& idx, FormatIdx currentIdx, const T& t, Args&& ...args) {
+		GetNamedArgsIdx(idx, currentIdx + 1, std::forward<Args>(args)...);
 	}
 
 	/////---------- Impl ----------/////
-	template<typename Char>
+	template<typename CharFormat, typename CharBuffer>
 	template<typename ...Args>
-	void BasicUnFormatContext<Char>::ParameterData(Args&& ...args) {
+	void BasicUnFormatContext<CharFormat, CharBuffer>::ParameterData(Args&& ...args) {
 		if (FormatIsEqualTo(':')) {
 			m_FormatData.HasSpec = true;
 			while (!FormatIsEndOfParameter()) {
@@ -76,7 +70,7 @@ namespace CPPTools::Fmt {
 					std::uint8_t dataIdx;
 					if (!FormatReadUInt(dataIdx))
 						dataIdx = m_ValuesIdx++;
-					ParameterDataRec(dataIdx, std::forward<Args>(args)...);
+					GetParameterData(dataIdx, std::forward<Args>(args)...);
 					FormatForward();
 				} else if (BufferIsEqualForward('b')) { m_FormatData.IntPrint = Detail::ValueIntPrint::Bin;	FormatReadUInt(m_FormatData.Precision);
 				} else if (BufferIsEqualForward('x')) { m_FormatData.IntPrint = Detail::ValueIntPrint::Hex;	FormatReadUInt(m_FormatData.Precision);
@@ -102,51 +96,84 @@ namespace CPPTools::Fmt {
 		}
 	}
 
-	template<typename Char>
+	template<typename CharFormat, typename CharBuffer>
 	template<typename ...Args>
-	void BasicUnFormatContext<Char>::ParameterType(Args&& ...args) {
-		FormatForward();						// '{'
+	bool BasicUnFormatContext<CharFormat, CharBuffer>::GetFormatIdx(FormatIdx& idx, Args&& ...args) {
+		const CharFormat* mainSubFormat = m_SubFormat;
 
-		if (BufferIsEqualForward('C'))			GetColorValue();
-		else if (BufferIsEqualForward('T'))		GetTimerPrinted();
-		else if (BufferIsEqualForward('D'))		GetDatePrinted();
-		else if (BufferIsEqualForward('I'))		IgnoreParameter();
-		else {
-			std::uint8_t valueIdx;
-			FormatData data;
-			data.Clone(m_FormatData);
-			m_FormatData = FormatData();
-			
-			const char* name = nullptr;
-
-			if (!FormatReadUInt(valueIdx)) {
-				if (FormatIsLowerCase())	{ name = m_SubFormat; FormatParamGoTo(':'); }
-				else						valueIdx = m_ValuesIdx++;
-			}
-
-			if (!m_FormatData.IsInit)	ParameterData(std::forward<Args>(args)...);
-
-			if (name == nullptr)		FormatReadRec(valueIdx, args...);
-			else						FormatReadRecNamedArgs(name, args...);
-
-			m_FormatData.Clone(data);
+		// I : if there is no number specified : ':' or '}'
+		if (FormatIsEqualTo(':') || FormatIsEqualTo('}')) {
+			idx = m_ValuesIdx++;
+			return true;
 		}
 
-		FormatGoOutOfParameter();				// '}'
+		// II: A number(idx)
+		if (FormatReadUInt(idx))
+			if (FormatIsEqualTo(':') || FormatIsEqualTo('}'))
+				return true;
+		m_SubFormat = mainSubFormat;
+
+		// III : A name
+		GetNamedArgsIdx(idx, 0, std::forward<Args>(args)...);
+		if (idx != FormatIdxNotFound)
+			return true;
+		m_SubFormat = mainSubFormat;
+
+		// VI : { which is a idx to a number
+		if (FormatIsEqualForward('{'))
+			if (GetFormatIdx(idx, std::forward<Args>(args)...))
+				return true;
+		m_SubFormat = mainSubFormat;
+
+		return false;
 	}
 
-	template<typename Char>
+
+	template<typename CharFormat, typename CharBuffer>
 	template<typename ...Args>
-	bool BasicUnFormatContext<Char>::UnFormat(Args&& ...args) {
+	bool BasicUnFormatContext<CharFormat, CharBuffer>::ParameterRead(Args&& ...args) {
+		FormatForward();				// Skip {
+
+		if (FormatIsEqualForward('C'))			GetColorValue();
+		else if (FormatIsEqualForward('T'))		GetTimerPrinted();
+		else if (FormatIsEqualForward('D'))		GetDatePrinted();
+		else if (FormatIsEqualForward('I'))		IgnoreParameter();
+		else {
+			FormatIdx formatIdx;
+			if (!GetFormatIdx(formatIdx, std::forward<Args>(args)...))	return false;
+			else {
+				FormatData data;
+				data.Clone(m_FormatData);
+				m_FormatData = FormatData();
+
+				Detail::AnsiColorMem colorMem(m_ColorMem);
+
+				if (!m_FormatData.IsInit)			ParameterData(std::forward<Args>(args)...);
+
+				UnFormatTypeFromIdx(formatIdx, std::forward<Args>(args)...);
+
+				m_FormatData.Clone(data);
+			}
+		}
+
+		FormatGoOutOfParameter();		// Skip}
+		return true;
+	}
+
+	template<typename CharFormat, typename CharBuffer>
+	template<typename ...Args>
+	bool BasicUnFormatContext<CharFormat, CharBuffer>::UnFormat(Args&& ...args) {
 
 		bool error = false;
 
 		while (!FormatEnd() && !error) {
 
 			if (CheckUntilNextParameter()) {
-				if (FormatIsEqualTo('{'))
-					if (!CheckForEscape())
-						ParameterType(std::forward<Args>(args)...);
+				if (FormatIsEqualTo('{')) {
+					if (!ParameterRead(std::forward<Args>(args)...)) {
+						error = true;
+					}
+				}
 			}
 			else if (!Check())
 				error = true;
@@ -155,14 +182,22 @@ namespace CPPTools::Fmt {
 		return error;
 	}
 
-	template<typename Char>
+	template<typename CharFormat, typename CharBuffer>
+	template<typename NewCharFormat, typename ...Args>
+	void BasicUnFormatContext<CharFormat, CharBuffer>::LittleUnFormat(const std::basic_string_view<NewCharFormat> format, Args&& ...args) {
+		BasicFormatContext<NewCharFormat, CharBuffer> newContext(format, *this);
+		newContext.UnFormat(std::forward<Args>(args)...);
+		newContext.UpdateOldContext(*this);
+	}
+
+	template<typename CharFormat, typename CharBuffer>
 	template<typename ...Args>
-	bool BasicUnFormatContext<Char>::LittleUnFormat(const std::string_view format, Args&& ...args) {
+	void BasicUnFormatContext<CharFormat, CharBuffer>::LittleUnFormat(const std::basic_string_view<CharFormat> format, Args&& ...args) {
 		// Copy
-		const char* const mainFormat		= m_Format;
-		const char* const mainSubFormat		= m_SubFormat;
-		const char* const mainFormatEnd		= m_FormatEnd;
-		const std::size_t mainFormatSize	= m_FormatSize;
+		const CharFormat* const mainFormat		= m_Format;
+		const CharFormat* const mainSubFormat	= m_SubFormat;
+		const CharFormat* const mainFormatEnd	= m_FormatEnd;
+		const std::size_t mainFormatSize		= m_FormatSize;
 		std::uint8_t mainIdx = m_ValuesIdx;
 
 		// Assign new value
@@ -184,9 +219,9 @@ namespace CPPTools::Fmt {
 		return error;
 	}
 
-	template<typename Char>
+	template<typename CharFormat, typename CharBuffer>
 	template<typename ...Args>
-	UnFormatContextError BasicUnFormatContext<Char>::MainUnFormat(Args&& ...args) {
+	UnFormatContextError BasicUnFormatContext<CharFormat, CharBuffer>::MainUnFormat(Args&& ...args) {
 		UnFormatContextError error;
 		if (UnFormat(args...))		error = UnFormatContextError(GetFormatSize(), GetBufferSize());
 		else if (!BufferEnd())		error = UnFormatContextError(GetFormatSize(), GetBufferSize());
@@ -196,9 +231,13 @@ namespace CPPTools::Fmt {
 
 
 	/////---------- Function ----------/////
-	template<typename Char, typename ...Args>
-	UnFormatContextError UnFormat(const std::basic_string_view<Char> buffer, const std::basic_string_view<Char> format, Args&& ...args) {
-		Fmt::BasicUnFormatContext context(format, buffer);
+	template<typename CharFormat = char, typename CharBuffer = CharFormat, typename ...Args>
+	UnFormatContextError UnFormat(const std::basic_string_view<CharBuffer> buffer, const std::basic_string_view<CharFormat> format, Args&& ...args) {
+		Fmt::BasicUnFormatContext<CharFormat, CharBuffer> context(format, buffer);
 		return context.MainUnFormat(std::forward<Args>(args)...);
+	}
+	template<typename CharFormat = char, typename CharBuffer = CharFormat, std::size_t BUFFER_SIZE, std::size_t FORMAT_SIZE, typename ...Args>
+	UnFormatContextError UnFormat(const CharBuffer (&buffer)[BUFFER_SIZE], const CharFormat (&format)[FORMAT_SIZE], Args&& ...args) {
+		return UnFormat(std::basic_string_view<CharBuffer>(buffer), std::basic_string_view<CharFormat>(format), std::forward<Args>(args)...);
 	}
 }

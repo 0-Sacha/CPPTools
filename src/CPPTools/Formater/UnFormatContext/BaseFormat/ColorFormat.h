@@ -18,7 +18,7 @@ namespace CPPTools::Fmt {
 		static bool Read(Detail::AnsiColorFG& t, UnFormatContext& formater) {
 			if (formater.BufferIsEqualForward('\033'))
 				if (formater.BufferIsEqualForward('[')) {
-					formater.BufferUnParseUInt<std::uint8_t>((std::uint8_t&)t);
+					formater.BufferReadUInt<std::uint8_t>((std::uint8_t&)t);
 					if (formater.BufferIsEqualForward('m'))
 						return true;
 				}
@@ -32,7 +32,7 @@ namespace CPPTools::Fmt {
 		static bool Read(Detail::AnsiColorBG& t, UnFormatContext& formater) {
 			if (formater.BufferIsEqualForward('\033'))
 				if (formater.BufferIsEqualForward('[')) {
-					formater.BufferUnParseUInt<std::uint8_t>((std::uint8_t&)t);
+					formater.BufferReadUInt<std::uint8_t>((std::uint8_t&)t);
 					if (formater.BufferIsEqualForward('m'))	return true;
 				}
 			return false;

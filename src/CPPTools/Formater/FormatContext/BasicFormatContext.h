@@ -28,10 +28,10 @@ namespace CPPTools::Fmt {
 		std::size_t			m_BufferSize;	// The real allocated size
 
 		// Format
-		const CharFormat* m_Format;				
-		const CharFormat* m_SubFormat;
-		const CharFormat* m_FormatEnd;			// Point to the end char of the format
-		std::size_t m_FormatSize;			// Do not count the end char
+		const CharFormat*	m_Format;				
+		const CharFormat*	m_SubFormat;
+		const CharFormat*	m_FormatEnd;			// Point to the end char of the format
+		std::size_t			m_FormatSize;			// Do not count the end char
 
 		// Stride (mostly for container and new line format-style)
 		std::size_t m_NoStride;
@@ -67,12 +67,17 @@ namespace CPPTools::Fmt {
 		template<typename T, typename ...Args>
 		void FormatTypeFromIdx(FormatIdx idx, const T& t, Args&& ...args);
 
+		/////---------- Data Print Rec ----------/////
+		inline void GetParameterData(FormatIdx idx);
+		template<typename T, typename ...Args>
+		inline void GetParameterData(FormatIdx idx, const T& t, Args&& ...args);
+
 		/////---------- Get NamedArgs ----------/////
 		void GetNamedArgsIdx(FormatIdx& idx, FormatIdx currentIdx)					{ idx = -1; }
 		template<typename T, typename ...Args, typename CharName>
-		void GetNamedArgsIdx(FormatIdx& idx, FormatIdx currentIdx, const FCStringViewNamedArgs<T, CharName, CharFormat>& t, Args&& ...args);
+		void GetNamedArgsIdx(FormatIdx& idx, FormatIdx currentIdx, const StringViewNamedArgs<T, CharName, CharFormat>& t, Args&& ...args);
 		template<typename T, typename ...Args, typename CharName>
-		void GetNamedArgsIdx(FormatIdx& idx, FormatIdx currentIdx, const FCStringNamedArgs<T, CharName, CharFormat>& t, Args&& ...args);
+		void GetNamedArgsIdx(FormatIdx& idx, FormatIdx currentIdx, const StringNamedArgs<T, CharName, CharFormat>& t, Args&& ...args);
 		template<typename T, typename ...Args>
 		void GetNamedArgsIdx(FormatIdx& idx, FormatIdx currentIdx, const T& t, Args&& ...args);
 		template<typename CharToTest>

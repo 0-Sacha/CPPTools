@@ -6,10 +6,10 @@
 
 namespace CPPTools::Fmt {
 
-	template<typename Char>
+	template<typename CharFormat, typename CharBuffer>
 	class BasicUnFormatContext;
 
-	template<typename T, typename UnFormatContext = BasicUnFormatContext<char>>
+	template<typename T, typename UnFormatContext = BasicUnFormatContext<char, char>>
 	struct UnFormatType {
 		static bool Read(T& i, UnFormatContext& formater) {
 			static_assert(false, __FUNCSIG__);
@@ -21,7 +21,7 @@ namespace CPPTools::Fmt {
 
 #define CPPTOOLS_AUTO_UNFORMAT(Type, fmt, ...)	namespace CPPTools::Fmt {\
 													template<typename UnFormatContext>\
-													struct FormatType<Type> {\
+													struct UnFormatType<Type> {\
 														static bool Read(Type& value, UnFormatContext& formater) {\
 															return formater.LittleUnFormat(fmt, __VA_ARGS__);\
 														}\

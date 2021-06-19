@@ -42,47 +42,101 @@ namespace CPPTools::Fmt {
 	};
 
 
-	template<typename Char>
-	struct UnFormatType<Char, BasicUnFormatContext<Char>> {
-		static bool Read(Char& t, BasicUnFormatContext<Char>& context) {
-			t = context.BufferGetAndForward();
-			return true;
+	// Char type
+	template<typename UnUnFormatContext>
+	struct UnFormatType<char, UnUnFormatContext> {
+		static void Read(const char t, UnUnFormatContext& context) {
+			context.BufferGetAndForward(t);
 		}
 	};
+	template<std::size_t SIZE, typename UnFormatContext>
+	struct UnFormatType<char[SIZE], UnFormatContext> {
+	};
+	template<typename UnFormatContext>
+	struct UnFormatType<char*, UnFormatContext> {
+	};
+
+	template<typename UnFormatContext>
+	struct UnFormatType<wchar_t, UnFormatContext> {
+		static void Read(const wchar_t t, UnFormatContext& context) {
+			context.BufferGetAndForward(t);
+		}
+	};
+	template<std::size_t SIZE, typename UnFormatContext>
+	struct UnFormatType<wchar_t[SIZE], UnFormatContext> {
+	};
+	template<typename UnFormatContext>
+	struct UnFormatType<wchar_t*, UnFormatContext> {
+	};
+
+	template<typename UnFormatContext>
+	struct UnFormatType<char16_t, UnFormatContext> {
+		static void Read(const char16_t t, UnFormatContext& context) {
+			context.BufferGetAndForward(t);
+		}
+	};
+	template<std::size_t SIZE, typename UnFormatContext>
+	struct UnFormatType<char16_t[SIZE], UnFormatContext> {
+	};
+	template<typename UnFormatContext>
+	struct UnFormatType<char16_t*, UnFormatContext> {
+	};
+
+	template<typename UnFormatContext>
+	struct UnFormatType<char32_t, UnFormatContext> {
+		static void Read(const char32_t t, UnFormatContext& context) {
+			context.BufferGetAndForward(t);
+		}
+	};
+	template<std::size_t SIZE, typename UnFormatContext>
+	struct UnFormatType<char32_t[SIZE], UnFormatContext> {
+	};
+	template<typename UnFormatContext>
+	struct UnFormatType<char32_t*, UnFormatContext> {
+	};
+
+
+
+
+
+
+
+
+
 
 #if 0
 	template<typename UnFormatContext>
 	struct UnFormatType<unsigned char, UnFormatContext> {
 		static bool Read(unsigned char& t, UnFormatContext& context) {
-			return context.BufferUnParseUInt(t);
+			return context.BufferReadUInt(t);
 		}
 	};
 
 	template<typename UnFormatContext>
 	struct UnFormatType<short, UnFormatContext> {
 		static bool Read(short& t, UnFormatContext& context) {
-			return context.BufferUnParseInt(t);
+			return context.BufferReadInt(t);
 		}
 	};
 
 	template<typename UnFormatContext>
 	struct UnFormatType<unsigned short, UnFormatContext> {
 		static bool Read(unsigned short& t, UnFormatContext& context) {
-			return context.BufferUnParseUInt(t);
+			return context.BufferReadUInt(t);
 		}
 	};
 
 	template<typename UnFormatContext>
 	struct UnFormatType<int, UnFormatContext> {
 		static bool Read(long& t, UnFormatContext& context) {
-			return context.BufferUnParseInt(t);
+			return context.BufferReadInt(t);
 		}
 	};
 
 	template<typename UnFormatContext>
 	struct UnFormatType<unsigned int, UnFormatContext> {
 		static bool Read(unsigned int& t, UnFormatContext& context) {
-			return context.BufferUnParseUInt(t);
+			return context.BufferReadUInt(t);
 		}
 	};
 #endif
@@ -90,35 +144,35 @@ namespace CPPTools::Fmt {
 	template<typename UnFormatContext>
 	struct UnFormatType<long, UnFormatContext> {
 		static bool Read(long& t, UnFormatContext& context) {
-			return context.BufferUnParseInt(t);
+			return context.BufferReadInt(t);
 		}
 	};
 
 	template<typename UnFormatContext>
 	struct UnFormatType<unsigned long, UnFormatContext> {
 		static bool Read(unsigned long& t, UnFormatContext& context) {
-			return context.BufferUnParseUInt(t);
+			return context.BufferReadUInt(t);
 		}
 	};
 
 	template<typename UnFormatContext>
 	struct UnFormatType<float, UnFormatContext> {
 		static bool Read(float& t, UnFormatContext& context) {
-			return context.BufferUnParseFloat(t);
+			return context.BufferReadFloat(t);
 		}
 	};
 
 	template<typename UnFormatContext>
 	struct UnFormatType<double, UnFormatContext> {
 		static bool Read(double& t, UnFormatContext& context) {
-			return context.BufferUnParseFloat(t);
+			return context.BufferReadFloat(t);
 		}
 	};
 
 	template<typename UnFormatContext>
 	struct UnFormatType<long double, UnFormatContext> {
 		static bool Read(long double& t, UnFormatContext& context) {
-			return context.BufferUnParseFloat(t);
+			return context.BufferReadFloat(t);
 		}
 	};
 
@@ -128,56 +182,56 @@ namespace CPPTools::Fmt {
 	template<typename UnFormatContext>
 	struct UnFormatType<std::int8_t, UnFormatContext> {
 		static bool Read(std::int8_t& t, UnFormatContext& context) {
-			return context.BufferUnParseInt(t);
+			return context.BufferReadInt(t);
 		}
 	};
 
 	template<typename UnFormatContext>
 	struct UnFormatType<std::uint8_t, UnFormatContext> {
 		static bool Read(std::uint8_t& t, UnFormatContext& context) {
-			return context.BufferUnParseUInt(t);
+			return context.BufferReadUInt(t);
 		}
 	};
 
 	template<typename UnFormatContext>
 	struct UnFormatType<std::int16_t, UnFormatContext> {
 		static bool Read(std::int16_t& t, UnFormatContext& context) {
-			return context.BufferUnParseInt(t);
+			return context.BufferReadInt(t);
 		}
 	};
 
 	template<typename UnFormatContext>
 	struct UnFormatType<std::uint16_t, UnFormatContext> {
 		static bool Read(std::uint16_t& t, UnFormatContext& context) {
-			return context.BufferUnParseUInt(t);
+			return context.BufferReadUInt(t);
 		}
 	};
 
 	template<typename UnFormatContext>
 	struct UnFormatType<std::int32_t, UnFormatContext> {
 		static bool Read(std::int32_t& t, UnFormatContext& context) {
-			return context.BufferUnParseInt(t);
+			return context.BufferReadInt(t);
 		}
 	};
 
 	template<typename UnFormatContext>
 	struct UnFormatType<std::uint32_t, UnFormatContext> {
 		static bool Read(std::uint32_t& t, UnFormatContext& context) {
-			return context.BufferUnParseUInt(t);
+			return context.BufferReadUInt(t);
 		}
 	};
 
 	template<typename UnFormatContext>
 	struct UnFormatType<std::int64_t, UnFormatContext> {
 		static bool Read(std::int64_t& t, UnFormatContext& context) {
-			return context.BufferUnParseInt(t);
+			return context.BufferReadInt(t);
 		}
 	};
 
 	template<typename UnFormatContext>
 	struct UnFormatType<std::uint64_t, UnFormatContext> {
 		static bool Read(std::uint64_t& t, UnFormatContext& context) {
-			return context.BufferUnParseUInt(t);
+			return context.BufferReadUInt(t);
 		}
 	};
 
@@ -206,24 +260,6 @@ namespace CPPTools::Fmt {
 	{
 		static bool Read(T (&t)[SIZE], UnFormatContext& context) {
 			const FormatData& data = context.GetFormatData();
-			return false;
-		}
-	};
-
-
-
-	//------------------ Specifier for Pointer/Array of Type ------------------//
-
-	template<typename Char>
-	struct UnFormatType<Char*, BasicFormatContext<Char>> {
-		static bool Read(Char* t, BasicFormatContext<Char>& context) {
-			return false;
-		}
-	};
-
-	template<size_t SIZE, typename Char>
-	struct UnFormatType<Char[SIZE], BasicFormatContext<Char>> {
-		static bool Read(Char (&t)[SIZE], BasicFormatContext<Char>& context) {
 			return false;
 		}
 	};

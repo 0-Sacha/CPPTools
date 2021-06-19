@@ -18,23 +18,25 @@ namespace CPPTools::Fmt {
 	}
 
 	/////---------- Data Print Rec ----------/////
-	static inline void GetParameterData(FormatData& data, FormatIdx idx) {}
-	template<typename T, typename ...Args>
-	static inline void GetParameterData(FormatData& data, FormatIdx idx, const T& t, Args&& ...args) {
-		if (idx == 0)	Detail::CopyFormatData<T>::Copy(data, t);
-		else			GetParameterData(data, idx - 1, std::forward<Args>(args)...);
-	}
+	template<typename CharFormat, typename CharBuffer>
+	inline void BasicFormatContext<CharFormat, CharBuffer>::GetParameterData(FormatIdx idx) {}
 
+	template<typename CharFormat, typename CharBuffer>
+	template<typename T, typename ...Args>
+	inline void BasicFormatContext<CharFormat, CharBuffer>::GetParameterData(FormatIdx idx, const T& t, Args&& ...args) {
+		if (idx == 0)	Detail::CopyFormatData<T>::Copy(m_FormatData, t);
+		else			GetParameterData(idx - 1, std::forward<Args>(args)...);
+	}
 	/////---------- NamedArgs Print Rec ----------/////
 	template<typename CharFormat, typename CharBuffer>
 	template<typename T, typename ...Args, typename CharName>
-	inline void BasicFormatContext<CharFormat, CharBuffer>::GetNamedArgsIdx(FormatIdx& idx, FormatIdx currentIdx, const FCStringViewNamedArgs<T, CharName, CharFormat>& t, Args&& ...args) {
+	inline void BasicFormatContext<CharFormat, CharBuffer>::GetNamedArgsIdx(FormatIdx& idx, FormatIdx currentIdx, const StringViewNamedArgs<T, CharName, CharFormat>& t, Args&& ...args) {
 		if (FormatNextIsANamedArgs(t.GetName()))	idx = currentIdx;
 		else										GetNamedArgsIdx(idx, currentIdx + 1, std::forward<Args>(args)...);
 	}
 	template<typename CharFormat, typename CharBuffer>
 	template<typename T, typename ...Args, typename CharName>
-	inline void BasicFormatContext<CharFormat, CharBuffer>::GetNamedArgsIdx(FormatIdx& idx, FormatIdx currentIdx, const FCStringNamedArgs<T, CharName, CharFormat>& t, Args&& ...args) {
+	inline void BasicFormatContext<CharFormat, CharBuffer>::GetNamedArgsIdx(FormatIdx& idx, FormatIdx currentIdx, const StringNamedArgs<T, CharName, CharFormat>& t, Args&& ...args) {
 		if (FormatNextIsANamedArgs(t.GetName()))	idx = currentIdx;
 		else										GetNamedArgsIdx(idx, currentIdx + 1, std::forward<Args>(args)...);
 	}
@@ -58,30 +60,52 @@ namespace CPPTools::Fmt {
 				if (FormatIsEqualForward('{')) {		// Forward specifier
 					FormatIdx dataIdx;
 					GetFormatIdx(dataIdx, std::forward<Args>(args)...);
-					GetParameterData(m_FormatData, dataIdx, std::forward<Args>(args)...);
+					GetParameterData(dataIdx, std::forward<Args>(args)...);
 					FormatForward();
-				} else if (FormatIsEqualForward('b')) { m_FormatData.IntPrint = Detail::ValueIntPrint::Bin;	FormatReadUInt(m_FormatData.Precision);
-				} else if (FormatIsEqualForward('x')) { m_FormatData.IntPrint = Detail::ValueIntPrint::Hex;	FormatReadUInt(m_FormatData.Precision);
-				} else if (FormatIsEqualForward('o')) { m_FormatData.IntPrint = Detail::ValueIntPrint::Oct;	FormatReadUInt(m_FormatData.Precision);
-				} else if (FormatIsEqualForward('d')) { m_FormatData.IntPrint = Detail::ValueIntPrint::Int;	FormatReadUInt(m_FormatData.Precision);
-				} else if (FormatIsLowerCase()) {	// Custom specifier
+				}
+				else if (FormatIsEqualForward('b')) {
+					m_FormatData.IntPrint = Detail::ValueIntPrint::Bin;	FormatReadUInt(m_FormatData.Precision);
+				}
+				else if (FormatIsEqualForward('x')) {
+					m_FormatData.IntPrint = Detail::ValueIntPrint::Hex;	FormatReadUInt(m_FormatData.Precision);
+				}
+				else if (FormatIsEqualForward('o')) {
+					m_FormatData.IntPrint = Detail::ValueIntPrint::Oct;	FormatReadUInt(m_FormatData.Precision);
+				}
+				else if (FormatIsEqualForward('d')) {
+					m_FormatData.IntPrint = Detail::ValueIntPrint::Int;	FormatReadUInt(m_FormatData.Precision);
+				}
+				else if (FormatIsLowerCase()) {	// Custom specifier
 					const char c = FormatGetAndForward();
 					std::int8_t i = 0;
 					FormatReadInt(i);
 					m_FormatData.AddSpecifier(c, i);
-				} else if (FormatIsEqualForward('C'))		{ m_FormatData.HasChangeColor = true; m_ColorMem = Detail::AnsiColorMem(); ColorValuePrint();
-				} else if (FormatIsEqualForward('>'))		{ m_FormatData.ShiftType = Detail::ShiftType::Right;	FormatReadUInt(m_FormatData.ShiftValue);
-				} else if (FormatIsEqualForward('<'))		{ m_FormatData.ShiftType = Detail::ShiftType::Left;		FormatReadUInt(m_FormatData.ShiftValue);
-				} else if (FormatIsEqualForward('^'))		{ m_FormatData.ShiftType = Detail::ShiftType::Center;	FormatReadUInt(m_FormatData.ShiftValue);
-				} else if (FormatIsEqualForward('.'))		{ 
-					if (!FormatIsEqualTo('{')) 
-						FormatReadUInt(m_FormatData.FloatPrecision);
-					else
-						FormatReadParameter(m_FormatData.FloatPrecision, std::forward<Args>(args)...);
-				} else if (FormatIsEqualForward('S'))		{ FormatReadUInt(m_FormatData.Size);
-				} else if (FormatIsEqualForward('B'))		{ FormatReadUInt(m_FormatData.Begin);
-				} else if (FormatIsEqualForward('\n'))		{ m_FormatData.ContainerPrintStyle = Detail::ContainerPrintStyle::NewLine;
-				} else if (FormatIsEqualForward('='))		{ m_FormatData.BaseValue = true; }
+				}
+				else if (FormatIsEqualForward('C')) {
+					m_FormatData.HasChangeColor = true; m_ColorMem = Detail::AnsiColorMem(); ColorValuePrint();
+				}
+				else if (FormatIsEqualForward('>')) {
+					m_FormatData.ShiftType = Detail::ShiftType::Right;	FormatReadUInt(m_FormatData.ShiftValue);
+				}
+				else if (FormatIsEqualForward('<')) {
+					m_FormatData.ShiftType = Detail::ShiftType::Left;		FormatReadUInt(m_FormatData.ShiftValue);
+				}
+				else if (FormatIsEqualForward('^')) {
+					m_FormatData.ShiftType = Detail::ShiftType::Center;	FormatReadUInt(m_FormatData.ShiftValue);
+				}
+				else if (FormatIsEqualForward('.')) {
+					if (!FormatIsEqualTo('{'))  FormatReadUInt(m_FormatData.FloatPrecision); else FormatReadParameter(m_FormatData.FloatPrecision, std::forward<Args>(args)...);
+				}
+				else if (FormatIsEqualForward('S')) {
+					FormatReadUInt(m_FormatData.Size);
+				}
+				else if (FormatIsEqualForward('B')) {
+					FormatReadUInt(m_FormatData.Begin);
+				}
+				else if (FormatIsEqualForward('\n')) {
+					m_FormatData.ContainerPrintStyle = Detail::ContainerPrintStyle::NewLine;
+				}
+				else if (FormatIsEqualForward('=')) { m_FormatData.BaseValue = true; }
 
 				FormatParamGoTo(',');
 			}
@@ -104,7 +128,7 @@ namespace CPPTools::Fmt {
 			if (FormatIsEqualTo(':') || FormatIsEqualTo('}'))
 				return true;
 		m_SubFormat = mainSubFormat;
-			
+
 		// III : A name
 		GetNamedArgsIdx(idx, 0, std::forward<Args>(args)...);
 		if (idx != FormatIdxNotFound)
@@ -175,11 +199,11 @@ namespace CPPTools::Fmt {
 	template<typename ...Args>
 	void BasicFormatContext<CharFormat, CharBuffer>::LittleFormat(const std::basic_string_view<CharFormat> format, Args&& ...args) {
 		// Copy
-		const CharFormat* const mainFormat		= m_Format;
-		const CharFormat* const mainSubFormat	= m_SubFormat;
-		const CharFormat* const mainFormatEnd	= m_FormatEnd;
-		const std::size_t mainFormatSize		= m_FormatSize;
-		std::uint8_t mainIdx					= m_ValuesIdx;
+		const CharFormat* const mainFormat = m_Format;
+		const CharFormat* const mainSubFormat = m_SubFormat;
+		const CharFormat* const mainFormatEnd = m_FormatEnd;
+		const std::size_t mainFormatSize = m_FormatSize;
+		std::uint8_t mainIdx = m_ValuesIdx;
 
 		// Assign new value
 		m_Format = format.data();
@@ -191,11 +215,11 @@ namespace CPPTools::Fmt {
 		Format(std::forward<Args>(args)...);
 
 		// Assign old value
-		m_Format		= mainFormat;
-		m_SubFormat		= mainSubFormat;
-		m_FormatEnd		= mainFormatEnd;
-		m_FormatSize	= mainFormatSize;
-		m_ValuesIdx		= mainIdx;
+		m_Format = mainFormat;
+		m_SubFormat = mainSubFormat;
+		m_FormatEnd = mainFormatEnd;
+		m_FormatSize = mainFormatSize;
+		m_ValuesIdx = mainIdx;
 	}
 
 	template<typename CharFormat, typename CharBuffer>
@@ -204,7 +228,6 @@ namespace CPPTools::Fmt {
 		Format(std::forward<Args>(args)...);
 		CheckEndStr();
 	}
-
 
 	/////---------- Impl with as Format ----------//////
 
@@ -279,7 +302,7 @@ namespace CPPTools::Fmt {
 		BasicFormatContext<CharFormat, CharBuffer> formater(format, buffer, BUFFER_SIZE);
 		formater.MainFormat(std::forward<Args>(args)...);
 		formater.BufferPushBack('\n');
-		
+
 		stream.write(formater.GetBuffer(), formater.GetCurrentBufferSize());
 		stream.flush();
 	}
@@ -297,7 +320,7 @@ namespace CPPTools::Fmt {
 		str = formater.GetBuffer();
 	}
 	template<std::size_t BUFFER_SIZE = 1024, typename CharFormat = char, typename CharBuffer = CharFormat, std::size_t FORMAT_SIZE, typename ...Args>
-	inline void FormatInString(std::basic_string<CharBuffer>& str, const CharFormat (&format)[FORMAT_SIZE], Args&& ...args) {
+	inline void FormatInString(std::basic_string<CharBuffer>& str, const CharFormat(&format)[FORMAT_SIZE], Args&& ...args) {
 		FormatInString<BUFFER_SIZE, CharFormat, CharBuffer>(str, std::basic_string_view<CharFormat>(format), std::forward<Args>(args)...);
 	}
 
@@ -389,7 +412,6 @@ namespace CPPTools::Fmt {
 		formater.BufferPushEndChar();
 		return formater.GetBuffer();
 	}
-
 }
 
 

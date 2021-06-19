@@ -1,4 +1,4 @@
-	#pragma once
+#pragma once
 
 #include <iostream>
 #include "CPPTools/Formater/Formater.h"
@@ -102,7 +102,7 @@ namespace CPPTools {
 
 namespace CPPTools::Fmt {
 	template<typename FormatContext>
-	struct FormatType<LogSystem::LogSystem::LogSeverity, FormatContext>
+	struct FormatType<LogSystem::LogSeverity, FormatContext>
 	{
 		static void Write(const LogSystem::LogSeverity t, FormatContext& formater) {
 			switch (t)

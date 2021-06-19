@@ -1,3 +1,4 @@
+#pragma once
 
 #include "BasicUnFormatContext.h"
 
@@ -8,8 +9,8 @@
 
 namespace CPPTools::Fmt {
 
-	template<typename Char>
-	BasicUnFormatContext<Char>::BasicUnFormatContext(const std::basic_string_view<Char> format, const std::basic_string_view<Char> buffer)
+	template<typename CharFormat, typename CharBuffer>
+	BasicUnFormatContext<CharFormat, CharBuffer>::BasicUnFormatContext(const std::basic_string_view<CharFormat> format, const std::basic_string_view<CharBuffer> buffer)
 		: m_Buffer(buffer.data())
 		, m_SubBuffer(buffer.data())
 		, m_BufferEnd(buffer.data() + buffer.size())
@@ -18,26 +19,27 @@ namespace CPPTools::Fmt {
 		, m_SubFormat(format.data())
 		, m_FormatEnd(format.data() + format.size())
 		, m_FormatSize(format.size())
+		, m_ValuesIdx(0)
 	{
 	}
 
-	template<typename Char>
-	void BasicUnFormatContext<Char>::GetColorValue() {
+	template<typename CharFormat, typename CharBuffer>
+	void BasicUnFormatContext<CharFormat, CharBuffer>::GetColorValue() {
 
 	}
 
-	template<typename Char>
-	void BasicUnFormatContext<Char>::GetTimerPrinted() {
+	template<typename CharFormat, typename CharBuffer>
+	void BasicUnFormatContext<CharFormat, CharBuffer>::GetTimerPrinted() {
 
 	}
 
-	template<typename Char>
-	void BasicUnFormatContext<Char>::GetDatePrinted() {
+	template<typename CharFormat, typename CharBuffer>
+	void BasicUnFormatContext<CharFormat, CharBuffer>::GetDatePrinted() {
 
 	}
 
-	template<typename Char>
-	void BasicUnFormatContext<Char>::IgnoreParameter() {
+	template<typename CharFormat, typename CharBuffer>
+	void BasicUnFormatContext<CharFormat, CharBuffer>::IgnoreParameter() {
 		if(BufferIsEqualForward(':')) {
 
 		}

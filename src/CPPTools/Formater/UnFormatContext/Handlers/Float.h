@@ -5,13 +5,13 @@
 namespace CPPTools::Fmt::FormatFunc {
 
 
-	template<typename T, typename Char>
-	bool UnFormatContextReadFloat(BasicUnFormatContext<Char>& formater, T& i, std::int16_t nbDecimal) {
+	template<typename T, typename CharFormat, typename CharBuffer>
+	bool UnFormatContextReadFloat(BasicUnFormatContext<CharFormat, CharBuffer>& context, T& i, FormatDataType nbDecimal) {
 		return false;
 	}
 
-	template<typename T, typename Char>
-	bool UnFormatContextReadFloat(BasicUnFormatContext<Char>& formater, T& i, std::int16_t nbDecimal, Detail::ShiftType st, std::int32_t shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
+	template<typename T, typename CharFormat, typename CharBuffer>
+	bool UnFormatContextReadFloat(BasicUnFormatContext<CharFormat, CharBuffer>& context, T& i, FormatDataType nbDecimal, Detail::ShiftType st, FormatDataType shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
 		return false;
 	}
 
