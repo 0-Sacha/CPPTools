@@ -11,7 +11,23 @@ namespace CPPTools::Fmt {
 
 	template<typename T, typename UnFormatContext = BasicUnFormatContext<char, char>>
 	struct UnFormatType {
-		static bool Read(T& i, UnFormatContext& formater) {
+		template<class K = T>
+		static inline auto Read(K& t, UnFormatContext& context) -> std::enable_if_t<std::is_floating_point_v<K>, bool> {
+			return context.BufferReadFloat(t);
+		}
+
+		template<class K = T>
+		static inline auto Read(K& t, UnFormatContext& context) -> std::enable_if_t<std::is_integral_v<K>&& std::is_signed_v<K>, bool> {
+			return context.BufferReadInt(t);
+		}
+
+		template<class K = T>
+		static inline auto Read(K& t, UnFormatContext& context) -> std::enable_if_t<std::is_integral_v<K>&& std::is_unsigned_v<K>, bool> {
+			return context.BufferReadUInt(t);
+		}
+
+		template<class K = T>
+		static inline auto Read(K& t, UnFormatContext& context) -> std::enable_if_t<!std::is_integral_v<K> && !std::is_floating_point_v<K>, bool> {
 			static_assert(false, __FUNCSIG__);
 			return false;
 		}

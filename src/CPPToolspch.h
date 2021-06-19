@@ -54,5 +54,6 @@
 #include <chrono>
 #include <algorithm>
 #include <functional>
+#include <type_traits>
 
 #include <fstream>

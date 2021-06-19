@@ -12,10 +12,27 @@ namespace CPPTools::Fmt {
 
 	template<typename T, typename FormatContext = BasicFormatContext<char, char>>
 	struct FormatType {
-		static void Write(const T& i, FormatContext& context) {
+		template<class K = T>
+		static inline auto Write(const K t, FormatContext& context) -> std::enable_if_t<std::is_floating_point_v<K>> {
+			context.BufferWriteFloat(t);
+		}
+
+		template<class K = T>
+		static inline auto Write(const K t, FormatContext& context) -> std::enable_if_t<std::is_integral_v<K> && std::is_signed_v<K>> {
+			context.BufferWriteInt(t);
+		}
+
+		template<class K = T>
+		static inline auto Write(const K t, FormatContext& context) -> std::enable_if_t<std::is_integral_v<K>&& std::is_unsigned_v<K>> {
+			context.BufferWriteUInt(t);
+		}
+
+		template<class K = T>
+		static inline auto Write(const K& t, FormatContext& context) -> std::enable_if_t<!std::is_integral_v<K> && !std::is_floating_point_v<K>> {
 			static_assert(false, __FUNCSIG__);
 		}
 	};
+
 
 }
 

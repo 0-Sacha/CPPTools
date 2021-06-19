@@ -160,48 +160,13 @@ namespace CPPTools::Fmt {
 	template<typename ValueType, typename ...Args>
 	static inline void GetFormatValueAt(ValueType& value, FormatIdx idx) {}
 	template<typename ValueType, typename T, typename ...Args>
-	static inline void GetFormatValueAt(ValueType& value, FormatIdx idx, const T& t, Args&& ...args) {
+	static inline std::enable_if_t<std::is_integral_v<T> || std::is_floating_point_v<T>> GetFormatValueAt(ValueType& value, FormatIdx idx, const T t, Args&& ...args) {
+		if (idx == 0)	value = t;
+		else			GetFormatValueAt(value, idx - 1, std::forward<Args>(args)...);
+	}
+	template<typename ValueType, typename T, typename ...Args>
+	static inline std::enable_if_t<!(std::is_integral_v<T> || std::is_floating_point_v<T>)> GetFormatValueAt(ValueType& value, FormatIdx idx, const T& t, Args&& ...args) {
 		if (idx != 0)	GetFormatValueAt(value, idx - 1, std::forward<Args>(args)...);
-	}
-	template<typename ValueType, typename ...Args>
-	static inline void GetFormatValueAt(ValueType& value, FormatIdx idx, const std::int8_t& t, Args&& ...args) {
-		if (idx == 0)	value = t;
-		else			GetFormatValueAt(value, idx - 1, std::forward<Args>(args)...);
-	}
-	template<typename ValueType, typename ...Args>
-	static inline void GetFormatValueAt(ValueType& value, FormatIdx idx, const std::uint8_t& t, Args&& ...args) {
-		if (idx == 0)	value = t;
-		else			GetFormatValueAt(value, idx - 1, std::forward<Args>(args)...);
-	}
-	template<typename ValueType, typename ...Args>
-	static inline void GetFormatValueAt(ValueType& value, FormatIdx idx, const std::int16_t& t, Args&& ...args) {
-		if (idx == 0)	value = t;
-		else			GetFormatValueAt(value, idx - 1, std::forward<Args>(args)...);
-	}
-	template<typename ValueType, typename ...Args>
-	static inline void GetFormatValueAt(ValueType& value, FormatIdx idx, const std::uint16_t& t, Args&& ...args) {
-		if (idx == 0)	value = t;
-		else			GetFormatValueAt(value, idx - 1, std::forward<Args>(args)...);
-	}
-	template<typename ValueType, typename ...Args>
-	static inline void GetFormatValueAt(ValueType& value, FormatIdx idx, const std::int32_t& t, Args&& ...args) {
-		if (idx == 0)	value = t;
-		else			GetFormatValueAt(value, idx - 1, std::forward<Args>(args)...);
-	}
-	template<typename ValueType, typename ...Args>
-	static inline void GetFormatValueAt(ValueType& value, FormatIdx idx, const std::uint32_t& t, Args&& ...args) {
-		if (idx == 0)	value = t;
-		else			GetFormatValueAt(value, idx - 1, std::forward<Args>(args)...);
-	}
-	template<typename ValueType, typename ...Args>
-	static inline void GetFormatValueAt(ValueType& value, FormatIdx idx, const std::int64_t& t, Args&& ...args) {
-		if (idx == 0)	value = t;
-		else			GetFormatValueAt(value, idx - 1, std::forward<Args>(args)...);
-	}
-	template<typename ValueType, typename ...Args>
-	static inline void GetFormatValueAt(ValueType& value, FormatIdx idx, const std::uint64_t& t, Args&& ...args) {
-		if (idx == 0)	value = t;
-		else			GetFormatValueAt(value, idx - 1, std::forward<Args>(args)...);
 	}
 	
 	template<typename CharFormat, typename CharBuffer>
