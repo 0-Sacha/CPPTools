@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CPPTools/Formater/Core/Core.h"
+#include "../BasicFormatContext.h"
 
 #define CPPTOOLS_FORMAT_DECLARED
 

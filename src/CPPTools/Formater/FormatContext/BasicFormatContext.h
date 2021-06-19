@@ -2,7 +2,6 @@
 
 #include "CPPTools/Formater/Core/Core.h"
 
-#include "BaseFormat/FormatType.h"
 #include "BaseFormat/NamedArgs.h"
 #include "BaseFormat/FormatArgs.h"
 

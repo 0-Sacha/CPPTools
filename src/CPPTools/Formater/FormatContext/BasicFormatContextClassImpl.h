@@ -2,6 +2,8 @@
 
 #include "BasicFormatContext.h"
 
+#include "BaseFormat/FormatType.h"
+
 #include "BaseFormat/BaseFormat.h"
 #include "BaseFormat/ColorFormat.h"
 #include "BaseFormat/Chrono.h"
