@@ -23,11 +23,11 @@ namespace CPPTools::Fmt {
 		const T& value;
 	};
 
-	template<typename T, typename CharName, typename CharFormat, typename CharBuffer>
-	struct FormatType<StringViewNamedArgs<T, CharName, CharFormat>, BasicFormatContext<CharFormat, CharBuffer>>
+	template<typename T, typename CharName, typename CharFormat, typename CharBuffer, typename ...ContextArgs>
+	struct FormatType<StringViewNamedArgs<T, CharName, CharFormat>, BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>>
 	{
-		inline static void Write(const StringViewNamedArgs<T, CharName, CharFormat>& t, BasicFormatContext<CharFormat, CharBuffer>& context) {
-			FormatType<GetBaseType<T>, BasicFormatContext<CharFormat, CharBuffer>>::Write(t.GetValue(), context);
+		inline static void Write(const StringViewNamedArgs<T, CharName, CharFormat>& t, BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>& context) {
+			FormatType<GetBaseType<T>, BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>>::Write(t.GetValue(), context);
 		}
 	};
 
@@ -51,11 +51,11 @@ namespace CPPTools::Fmt {
 		std::basic_string<CharName> m_Name;
 	};
 
-	template<typename T, typename CharName, typename CharFormat, typename CharBuffer>
-	struct FormatType<StringNamedArgs<T, CharName, CharFormat>, BasicFormatContext<CharFormat, CharBuffer>>
+	template<typename T, typename CharName, typename CharFormat, typename CharBuffer, typename ...ContextArgs>
+	struct FormatType<StringNamedArgs<T, CharName, CharFormat>, BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>>
 	{
-		inline static void Write(const StringNamedArgs<T, CharName, CharFormat>& t, BasicFormatContext<CharFormat, CharBuffer>& context) {
-			FormatType<GetBaseType<T>, BasicFormatContext<CharFormat, CharBuffer>>::Write(t.GetValue(), context);
+		inline static void Write(const StringNamedArgs<T, CharName, CharFormat>& t, BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>& context) {
+			FormatType<GetBaseType<T>, BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>>::Write(t.GetValue(), context);
 		}
 	};
 }

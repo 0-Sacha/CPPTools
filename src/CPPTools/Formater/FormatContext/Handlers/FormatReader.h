@@ -4,9 +4,9 @@
 
 namespace CPPTools::Fmt {
 
-	template<typename CharFormat, typename CharBuffer>
+	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
 	template<typename T>
-	bool BasicFormatContext<CharFormat, CharBuffer>::FormatReadInt(T& i) {
+	bool BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>::FormatReadInt(T& i) {
 		T res = 0;
 		bool sign = false, isValid = false;
 
@@ -18,9 +18,9 @@ namespace CPPTools::Fmt {
 		return isValid;
 	}
 
-	template<typename CharFormat, typename CharBuffer>
+	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
 	template<typename T>
-	bool BasicFormatContext<CharFormat, CharBuffer>::FormatReadUInt(T& i) {
+	bool BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>::FormatReadUInt(T& i) {
 		T res = (T)0;
 		bool isValid = false;
 

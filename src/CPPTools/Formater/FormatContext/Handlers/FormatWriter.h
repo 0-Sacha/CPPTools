@@ -7,9 +7,9 @@
 
 namespace CPPTools::Fmt {
 	
-	template<typename CharFormat, typename CharBuffer>
+	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
 	template<typename T>
-	void BasicFormatContext<CharFormat, CharBuffer>::BufferWriteInt(T i) {
+	void BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>::BufferWriteInt(T i) {
 		if (m_FormatData.HasSpec) {
 			switch (m_FormatData.IntPrint) {
 			case Detail::ValueIntPrint::Int:
@@ -29,9 +29,9 @@ namespace CPPTools::Fmt {
 		FormatFunc::FormatContextWriteInt(*this, i);
 	}
 
-	template<typename CharFormat, typename CharBuffer>
+	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
 	template<typename T>
-	void BasicFormatContext<CharFormat, CharBuffer>::BufferWriteUInt(T i) {
+	void BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>::BufferWriteUInt(T i) {
 		if (m_FormatData.HasSpec) {
 			switch (m_FormatData.IntPrint) {
 				case Detail::ValueIntPrint::Int:
@@ -51,9 +51,9 @@ namespace CPPTools::Fmt {
 		FormatFunc::FormatContextWriteUInt(*this, i);
 	}
 
-	template<typename CharFormat, typename CharBuffer>
+	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
 	template<typename T>
-	void BasicFormatContext<CharFormat, CharBuffer>::BufferWriteFloat(T i) {
+	void BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>::BufferWriteFloat(T i) {
 		if (m_FormatData.HasSpec) {
 			if (m_FormatData.ShiftType == Detail::ShiftType::Nothing)	{ FormatFunc::FormatContextWriteFloat(*this, i, m_FormatData.FloatPrecision); return; }
 			else														{ FormatFunc::FormatContextWriteFloat(*this, i, m_FormatData.FloatPrecision, m_FormatData.ShiftType, m_FormatData.ShiftValue, m_FormatData.ShiftPrint); return; }

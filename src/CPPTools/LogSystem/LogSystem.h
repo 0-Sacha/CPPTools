@@ -104,23 +104,23 @@ namespace CPPTools::Fmt {
 	template<typename FormatContext>
 	struct FormatType<LogSystem::LogSeverity, FormatContext>
 	{
-		static void Write(const LogSystem::LogSeverity t, FormatContext& formater) {
+		static void Write(const LogSystem::LogSeverity t, FormatContext& context) {
 			switch (t)
 			{
 			case LogSystem::LogSeverity::Trace:
-				FormatType<Detail::AnsiColorFG>::Write(Detail::AnsiColorFG::BrightBlack, formater);
+				FormatType<Detail::AnsiColorFG, FormatContext>::Write(Detail::AnsiColorFG::BrightBlack, context);
 				break;
 			case LogSystem::LogSeverity::Info:
-				FormatType<Detail::AnsiColorFG>::Write(Detail::AnsiColorFG::Green, formater);
+				FormatType<Detail::AnsiColorFG, FormatContext>::Write(Detail::AnsiColorFG::Green, context);
 				break;
 			case LogSystem::LogSeverity::Warn:
-				FormatType<Detail::AnsiColorFG>::Write(Detail::AnsiColorFG::Yellow, formater);
+				FormatType<Detail::AnsiColorFG, FormatContext>::Write(Detail::AnsiColorFG::Yellow, context);
 				break;
 			case LogSystem::LogSeverity::Error:
-				FormatType<Detail::AnsiColorFG>::Write(Detail::AnsiColorFG::Red, formater);
+				FormatType<Detail::AnsiColorFG, FormatContext>::Write(Detail::AnsiColorFG::Red, context);
 				break;
 			case LogSystem::LogSeverity::Fatal:
-				FormatType<Detail::AnsiColorFG>::Write(Detail::AnsiColorFG::BrightMagenta, formater);
+				FormatType<Detail::AnsiColorFG, FormatContext>::Write(Detail::AnsiColorFG::BrightMagenta, context);
 				break;
 			}
 		}
@@ -129,9 +129,9 @@ namespace CPPTools::Fmt {
 	template<typename FormatContext>
 	struct FormatType<LogSystem::LogStatus, FormatContext>
 	{
-		static void Write(const LogSystem::LogStatus status, FormatContext& formater) {
-			if (status == LogSystem::LogStatus::OK)			formater.LittleFormat("[{:C:green}]", " OK ");
-			else if (status == LogSystem::LogStatus::FAIL)	formater.LittleFormat("[{:C:red}]", "FAIL");
+		static void Write(const LogSystem::LogStatus status, FormatContext& context) {
+			if (status == LogSystem::LogStatus::OK)			context.LittleFormat("[{:C:green}]", " OK ");
+			else if (status == LogSystem::LogStatus::FAIL)	context.LittleFormat("[{:C:red}]", "FAIL");
 		}
 	};
 }

@@ -7,7 +7,7 @@
 
 namespace CPPTools::Fmt {
 
-	template<typename CharFormat, typename CharBuffer>
+	template<typename CharFormat, typename CharBuffer, typename ...Args>
 	class BasicFormatContext;
 
 	template<typename T, typename FormatContext = BasicFormatContext<char, char>>

@@ -8,24 +8,24 @@
 
 namespace CPPTools::Fmt {
 	
-	template<typename Char>
-		struct FormatType<std::basic_string<Char>, BasicFormatContext<Char>> {
-		inline static void Write(const std::basic_string<Char>& t, BasicFormatContext<Char>& context) {
+	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
+		struct FormatType<std::basic_string<CharBuffer>, BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>> {
+		inline static void Write(const std::basic_string<CharBuffer>& t, BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>& context) {
 			context.BufferWriteCharType(t.c_str());
 		}
 	};
 
-	template<typename Char>
-	struct FormatType<std::basic_string_view<Char>, BasicFormatContext<Char>> {
-		inline static void Write(const std::basic_string_view<Char>& t, BasicFormatContext<Char>& context) {
+		template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
+	struct FormatType<std::basic_string_view<CharBuffer>, BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>> {
+		inline static void Write(const std::basic_string_view<CharBuffer>& t, BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>& context) {
 			context.BufferWriteCharType(t.data(), t.size());
 		}
 	};
 
-	template<typename Char>
-	struct FormatType<std::basic_stringstream<Char>, BasicFormatContext<Char>> {
-		inline static void Write(const std::basic_stringstream<Char>& t, BasicFormatContext<Char>& context) {
-			FormatType<std::basic_string<Char>>::Write(t.str(), context);
+	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
+	struct FormatType<std::basic_stringstream<CharBuffer>, BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>> {
+		inline static void Write(const std::basic_stringstream<CharBuffer>& t, BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>& context) {
+			FormatType<std::basic_string<CharBuffer>>::Write(t.str(), context);
 		}
 	};
 }

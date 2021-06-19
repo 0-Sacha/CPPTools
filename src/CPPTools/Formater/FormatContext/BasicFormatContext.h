@@ -9,15 +9,17 @@
 
 namespace CPPTools::Fmt {
 
-	template<typename CharFormat = char, typename CharBuffer = CharFormat>
+	template<typename CharFormat = char, typename CharBuffer = CharFormat, typename ...ContextArgs>
 	class BasicFormatContext {
 	public:
-		BasicFormatContext(const std::basic_string_view<CharFormat> format, CharBuffer* const buffer, const std::size_t bufferSize);
+		BasicFormatContext(const std::basic_string_view<CharFormat> format, CharBuffer* const buffer, const std::size_t bufferSize, ContextArgs&& ...args);
 		
-		template<typename OldCharFormat>
-		BasicFormatContext(const std::basic_string_view<CharFormat> format, const BasicFormatContext<OldCharFormat, CharBuffer>& oldContext);
-		template<typename OldCharFormat>
-		inline void UpdateOldContext(BasicFormatContext<OldCharFormat, CharBuffer>& oldContext) { oldContext.m_SubBuffer = m_SubBuffer; }
+		template<typename OldCharFormat, typename ...OldContextArgs>
+		BasicFormatContext(const std::basic_string_view<CharFormat> format, BasicFormatContext<OldCharFormat, CharBuffer, OldContextArgs...>& oldContext, ContextArgs&& ...args);
+		
+		
+		template<typename OldCharFormat, typename ...OldContextArgs>
+		inline void UpdateOldContext(BasicFormatContext<OldCharFormat, CharBuffer, OldContextArgs...>& oldContext) { oldContext.SetSubBuffer(m_SubBuffer); }
 
 	private:
 		// Buffer
@@ -32,6 +34,10 @@ namespace CPPTools::Fmt {
 		const CharFormat*	m_FormatEnd;			// Point to the end char of the format
 		std::size_t			m_FormatSize;			// Do not count the end char
 
+		// Args
+		std::tuple<ContextArgs...>	m_ContextArgs;
+		std::size_t					m_ContextArgsSize;
+
 		// Stride (mostly for container and new line format-style)
 		std::size_t m_NoStride;
 
@@ -41,67 +47,75 @@ namespace CPPTools::Fmt {
 		Detail::AnsiColorMem	m_ColorMem;
 
 	public:
-		inline const CharBuffer* GetBuffer() const			{ return m_Buffer; }
-		inline std::size_t GetBufferSize() const			{ return m_BufferSize; }
-		inline std::size_t GetCurrentBufferSize() const		{ return m_SubBuffer - m_Buffer; }
+		inline CharBuffer*			GetBuffer()								{ return m_Buffer; }
+		inline const CharBuffer*	GetBuffer() const						{ return m_Buffer; }
+		inline CharBuffer*			GetSubBuffer()							{ return m_SubBuffer; }
+		inline const CharBuffer*	GetSubBuffer() const					{ return m_SubBuffer; }
+		inline CharBuffer*			GetBufferEnd()							{ return m_BufferEnd; }
+		inline const CharBuffer*	GetBufferEnd() const					{ return m_BufferEnd; }
+		inline std::size_t			GetBufferSize() const					{ return m_BufferSize; }
+		inline std::size_t			GetCurrentBufferSize() const			{ return m_SubBuffer - m_Buffer; }
+		inline void					SetSubBuffer(CharBuffer* const pos)		{ m_SubBuffer = pos; }
 
-		inline const CharFormat* GetFormat() const			{ return m_Format; }
-		inline std::size_t GetFormatSize() const			{ return m_FormatSize; }
-		inline std::size_t GetCurrentFormatDist() const		{ return m_SubFormat - m_Format; }
+		inline CharFormat*			GetFormat()								{ return m_Format; }
+		inline const CharFormat*	GetFormat() const						{ return m_Format; }
+		inline CharFormat*			GetSubFormat()							{ return m_SubFormat; }
+		inline const CharFormat*	GetSubFormat() const					{ return m_SubFormat; }
+		inline CharFormat*			GetFormatEnd()							{ return m_FormatEnd; }
+		inline const CharFormat*	GetFormatEnd() const					{ return m_FormatEnd; }
+		inline std::size_t			GetFormatSize() const					{ return m_FormatSize; }
+		inline std::size_t			GetCurrentFormatSize() const			{ return m_SubFormat - m_Format; }
+		inline void					SetSubFormat(CharFormat* const pos)		{ m_SubFormat = pos; }
 
-		inline Detail::AnsiColorMem& GetColorMem()			{ return m_ColorMem; }
-		inline FormatData& GetFormatData()					{ return m_FormatData; }
-		inline const FormatData& GetFormatData() const		{ return m_FormatData; }
-		inline FormatData ForwardFormatData() const			{ return m_FormatData; }
+		inline Detail::AnsiColorMem& GetColorMem()				{ return m_ColorMem; }
+		inline const Detail::AnsiColorMem& GetColorMem() const	{ return m_ColorMem; }
+		inline FormatData& GetFormatData()						{ return m_FormatData; }
+		inline const FormatData& GetFormatData() const			{ return m_FormatData; }
+		inline FormatData ForwardFormatData() const				{ return m_FormatData; }
 
-		inline void AddNoStride(const std::size_t noStride) { m_NoStride += noStride; }
-		inline std::size_t GetStride() const				{ return GetCurrentBufferSize() - m_NoStride; }
+		inline void AddNoStride(const std::size_t noStride)		{ m_NoStride += noStride; }
+		inline std::size_t GetNoStride() const					{ return m_NoStride; }
+		inline std::size_t GetStride() const					{ return GetCurrentBufferSize() - m_NoStride; }
 
 	public:
 		inline static FormaterHandler& GetAPI()				{ return FormaterHandler::GetInstance(); }
 
 	private:
 		/////---------- Default Print Rec ----------/////
-		void FormatTypeFromIdx(FormatIdx idx)										{}
+		void FormatTypeFromIdxRec(FormatIdx idx);
 		template<typename T, typename ...Args>
-		void FormatTypeFromIdx(FormatIdx idx, const T& t, Args&& ...args);
+		void FormatTypeFromIdxRec(FormatIdx idx, const T& t, Args&& ...args);
 
 		/////---------- Data Print Rec ----------/////
-		inline void GetParameterData(FormatIdx idx);
+		inline void GetParameterDataRec(FormatIdx idx);
 		template<typename T, typename ...Args>
-		inline void GetParameterData(FormatIdx idx, const T& t, Args&& ...args);
+		inline void GetParameterDataRec(FormatIdx idx, const T& t, Args&& ...args);
 
 		/////---------- Get NamedArgs ----------/////
-		void GetNamedArgsIdx(FormatIdx& idx, FormatIdx currentIdx)					{ idx = -1; }
+		void GetNamedArgsIdxRec(FormatIdx& idx, FormatIdx currentIdx);
 		template<typename T, typename ...Args, typename CharName>
-		void GetNamedArgsIdx(FormatIdx& idx, FormatIdx currentIdx, const StringViewNamedArgs<T, CharName, CharFormat>& t, Args&& ...args);
+		void GetNamedArgsIdxRec(FormatIdx& idx, FormatIdx currentIdx, const StringViewNamedArgs<T, CharName, CharFormat>& t, Args&& ...args);
 		template<typename T, typename ...Args, typename CharName>
-		void GetNamedArgsIdx(FormatIdx& idx, FormatIdx currentIdx, const StringNamedArgs<T, CharName, CharFormat>& t, Args&& ...args);
+		void GetNamedArgsIdxRec(FormatIdx& idx, FormatIdx currentIdx, const StringNamedArgs<T, CharName, CharFormat>& t, Args&& ...args);
 		template<typename T, typename ...Args>
-		void GetNamedArgsIdx(FormatIdx& idx, FormatIdx currentIdx, const T& t, Args&& ...args);
+		void GetNamedArgsIdxRec(FormatIdx& idx, FormatIdx currentIdx, const T& t, Args&& ...args);
+		
 		template<typename CharToTest>
 		bool FormatNextIsANamedArgs(std::basic_string_view<CharToTest> sv);
 
 		/////---------- Impl ----------/////
-		template<typename ...Args>
-		bool GetFormatIdx(FormatIdx& i, Args&& ...args);
-		template<typename ...Args>
-		bool ParameterPrint(Args&& ...args);
-		template<typename ...Args>
-		void ParameterData(Args&& ...args);
+		bool GetFormatIdx(FormatIdx& i);
+		bool ParameterPrint();
+		void ParameterData();
 
 	public:
-		template<typename ...Args>
-		void Format(Args&& ...args);
+		void Format();
+		void MainFormat();
+
 		template<typename NewCharFormat, typename ...Args>
 		void LittleFormat(const std::basic_string_view<NewCharFormat> format, Args&& ...args);
-		template<typename ...Args>
-		void LittleFormat(const std::basic_string_view<CharFormat> format, Args&& ...args);
-
 		template<typename CharType, std::size_t SIZE, typename ...Args>
-		inline void LittleFormat(const CharType (&format)[SIZE], Args&& ...args)	{ LittleFormat(std::basic_string_view<CharType>(format), std::forward<Args>(args)...); }
-		template<typename ...Args>
-		void MainFormat(Args&& ...args);
+		inline void LittleFormat(const CharType (&format)[SIZE], Args&& ...args)				{ LittleFormat(std::basic_string_view<CharType>(format), std::forward<Args>(args)...); }
 
 	private:
 		template<typename CharList, std::size_t SIZE>
@@ -119,7 +133,7 @@ namespace CPPTools::Fmt {
 	public:
 		template<typename T> bool FormatReadInt(T& i);
 		template<typename T> bool FormatReadUInt(T& i);
-		template<typename T, typename ...Args> bool FormatReadParameter(T& i, Args&& ...args);
+		template<typename T> bool FormatReadParameter(T& i);
 
 	public:
 		// Integer
