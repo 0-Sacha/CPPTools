@@ -29,7 +29,7 @@ namespace CPPTools::Fmt::FormatFunc {
 		else {
 			std::intmax_t i_int = (std::intmax_t)i;
 			std::intmax_t i_ = i_int < 0 ? -i_int : i_int;
-			int nb = 0;
+			std::int8_t nb = 0;
 			while (i_ > 0)		{ i_ /= 10; ++nb; --shift; }
 			shift -= nbDecimal;
 			if (i_int < 0)		--shift;

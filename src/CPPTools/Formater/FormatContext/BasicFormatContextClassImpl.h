@@ -66,7 +66,7 @@ namespace CPPTools::Fmt {
 			"white",
 		};
 
-		return GetWordFromList(colorCode);
+		return (std::uint8_t)GetWordFromList(colorCode);
 	}
 
 	template<typename CharFormat, typename CharBuffer>
@@ -161,7 +161,7 @@ namespace CPPTools::Fmt {
 	static inline void GetFormatValueAt(ValueType& value, FormatIdx idx) {}
 	template<typename ValueType, typename T, typename ...Args>
 	static inline std::enable_if_t<std::is_integral_v<T> || std::is_floating_point_v<T>> GetFormatValueAt(ValueType& value, FormatIdx idx, const T t, Args&& ...args) {
-		if (idx == 0)	value = t;
+		if (idx == 0)	value = (ValueType)t;
 		else			GetFormatValueAt(value, idx - 1, std::forward<Args>(args)...);
 	}
 	template<typename ValueType, typename T, typename ...Args>
@@ -173,7 +173,7 @@ namespace CPPTools::Fmt {
 	template<typename T, typename ...Args>
 	bool BasicFormatContext<CharFormat, CharBuffer>::FormatReadParameter(T& i, Args&& ...args) {
 		const CharFormat* const mainSubFormat = m_SubFormat;
-		FormatIdx formatIdx;
+		FormatIdx formatIdx = FormatIdxNotFound;
 		if (GetFormatIdx(formatIdx, std::forward<Args>(args)...)) {
 			FormatForward();
 			GetFormatValueAt(i, formatIdx, std::forward<Args>(args)...);
