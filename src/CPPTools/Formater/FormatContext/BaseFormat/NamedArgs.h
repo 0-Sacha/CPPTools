@@ -8,19 +8,20 @@ namespace CPPTools::Fmt {
 	struct StringViewNamedArgs
 	{
 		template<std::size_t SIZE>
-		StringViewNamedArgs(const CharName (&name)[SIZE], const T& t)
+		StringViewNamedArgs(const CharName (&name)[SIZE], T& t)
 			: m_Name(name), value(t) {}
 
-		StringViewNamedArgs(const std::basic_string_view<CharName> name, const T& t)
+		StringViewNamedArgs(const std::basic_string_view<CharName> name, T& t)
 			: m_Name(name), value(t) {}
 
 	public:
+		T& GetValue()											{ return value; }
 		const T& GetValue() const								{ return value; }
 		const std::basic_string_view<CharName> GetName() const	{ return m_Name; }
 
 	protected:
 		std::basic_string_view<CharName> m_Name;
-		const T& value;
+		T& value;
 	};
 
 	template<typename T, typename CharName, typename CharFormat, typename CharBuffer, typename ...ContextArgs>
@@ -36,19 +37,20 @@ namespace CPPTools::Fmt {
 	template<typename T, typename CharName = char, typename CharFormatContext = char>
 	struct StringNamedArgs
 	{
-		StringNamedArgs(const std::string& str, const T& t)
+		StringNamedArgs(const std::string& str, T& t)
 			: m_Name(name), value(t) {}
 
-		StringNamedArgs(std::string&& str, const T& t)
+		StringNamedArgs(std::string&& str, T& t)
 			: m_Name(std::move(name)), value(t) {}
 
 	public:
+		T& GetValue()											{ return value; }
 		const T& GetValue() const								{ return value; }
 		const std::basic_string<CharName>& GetName() const		{ return m_Name; }
 
 	protected:
-		const T& value;
 		std::basic_string<CharName> m_Name;
+		T& value;
 	};
 
 	template<typename T, typename CharName, typename CharFormat, typename CharBuffer, typename ...ContextArgs>

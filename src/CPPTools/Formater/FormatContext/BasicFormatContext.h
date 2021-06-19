@@ -112,10 +112,10 @@ namespace CPPTools::Fmt {
 		void Format();
 		void MainFormat();
 
-		template<typename NewCharFormat, typename ...Args>
-		void LittleFormat(const std::basic_string_view<NewCharFormat> format, Args&& ...args);
-		template<typename CharType, std::size_t SIZE, typename ...Args>
-		inline void LittleFormat(const CharType (&format)[SIZE], Args&& ...args)				{ LittleFormat(std::basic_string_view<CharType>(format), std::forward<Args>(args)...); }
+		template<typename NewCharFormat, typename ...NewContextArgs>
+		void LittleFormat(const std::basic_string_view<NewCharFormat> format, NewContextArgs&& ...args);
+		template<typename CharType, std::size_t SIZE, typename ...NewContextArgs>
+		inline void LittleFormat(const CharType (&format)[SIZE], NewContextArgs&& ...args)				{ LittleFormat(std::basic_string_view<CharType>(format), std::forward<NewContextArgs>(args)...); }
 
 	private:
 		template<typename CharList, std::size_t SIZE>

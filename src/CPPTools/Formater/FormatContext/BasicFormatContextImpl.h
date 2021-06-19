@@ -68,49 +68,27 @@ namespace CPPTools::Fmt {
 					GetFormatIdx(dataIdx);
 					std::apply([&](auto &&... args) { GetParameterDataRec(dataIdx, args...); }, m_ContextArgs);
 					FormatForward();
-				}
-				else if (FormatIsEqualForward('b')) {
-					m_FormatData.IntPrint = Detail::ValueIntPrint::Bin;	FormatReadUInt(m_FormatData.Precision);
-				}
-				else if (FormatIsEqualForward('x')) {
-					m_FormatData.IntPrint = Detail::ValueIntPrint::Hex;	FormatReadUInt(m_FormatData.Precision);
-				}
-				else if (FormatIsEqualForward('o')) {
-					m_FormatData.IntPrint = Detail::ValueIntPrint::Oct;	FormatReadUInt(m_FormatData.Precision);
-				}
-				else if (FormatIsEqualForward('d')) {
-					m_FormatData.IntPrint = Detail::ValueIntPrint::Int;	FormatReadUInt(m_FormatData.Precision);
-				}
-				else if (FormatIsLowerCase()) {	// Custom specifier
+				} else if (FormatIsEqualForward('b')) { m_FormatData.IntPrint = Detail::ValueIntPrint::Bin;	FormatReadUInt(m_FormatData.Precision);
+				} else if (FormatIsEqualForward('x')) { m_FormatData.IntPrint = Detail::ValueIntPrint::Hex;	FormatReadUInt(m_FormatData.Precision);
+				} else if (FormatIsEqualForward('o')) { m_FormatData.IntPrint = Detail::ValueIntPrint::Oct;	FormatReadUInt(m_FormatData.Precision);
+				} else if (FormatIsEqualForward('d')) { m_FormatData.IntPrint = Detail::ValueIntPrint::Int;	FormatReadUInt(m_FormatData.Precision);
+				} else if (FormatIsLowerCase()) {	// Custom specifier
 					const char c = FormatGetAndForward();
 					std::int8_t i = 0; FormatReadInt(i);
 					m_FormatData.AddSpecifier(c, i);
-				}
-				else if (FormatIsEqualForward('C')) {
+				} else if (FormatIsEqualForward('C')) {
 					m_FormatData.HasChangeColor = true; m_ColorMem = Detail::AnsiColorMem(); ColorValuePrint();
-				}
-				else if (FormatIsEqualForward('>')) {
+				} else if (FormatIsEqualForward('>')) {
 					m_FormatData.ShiftType = Detail::ShiftType::Right;	FormatReadUInt(m_FormatData.ShiftValue);
-				}
-				else if (FormatIsEqualForward('<')) {
+				} else if (FormatIsEqualForward('<')) {
 					m_FormatData.ShiftType = Detail::ShiftType::Left;	FormatReadUInt(m_FormatData.ShiftValue);
-				}
-				else if (FormatIsEqualForward('^')) {
+				} else if (FormatIsEqualForward('^')) {
 					m_FormatData.ShiftType = Detail::ShiftType::Center;	FormatReadUInt(m_FormatData.ShiftValue);
-				}
-				else if (FormatIsEqualForward('.')) {
-					if (!FormatIsEqualTo('{'))  FormatReadUInt(m_FormatData.FloatPrecision); else FormatReadParameter(m_FormatData.FloatPrecision);
-				}
-				else if (FormatIsEqualForward('S')) {
-					FormatReadUInt(m_FormatData.Size);
-				}
-				else if (FormatIsEqualForward('B')) {
-					FormatReadUInt(m_FormatData.Begin);
-				}
-				else if (FormatIsEqualForward('\n')) {
-					m_FormatData.ContainerPrintStyle = Detail::ContainerPrintStyle::NewLine;
-				}
-				else if (FormatIsEqualForward('=')) { m_FormatData.BaseValue = true; }
+				} else if (FormatIsEqualForward('.')) { if (!FormatIsEqualTo('{'))  FormatReadUInt(m_FormatData.FloatPrecision); else FormatReadParameter(m_FormatData.FloatPrecision);
+				} else if (FormatIsEqualForward('S')) { FormatReadUInt(m_FormatData.Size);
+				} else if (FormatIsEqualForward('B')) { FormatReadUInt(m_FormatData.Begin);
+				} else if (FormatIsEqualForward('\n')) { m_FormatData.ContainerPrintStyle = Detail::ContainerPrintStyle::NewLine;
+				} else if (FormatIsEqualForward('=')) { m_FormatData.BaseValue = true; }
 
 				FormatParamGoTo(',');
 			}
@@ -124,26 +102,26 @@ namespace CPPTools::Fmt {
 		// I : if there is no number specified : ':' or '}'
 		if (FormatIsEqualTo(':') || FormatIsEqualTo('}')) {
 			idx = m_ValuesIdx++;
-			return true;
+			if(idx < m_ContextArgsSize)	return true;
+			--m_ValuesIdx;
 		}
 
 		// II: A number(idx)
 		if (FormatReadUInt(idx))
 			if (FormatIsEqualTo(':') || FormatIsEqualTo('}'))
-				return true;
+				if (idx < m_ContextArgsSize)	return true;
 		m_SubFormat = mainSubFormat;
 
 		// III : A name
 		std::apply([&](auto &&... args) { GetNamedArgsIdxRec(idx, 0, args...); }, m_ContextArgs);
-
-		if (idx != FormatIdxNotFound)
+		if (idx < m_ContextArgsSize /* || idx != FormatIdxNotFound */)
 			return true;
 		m_SubFormat = mainSubFormat;
 
 		// VI : { which is a idx to a number
 		if (FormatIsEqualForward('{'))
 			if (GetFormatIdx(idx))
-				return true;
+				if (idx < m_ContextArgsSize)	return true;
 		m_SubFormat = mainSubFormat;
 
 		return false;

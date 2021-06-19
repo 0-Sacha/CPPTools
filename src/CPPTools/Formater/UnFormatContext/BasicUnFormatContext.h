@@ -3,7 +3,6 @@
 #include "CPPTools/Formater/Core/Core.h"
 
 #include "BaseFormat/UnFormatType.h"
-#include "BaseFormat/UFormatArgs.h"
 
 #include "../Core/FormaterHandler/FormaterHandler.h"
 #include "../FormatContext/BasicFormatContext.h"
@@ -26,11 +25,18 @@ namespace CPPTools::Fmt {
 
 namespace CPPTools::Fmt {
 
-	template<typename CharFormat = char, typename CharBuffer = CharFormat>
+	template<typename CharFormat = char, typename CharBuffer = CharFormat, typename ...ContextArgs>
 	class BasicUnFormatContext
 	{
 	public:
-		BasicUnFormatContext(const std::basic_string_view<CharFormat> format, const std::basic_string_view<CharBuffer> buffer);
+		BasicUnFormatContext(const std::basic_string_view<CharFormat> format, const std::basic_string_view<CharBuffer> buffer, ContextArgs&& ...args);
+
+		template<typename OldCharFormat, typename ...OldContextArgs>
+		BasicUnFormatContext(const std::basic_string_view<CharFormat> format, BasicUnFormatContext<OldCharFormat, CharBuffer, OldContextArgs...>& oldContext, ContextArgs&& ...args);
+
+
+		template<typename OldCharFormat, typename ...OldContextArgs>
+		inline void UpdateOldContext(BasicFormatContext<OldCharFormat, CharBuffer, OldContextArgs...>& oldContext) { oldContext.SetSubBuffer(m_SubBuffer); }
 
 	private:
 		const CharBuffer* const		m_Buffer;
@@ -43,18 +49,33 @@ namespace CPPTools::Fmt {
 		const CharFormat*	m_FormatEnd;
 		std::size_t			m_FormatSize;
 
+		std::tuple<ContextArgs...>	m_ContextArgs;
+		std::size_t					m_ContextArgsSize;
+
 		FormatIdx				m_ValuesIdx;
 		Detail::AnsiColorMem	m_ColorMem;
 		FormatData				m_FormatData;
 
 	public:
-		inline const CharBuffer* GetBuffer() const			{ return m_Buffer; }
-		inline std::size_t GetBufferSize() const			{ return m_BufferSize; }
-		inline std::size_t GetCurrentBufferDist() const		{ return m_SubBuffer - m_Buffer; }
+		inline CharBuffer*			GetBuffer()								{ return m_Buffer; }
+		inline const CharBuffer*	GetBuffer() const						{ return m_Buffer; }
+		inline CharBuffer*			GetSubBuffer()							{ return m_SubBuffer; }
+		inline const CharBuffer*	GetSubBuffer() const					{ return m_SubBuffer; }
+		inline CharBuffer*			GetBufferEnd()							{ return m_BufferEnd; }
+		inline const CharBuffer*	GetBufferEnd() const					{ return m_BufferEnd; }
+		inline std::size_t			GetBufferSize() const					{ return m_BufferSize; }
+		inline std::size_t			GetCurrentBufferSize() const			{ return m_SubBuffer - m_Buffer; }
+		inline void					SetSubBuffer(CharBuffer* const pos)		{ m_SubBuffer = pos; }
 
-		inline const CharFormat* GetFormat() const			{ return m_Format; }
-		inline std::size_t GetFormatSize() const			{ return m_FormatSize; }
-		inline std::size_t GetCurrentFormatDist() const		{ return m_SubFormat - m_Format; }
+		inline CharFormat*			GetFormat()								{ return m_Format; }
+		inline const CharFormat*	GetFormat() const						{ return m_Format; }
+		inline CharFormat*			GetSubFormat()							{ return m_SubFormat; }
+		inline const CharFormat*	GetSubFormat() const					{ return m_SubFormat; }
+		inline CharFormat*			GetFormatEnd()							{ return m_FormatEnd; }
+		inline const CharFormat*	GetFormatEnd() const					{ return m_FormatEnd; }
+		inline std::size_t			GetFormatSize() const					{ return m_FormatSize; }
+		inline std::size_t			GetCurrentFormatSize() const			{ return m_SubFormat - m_Format; }
+		inline void					SetSubFormat(CharFormat* const pos)		{ m_SubFormat = pos; }
 
 		inline Detail::AnsiColorMem& GetColorMem()			{ return m_ColorMem; }
 		inline FormatData& GetFormatData()					{ return m_FormatData; }
@@ -66,34 +87,31 @@ namespace CPPTools::Fmt {
 	private:
 
 		/////---------- Read Rec ----------/////
-		void UnFormatTypeFromIdx(FormatIdx idx)								{}
+		void UnFormatTypeFromIdxRec(FormatIdx idx);
 		template<typename T, typename ...Args>
-		void UnFormatTypeFromIdx(FormatIdx idx, T& t, Args&& ...args);
+		void UnFormatTypeFromIdxRec(FormatIdx idx, T& t, Args&& ...args);
 
 		/////---------- Data Print Rec ----------/////
-		inline void GetParameterData(FormatIdx idx);
+		inline void GetParameterDataRec(FormatIdx idx);
 		template<typename T, typename ...Args>
-		inline void GetParameterData(FormatIdx idx, const T& t, Args&& ...args);
+		inline void GetParameterDataRec(FormatIdx idx, const T& t, Args&& ...args);
 
 
 		/////---------- Get NamedArgs ----------/////
-		void GetNamedArgsIdx(FormatIdx& idx, FormatIdx currentIdx) { idx = -1; }
+		void GetNamedArgsIdxRec(FormatIdx& idx, FormatIdx currentIdx);
 		template<typename T, typename ...Args, typename CharName>
-		void GetNamedArgsIdx(FormatIdx& idx, FormatIdx currentIdx, const StringViewNamedArgs<T, CharName, CharFormat>& t, Args&& ...args);
+		void GetNamedArgsIdxRec(FormatIdx& idx, FormatIdx currentIdx, const StringViewNamedArgs<T, CharName, CharFormat>& t, Args&& ...args);
 		template<typename T, typename ...Args, typename CharName>
-		void GetNamedArgsIdx(FormatIdx& idx, FormatIdx currentIdx, const StringNamedArgs<T, CharName, CharFormat>& t, Args&& ...args);
+		void GetNamedArgsIdxRec(FormatIdx& idx, FormatIdx currentIdx, const StringNamedArgs<T, CharName, CharFormat>& t, Args&& ...args);
 		template<typename T, typename ...Args>
-		void GetNamedArgsIdx(FormatIdx& idx, FormatIdx currentIdx, const T& t, Args&& ...args);
+		void GetNamedArgsIdxRec(FormatIdx& idx, FormatIdx currentIdx, const T& t, Args&& ...args);
 		template<typename CharToTest>
 		bool FormatNextIsANamedArgs(std::basic_string_view<CharToTest> sv);
 
 		/////---------- Impl ----------/////
-		template<typename ...Args>
-		bool GetFormatIdx(FormatIdx& i, Args&& ...args);
-		template<typename ...Args>
-		bool ParameterRead(Args&& ...args);
-		template<typename ...Args>
-		void ParameterData(Args&& ...args);
+		bool GetFormatIdx(FormatIdx& i);
+		bool ParameterRead();
+		void ParameterData();
 
 	private:
 		void GetColorValue();
@@ -102,29 +120,24 @@ namespace CPPTools::Fmt {
 		void IgnoreParameter();
 
 	public:
-		template<typename ...Args>
-		bool UnFormat(Args&& ...args);
-		template<typename NewCharFormat, typename ...Args>
-		void LittleUnFormat(const std::basic_string_view<NewCharFormat> format, Args&& ...args);
-		template<typename ...Args>
-		void LittleUnFormat(const std::basic_string_view<CharFormat> format, Args&& ...args);
-		template<typename ...Args>
-		UnFormatContextError MainUnFormat(Args&& ...args);
+		bool UnFormat();
+		UnFormatContextError MainUnFormat();
+
+		template<typename NewCharFormat, typename ...NewContextArgs>
+		void LittleUnFormat(const std::basic_string_view<NewCharFormat> format, NewContextArgs&& ...args);
+		template<typename CharType, std::size_t SIZE, typename ...NewContextArgs>
+		inline void LittleFormat(const CharType(&format)[SIZE], NewContextArgs&& ...args)						{ LittleFormat(std::basic_string_view<CharType>(format), std::forward<NewContextArgs>(args)...); }
 
 	public:
-		template<typename T>
-		bool FormatReadInt(T& i);
-		template<typename T>
-		bool FormatReadUInt(T& i);
+		template<typename T> bool FormatReadInt(T& i);
+		template<typename T> bool FormatReadUInt(T& i);
 
 	public:
-		template<typename T>
-		bool BufferReadInt(T& i);
-		template<typename T>
-		bool BufferReadUInt(T& i);
+		template<typename T> bool BufferReadInt(T& i);
+		template<typename T> bool BufferReadUInt(T& i);
+		template<typename T> bool FormatReadParameter(T& i);
 
-		template<typename T>
-		bool BufferReadFloat(T& i);
+		template<typename T> bool BufferReadFloat(T& i);
 
 		template<std::size_t SIZE>
 		inline bool BufferReadCharType(CharBuffer(&str)[SIZE])							{ BufferReadCharType(str, SIZE); }

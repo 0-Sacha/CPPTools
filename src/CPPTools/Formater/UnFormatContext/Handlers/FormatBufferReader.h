@@ -6,9 +6,9 @@
 
 namespace CPPTools::Fmt {
 
-	template<typename CharFormat, typename CharBuffer>
+	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
 	template<typename T>
-	bool BasicUnFormatContext<CharFormat, CharBuffer>::BufferReadInt(T& i) {
+	bool BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>::BufferReadInt(T& i) {
 		if (m_FormatData.HasSpec) {
 			switch (m_FormatData.IntPrint) {
 			case Detail::ValueIntPrint::Int:
@@ -28,9 +28,9 @@ namespace CPPTools::Fmt {
 		return FormatFunc::UnFormatContextReadInt(*this, i);
 	}
 
-	template<typename CharFormat, typename CharBuffer>
+	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
 	template<typename T>
-	bool BasicUnFormatContext<CharFormat, CharBuffer>::BufferReadUInt(T& i) {
+	bool BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>::BufferReadUInt(T& i) {
 		if (m_FormatData.HasSpec) {
 			switch (m_FormatData.IntPrint) {
 			case Detail::ValueIntPrint::Int:
@@ -50,9 +50,9 @@ namespace CPPTools::Fmt {
 		return FormatFunc::UnFormatContextReadUInt(*this, i);
 	}
 
-	template<typename CharFormat, typename CharBuffer>
+	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
 	template<typename T>
-	bool BasicUnFormatContext<CharFormat, CharBuffer>::BufferReadFloat(T& i) {
+	bool BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>::BufferReadFloat(T& i) {
 		if (m_FormatData.HasSpec) {
 			if (m_FormatData.ShiftType == Detail::ShiftType::Nothing)	{ return FormatFunc::UnFormatContextReadFloat(*this, i, m_FormatData.FloatPrecision); }
 			else														{ return FormatFunc::UnFormatContextReadFloat(*this, i, m_FormatData.FloatPrecision, m_FormatData.ShiftType, m_FormatData.ShiftValue, m_FormatData.ShiftPrint); }

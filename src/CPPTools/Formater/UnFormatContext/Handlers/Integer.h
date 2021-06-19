@@ -10,8 +10,8 @@ namespace CPPTools::Fmt::FormatFunc {
 	//-------------------- Int --------------------//
 	//---------------------------------------------//
 
-	template<typename T, typename CharFormat, typename CharBuffer>
-	bool UnFormatContextReadInt(BasicUnFormatContext<CharFormat, CharBuffer>& context, T& i) {
+	template<typename T, typename CharFormat, typename CharBuffer, typename ...ContextArgs>
+	bool UnFormatContextReadInt(BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>& context, T& i) {
 		T res = 0;
 		bool sign = false, isValid = false;
 
@@ -24,21 +24,21 @@ namespace CPPTools::Fmt::FormatFunc {
 		return isValid;
 	}
 
-	template<typename T, typename CharFormat, typename CharBuffer>
-	bool UnFormatContextReadInt(BasicUnFormatContext<CharFormat, CharBuffer>& context, T& i, Detail::ShiftType st, FormatDataType shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
+	template<typename T, typename CharFormat, typename CharBuffer, typename ...ContextArgs>
+	bool UnFormatContextReadInt(BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>& context, T& i, Detail::ShiftType st, FormatDataType shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
 		return false;
 	}
 
 
 	//-------------------- UInt Bin --------------------//
 
-	template<typename T, typename CharFormat, typename CharBuffer>
-	bool UnFormatContextReadIntAsBin(BasicUnFormatContext<CharFormat, CharBuffer>& context, T& i, FormatDataType def) {
+	template<typename T, typename CharFormat, typename CharBuffer, typename ...ContextArgs>
+	bool UnFormatContextReadIntAsBin(BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>& context, T& i, FormatDataType def) {
 		return false;
 	}
 
-	template<typename T, typename CharFormat, typename CharBuffer>
-	bool UnFormatContextReadIntAsBin(BasicUnFormatContext<CharFormat, CharBuffer>& context, T& i, FormatDataType def, Detail::ShiftType st, FormatDataType shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
+	template<typename T, typename CharFormat, typename CharBuffer, typename ...ContextArgs>
+	bool UnFormatContextReadIntAsBin(BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>& context, T& i, FormatDataType def, Detail::ShiftType st, FormatDataType shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
 		return false;
 	}
 
@@ -46,26 +46,26 @@ namespace CPPTools::Fmt::FormatFunc {
 	//-------------------- UInt Hex --------------------//
 
 
-	template<typename T, typename CharFormat, typename CharBuffer>
-	bool UnFormatContextReadIntAsHex(BasicUnFormatContext<CharFormat, CharBuffer>& context, T& i, FormatDataType def) {
+	template<typename T, typename CharFormat, typename CharBuffer, typename ...ContextArgs>
+	bool UnFormatContextReadIntAsHex(BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>& context, T& i, FormatDataType def) {
 		return false;
 	}
 
-	template<typename T, typename CharFormat, typename CharBuffer>
-	bool UnFormatContextReadIntAsHex(BasicUnFormatContext<CharFormat, CharBuffer>& context, T& i, FormatDataType def, Detail::ShiftType st, FormatDataType shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
+	template<typename T, typename CharFormat, typename CharBuffer, typename ...ContextArgs>
+	bool UnFormatContextReadIntAsHex(BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>& context, T& i, FormatDataType def, Detail::ShiftType st, FormatDataType shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
 		return false;
 	}
 
 
 	//-------------------- UInt Oct --------------------//
 
-	template<typename T, typename CharFormat, typename CharBuffer>
-	bool UnFormatContextReadIntAsOct(BasicUnFormatContext<CharFormat, CharBuffer>& context, T& i, FormatDataType def) {
+	template<typename T, typename CharFormat, typename CharBuffer, typename ...ContextArgs>
+	bool UnFormatContextReadIntAsOct(BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>& context, T& i, FormatDataType def) {
 		return false;
 	}
 
-	template<typename T, typename CharFormat, typename CharBuffer>
-	bool UnFormatContextReadIntAsOct(BasicUnFormatContext<CharFormat, CharBuffer>& context, T& i, FormatDataType def, Detail::ShiftType st, int32_t shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
+	template<typename T, typename CharFormat, typename CharBuffer, typename ...ContextArgs>
+	bool UnFormatContextReadIntAsOct(BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>& context, T& i, FormatDataType def, Detail::ShiftType st, int32_t shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
 		return false;
 	}
 
@@ -78,8 +78,8 @@ namespace CPPTools::Fmt::FormatFunc {
 	//-------------------- UInt --------------------//
 	//----------------------------------------------//
 
-	template<typename T, typename CharFormat, typename CharBuffer>
-	bool UnFormatContextReadUInt(BasicUnFormatContext<CharFormat, CharBuffer>& context, T& i) {
+	template<typename T, typename CharFormat, typename CharBuffer, typename ...ContextArgs>
+	bool UnFormatContextReadUInt(BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>& context, T& i) {
 		T res = (T)0;
 		bool isValid = false;
 
@@ -91,21 +91,21 @@ namespace CPPTools::Fmt::FormatFunc {
 		return isValid;
 	}
 
-	template<typename T, typename CharFormat, typename CharBuffer>
-	bool UnFormatContextReadUInt(BasicUnFormatContext<CharFormat, CharBuffer>& context, T& i, Detail::ShiftType st, FormatDataType shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
+	template<typename T, typename CharFormat, typename CharBuffer, typename ...ContextArgs>
+	bool UnFormatContextReadUInt(BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>& context, T& i, Detail::ShiftType st, FormatDataType shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
 		return false;
 	}
 
 
 	//-------------------- UInt Bin --------------------//
 
-	template<typename T, typename CharFormat, typename CharBuffer>
-	bool UnFormatContextReadUIntAsBin(BasicUnFormatContext<CharFormat, CharBuffer>& context, T& i, FormatDataType def) {
+	template<typename T, typename CharFormat, typename CharBuffer, typename ...ContextArgs>
+	bool UnFormatContextReadUIntAsBin(BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>& context, T& i, FormatDataType def) {
 		return false;
 	}
 
-	template<typename T, typename CharFormat, typename CharBuffer>
-	bool UnFormatContextReadUIntAsBin(BasicUnFormatContext<CharFormat, CharBuffer>& context, T& i, FormatDataType def, Detail::ShiftType st, FormatDataType shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
+	template<typename T, typename CharFormat, typename CharBuffer, typename ...ContextArgs>
+	bool UnFormatContextReadUIntAsBin(BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>& context, T& i, FormatDataType def, Detail::ShiftType st, FormatDataType shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
 		return false;
 	}
 
@@ -113,26 +113,26 @@ namespace CPPTools::Fmt::FormatFunc {
 	//-------------------- UInt Hex --------------------//
 
 
-	template<typename T, typename CharFormat, typename CharBuffer>
-	bool UnFormatContextReadUIntAsHex(BasicUnFormatContext<CharFormat, CharBuffer>& context, T& i, FormatDataType def) {
+	template<typename T, typename CharFormat, typename CharBuffer, typename ...ContextArgs>
+	bool UnFormatContextReadUIntAsHex(BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>& context, T& i, FormatDataType def) {
 		return false;
 	}
 
-	template<typename T, typename CharFormat, typename CharBuffer>
-	bool UnFormatContextReadUIntAsHex(BasicUnFormatContext<CharFormat, CharBuffer>& context, T& i, FormatDataType def, Detail::ShiftType st, FormatDataType shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
+	template<typename T, typename CharFormat, typename CharBuffer, typename ...ContextArgs>
+	bool UnFormatContextReadUIntAsHex(BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>& context, T& i, FormatDataType def, Detail::ShiftType st, FormatDataType shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
 		return false;
 	}
 
 
 	//-------------------- UInt Oct --------------------//
 
-	template<typename T, typename CharFormat, typename CharBuffer>
-	bool UnFormatContextReadUIntAsOct(BasicUnFormatContext<CharFormat, CharBuffer>& context, T& i, FormatDataType def) {
+	template<typename T, typename CharFormat, typename CharBuffer, typename ...ContextArgs>
+	bool UnFormatContextReadUIntAsOct(BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>& context, T& i, FormatDataType def) {
 		return false;
 	}
 
-	template<typename T, typename CharFormat, typename CharBuffer>
-	bool UnFormatContextReadUIntAsOct(BasicUnFormatContext<CharFormat, CharBuffer>& context, T& i, FormatDataType def, Detail::ShiftType st, FormatDataType shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
+	template<typename T, typename CharFormat, typename CharBuffer, typename ...ContextArgs>
+	bool UnFormatContextReadUIntAsOct(BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>& context, T& i, FormatDataType def, Detail::ShiftType st, FormatDataType shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
 		return false;
 	}
 }
