@@ -1,14 +1,14 @@
 #pragma once
 
-#include "CPPTools/Formater/BasicFormatContext.h"
+#include "CPPTools/Formater/Formater.h"
 #include <stack>
 
 namespace CPPTools::Fmt {
 
-	template<typename T>
-	struct FormatType<std::stack<T>>
+	template<typename T, typename FormatContext>
+	struct FormatType<std::stack<T>, FormatContext>
 	{
-		static void Write(const std::stack<T>& t, BasicFormatContext& formater, const FormatData& data) {
+		static void Write(const std::stack<T>& t, FormatContext& formater) {
 
 		}
 	};

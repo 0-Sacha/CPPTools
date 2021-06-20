@@ -1,14 +1,14 @@
 #pragma once
 
-#include "CPPTools/Formater/BasicFormatContext.h"
+#include "CPPTools/Formater/Formater.h"
 #include <queue>
 
 namespace CPPTools::Fmt {
 
-	template<typename T>
-	struct FormatType<std::queue<T>>
+	template<typename T, typename FormatContext>
+	struct FormatType<std::queue<T>, FormatContext>
 	{
-		static void Write(const std::queue<T>& t, BasicFormatContext& formater, const FormatData& data) {
+		static void Write(const std::queue<T>& t, FormatContext& formater) {
 		}
 	};
 

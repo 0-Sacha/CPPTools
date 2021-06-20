@@ -186,10 +186,10 @@ namespace CPPTools::Fmt {
 		inline bool FormatNextIsNotEqualTo(const CharFormat c) const				{ return FormatGetNext() != c; }
 		inline bool FormatNextIsEqualForward(const CharFormat c)					{ FormatForward(); if(!FormatIsEqualTo(c)) { FormatBackwardNoCheck(); return false; } return true; }
 		inline bool FormatNextIsNotEqualForward(const CharFormat c)					{ FormatForward(); if (!FormatIsNotEqualTo(c)) { FormatBackwardNoCheck(); return false; } return true; }
-		template<typename ...CharToTest> inline bool FormatNextIsEqualForward(const CharFormat c, const CharToTest ...ele)		{ FormatForward(); return FormatIsEqualTo(c) || FormatIsEqualTo(ele...); }
-		template<typename ...CharToTest> inline bool FormatNextIsEqualTo(const CharToTest ...ele) const							{ if (!FormatNextIsEqualForward(c, ele)) { FormatBackwardNoCheck(); return false; } return true; }
-		template<typename ...CharToTest> inline bool FormatNextIsNotEqualForward(const CharFormat c, const CharToTest ...ele)	{ FormatForward(); return FormatIsNotEqualTo(c) || FormatIsNotEqualTo(ele...); }
-		template<typename ...CharToTest> inline bool FormatNextIsNotEqualTo(const CharToTest ...ele) const						{ if (!FormatNextIsNotEqualForward(c, ele)) { FormatBackwardNoCheck(); return false; } return true; }
+		template<typename ...CharToTest> inline bool FormatNextIsEqualForward(const CharToTest ...ele)		{ FormatForward(); if (FormatIsEqualTo(ele...)) { return true; } FormatBackwardNoCheck(); return false; }
+		template<typename ...CharToTest> inline bool FormatNextIsEqualTo(const CharToTest ...ele) const		{ FormatForward(); if (FormatIsEqualTo(ele...)) { FormatBackwardNoCheck(); return true; } FormatBackwardNoCheck(); return false; }
+		template<typename ...CharToTest> inline bool FormatNextIsNotEqualForward(const CharToTest ...ele)	{ FormatForward(); if (FormatIsNotEqualTo(ele...)) { return true; } FormatBackwardNoCheck(); return false; }
+		template<typename ...CharToTest> inline bool FormatNextIsNotEqualTo(const CharToTest ...ele) const	{ FormatForward(); if (FormatIsNotEqualTo(ele...)) { FormatBackwardNoCheck(); return true; } FormatBackwardNoCheck(); return false; }
 
 		template<typename CharToTest>
 		bool FormatNextIsSame(std::basic_string_view<CharToTest> sv);

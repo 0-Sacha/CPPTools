@@ -182,11 +182,11 @@ namespace CPPTools::Fmt {
 		inline bool FormatNextIsNotEqualTo(const CharFormat c) const				{ return FormatGetNext() != c; }
 		inline bool FormatNextIsEqualForward(const CharFormat c)					{ FormatForward(); if(!FormatIsEqualTo(c)) { FormatBackwardNoCheck(); return false; } return true; }
 		inline bool FormatNextIsNotEqualForward(const CharFormat c)					{ FormatForward(); if (!FormatIsNotEqualTo(c)) { FormatBackwardNoCheck(); return false; } return true; }
-		template<typename ...CharToTest> inline bool FormatNextIsEqualForward(const CharFormat c, const CharToTest ...ele)		{ FormatForward(); return FormatIsEqualTo(c) || FormatIsEqualTo(ele...); }
-		template<typename ...CharToTest> inline bool FormatNextIsEqualTo(const CharToTest ...ele) const							{ if (!FormatNextIsEqualForward(c, ele)) { FormatBackwardNoCheck(); return false; } return true; }
-		template<typename ...CharToTest> inline bool FormatNextIsNotEqualForward(const CharFormat c, const CharToTest ...ele)	{ FormatForward(); return FormatIsNotEqualTo(c) || FormatIsNotEqualTo(ele...); }
-		template<typename ...CharToTest> inline bool FormatNextIsNotEqualTo(const CharToTest ...ele) const						{ if (!FormatNextIsNotEqualForward(c, ele)) { FormatBackwardNoCheck(); return false; } return true; }
-
+		template<typename ...CharToTest> inline bool FormatNextIsEqualForward(const CharToTest ...ele)		{ FormatForward(); if (FormatIsEqualTo(ele...)) { return true; } FormatBackwardNoCheck(); return false; }
+		template<typename ...CharToTest> inline bool FormatNextIsEqualTo(const CharToTest ...ele) const		{ FormatForward(); if (FormatIsEqualTo(ele...)) { FormatBackwardNoCheck(); return true; } FormatBackwardNoCheck(); return false; }
+		template<typename ...CharToTest> inline bool FormatNextIsNotEqualForward(const CharToTest ...ele)	{ FormatForward(); if (FormatIsNotEqualTo(ele...)) { return true; } FormatBackwardNoCheck(); return false; }
+		template<typename ...CharToTest> inline bool FormatNextIsNotEqualTo(const CharToTest ...ele) const	{ FormatForward(); if (FormatIsNotEqualTo(ele...)) { FormatBackwardNoCheck(); return true; } FormatBackwardNoCheck(); return false; }
+		
 		template<typename CharToTest>
 		bool FormatNextIsSame(std::basic_string_view<CharToTest> sv);
 		template<std::size_t SIZE, typename CharToTest>
@@ -243,11 +243,11 @@ namespace CPPTools::Fmt {
 		inline bool BufferNextIsNotEqualTo(const CharBuffer c) const				{ return BufferGetNext() != c; }
 		inline bool BufferNextIsEqualForward(const CharBuffer c)					{ BufferForward(); if(!BufferIsEqualTo(c)) { BufferBackwardNoCheck(); return false; } return true; }
 		inline bool BufferNextIsNotEqualForward(const CharBuffer c)					{ BufferForward(); if (!BufferIsNotEqualTo(c)) { BufferBackwardNoCheck(); return false; } return true; }
-		template<typename ...CharToTest> inline bool BufferNextIsEqualForward(const CharBuffer c, const CharToTest ...ele)		{ BufferForward(); return BufferIsEqualTo(c) || BufferIsEqualTo(ele...); }
-		template<typename ...CharToTest> inline bool BufferNextIsEqualTo(const CharToTest ...ele) const							{ if (!BufferNextIsEqualForward(c, ele)) { BufferBackwardNoCheck(); return false; } return true; }
-		template<typename ...CharToTest> inline bool BufferNextIsNotEqualForward(const CharBuffer c, const CharToTest ...ele)	{ BufferForward(); return BufferIsNotEqualTo(c) || BufferIsNotEqualTo(ele...); }
-		template<typename ...CharToTest> inline bool BufferNextIsNotEqualTo(const CharToTest ...ele) const						{ if (!BufferNextIsNotEqualForward(c, ele)) { BufferBackwardNoCheck(); return false; } return true; }
-
+		template<typename ...CharToTest> inline bool BufferNextIsEqualForward(const CharToTest ...ele)		{ BufferForward(); if (BufferIsEqualTo(ele...)) { return true; } BufferBackwardNoCheck(); return false; }
+		template<typename ...CharToTest> inline bool BufferNextIsEqualTo(const CharToTest ...ele) const		{ BufferForward(); if (BufferIsEqualTo(ele...)) { BufferBackwardNoCheck(); return true; } BufferBackwardNoCheck(); return false; }
+		template<typename ...CharToTest> inline bool BufferNextIsNotEqualForward(const CharToTest ...ele)	{ BufferForward(); if (BufferIsNotEqualTo(ele...)) { return true; } BufferBackwardNoCheck(); return false; }
+		template<typename ...CharToTest> inline bool BufferNextIsNotEqualTo(const CharToTest ...ele) const	{ BufferForward(); if (BufferIsNotEqualTo(ele...)) { BufferBackwardNoCheck(); return true; } BufferBackwardNoCheck(); return false; }
+		
 		template<typename CharToTest>
 		bool BufferNextIsSame(std::basic_string_view<CharToTest> sv);
 		template<std::size_t SIZE, typename CharToTest>

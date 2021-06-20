@@ -38,10 +38,10 @@ namespace CPPTools::Fmt {
 	struct StringNamedArgs
 	{
 		StringNamedArgs(const std::string& str, T& t)
-			: m_Name(name), value(t) {}
+			: m_Name(str), value(t) {}
 
 		StringNamedArgs(std::string&& str, T& t)
-			: m_Name(std::move(name)), value(t) {}
+			: m_Name(std::move(str)), value(t) {}
 
 	public:
 		T& GetValue()											{ return value; }

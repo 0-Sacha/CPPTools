@@ -191,7 +191,6 @@ namespace CPPTools::Fmt {
 	struct FormatType<T[SIZE], FormatContext>
 	{
 		static void Write(T const (&t)[SIZE], FormatContext& context) {
-
 			context.BufferPushBack('[');
 
 			FormatData& data = context.GetFormatData();
@@ -211,7 +210,7 @@ namespace CPPTools::Fmt {
 					context.BufferWriteCharType(nextElement);
 					context.BufferAddSpaces(stride);
 				}
-				FormatType<T, BasicFormatContext<Char>>::Write(*begin++, context);
+				FormatType<T, FormatContext>::Write(*begin++, context);
 			}
 
 			context.BufferPushBack(']');
