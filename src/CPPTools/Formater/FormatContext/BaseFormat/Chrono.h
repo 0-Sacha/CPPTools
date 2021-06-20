@@ -42,12 +42,12 @@ namespace CPPTools::Fmt::ChronoDetail {
 		bool isSpecified = false;
 		if (context.FormatIsEqualForward(':')) {
 			isSpecified = true;
-			context.WriteUntilEndOfParameterOr('%', '#');
+			context.WriteUntilEndOfParameter('%', '#');
 			while (!context.FormatIsEndOfParameter()) {
 				if (context.FormatIsEqualForward('%'))			WriteTestTimeMod(value, context);
 				else if (context.FormatIsEqualForward('#'))	WriteTestTime(value, context);
 				else											context.FormatGoToEndOfParameter();
-				context.WriteUntilEndOfParameterOr('%', '#');
+				context.WriteUntilEndOfParameter('%', '#');
 			}
 		}
 		return isSpecified;

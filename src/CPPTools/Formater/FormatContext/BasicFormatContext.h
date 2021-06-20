@@ -167,17 +167,29 @@ namespace CPPTools::Fmt {
 		inline CharFormat FormatGetAndForward()										{ return FormatCanMoveForward() ? *m_SubFormat++ : '\0'; }
 		inline CharFormat FormatGetAndForwardNoCheck()								{ return *m_SubFormat++; }
 		inline CharFormat FormatGetAndBackward()									{ return FormatCanMoveBackward() ? *m_SubFormat-- : '\0'; }
+		inline CharFormat FormatGetAndBackwardNoCheck()								{ return *m_SubFormat--; }
 		inline CharFormat FormatGetNext() const										{ return FormatCanMoveForward() ? *(m_SubFormat + 1) : '\0'; }
+		inline CharFormat FormatGetNextNoCheck() const								{ return *(m_SubFormat + 1); }
 
 		// Format check
 		inline bool FormatIsEqualTo(const CharFormat c) const						{ return FormatGet() == c; }
 		inline bool FormatIsNotEqualTo(const CharFormat c) const					{ return FormatGet() != c; }
 		inline bool FormatIsEqualForward(const CharFormat c)						{ if (FormatIsEqualTo(c)) { FormatForward(); return true; } return false; }
 		inline bool FormatIsNotEqualForward(const CharFormat c)						{ if (FormatIsNotEqualTo(c)) { FormatForward(); return true; } return false; }
+		template<typename ...CharToTest> inline bool FormatIsEqualTo(const CharFormat c, const CharToTest ...ele) const		{ return FormatIsEqualTo(c) || FormatIsEqualTo(ele...); }
+		template<typename ...CharToTest> inline bool FormatIsEqualForward(const CharToTest ...ele) const					{ if (FormatIsEqualTo(ele...)) { FormatForward(); return true; } return false; }
+		template<typename ...CharToTest> inline bool FormatIsNotEqualTo(const CharFormat c, const CharToTest ...ele) const	{ return FormatIsNotEqualTo(c) && FormatIsNotEqualTo(ele...); }
+		template<typename ...CharToTest> inline bool FormatIsNotEqualForward(const CharToTest ...ele) const					{ if (FormatIsNotEqualTo(ele...)) { FormatForward(); return true; } return false; }
+
+		// Format Next check
 		inline bool FormatNextIsEqualTo(const CharFormat c) const					{ return FormatGetNext() == c; }
 		inline bool FormatNextIsNotEqualTo(const CharFormat c) const				{ return FormatGetNext() != c; }
-		inline bool FormatNextIsEqualForward(const CharFormat c)					{ if (FormatNextIsEqualTo(c)) { FormatForward(); return true; } return false; }
-		inline bool FormatNextIsNotEqualForward(const CharFormat c)					{ if (FormatNextIsNotEqualTo(c)) { FormatForward(); return true; } return false; }
+		inline bool FormatNextIsEqualForward(const CharFormat c)					{ FormatForward(); if(!FormatIsEqualTo(c)) { FormatBackwardNoCheck(); return false; } return true; }
+		inline bool FormatNextIsNotEqualForward(const CharFormat c)					{ FormatForward(); if (!FormatIsNotEqualTo(c)) { FormatBackwardNoCheck(); return false; } return true; }
+		template<typename ...CharToTest> inline bool FormatNextIsEqualForward(const CharFormat c, const CharToTest ...ele)		{ FormatForward(); return FormatIsEqualTo(c) || FormatIsEqualTo(ele...); }
+		template<typename ...CharToTest> inline bool FormatNextIsEqualTo(const CharToTest ...ele) const							{ if (!FormatNextIsEqualForward(c, ele)) { FormatBackwardNoCheck(); return false; } return true; }
+		template<typename ...CharToTest> inline bool FormatNextIsNotEqualForward(const CharFormat c, const CharToTest ...ele)	{ FormatForward(); return FormatIsNotEqualTo(c) || FormatIsNotEqualTo(ele...); }
+		template<typename ...CharToTest> inline bool FormatNextIsNotEqualTo(const CharToTest ...ele) const						{ if (!FormatNextIsNotEqualForward(c, ele)) { FormatBackwardNoCheck(); return false; } return true; }
 
 		template<typename CharToTest>
 		bool FormatNextIsSame(std::basic_string_view<CharToTest> sv);
@@ -190,22 +202,12 @@ namespace CPPTools::Fmt {
 
 		// Format commands
 		inline void FormatIgnoreSpace()												{ while (FormatIsEqualTo(' ') && FormatCanMoveForward()) FormatForwardNoCheck(); }
-
-		inline void FormatGoTo(const CharFormat c)														{ while (FormatIsNotEqualTo(c) && FormatCanMoveForward())														FormatForwardNoCheck(); }
-		inline void FormatGoTo(const CharFormat c0, const CharFormat c1)								{ while (FormatIsNotEqualTo(c0) && FormatIsNotEqualTo(c1) && FormatCanMoveForward())							FormatForwardNoCheck(); }
-		inline void FormatGoTo(const CharFormat c0, const CharFormat c1, const CharFormat c2)			{ while (FormatIsNotEqualTo(c0) && FormatIsNotEqualTo(c1) && FormatIsNotEqualTo(c2) && FormatCanMoveForward())	FormatForwardNoCheck(); }
-		inline void FormatGoToForward(const CharFormat c)												{ while (FormatIsNotEqualTo(c) && FormatCanMoveForward())														FormatForwardNoCheck();	FormatForward(); }
-		inline void FormatGoToForward(const CharFormat c0, const CharFormat c1)							{ while (FormatIsNotEqualTo(c0) && FormatIsNotEqualTo(c1) && FormatCanMoveForward())							FormatForwardNoCheck();	FormatForward(); }
-		inline void FormatGoToForward(const CharFormat c0, const CharFormat c1, const CharFormat c2)	{ while (FormatIsNotEqualTo(c0) && FormatIsNotEqualTo(c1) && FormatIsNotEqualTo(c2) && FormatCanMoveForward())	FormatForwardNoCheck();	FormatForward(); }
-
+		template<typename ...CharToTest> inline void FormatGoTo(const CharToTest ...ele)				{ while (FormatIsNotEqualTo(ele...) && FormatCanMoveForward())	FormatForwardNoCheck(); }
+		template<typename ...CharToTest> inline void FormatGoToForward(const CharToTest ...ele)			{ while (FormatIsNotEqualTo(ele...) && FormatCanMoveForward())	FormatForwardNoCheck();	FormatForward(); }
+	
 		// Format commands in parameter (add check to '}' to avoid skip the end of the format specifier)
-		inline void FormatParamGoTo(const CharFormat c)														{ while (FormatIsNotEqualTo('}') && FormatIsNotEqualTo(c) && FormatCanMoveForward())														FormatForwardNoCheck(); }
-		inline void FormatParamGoTo(const CharFormat c0, const CharFormat c1)								{ while (FormatIsNotEqualTo('}') && FormatIsNotEqualTo(c0) && FormatIsNotEqualTo(c1) && FormatCanMoveForward())								FormatForwardNoCheck(); }
-		inline void FormatParamGoTo(const CharFormat c0, const CharFormat c1, const CharFormat c2)			{ while (FormatIsNotEqualTo('}') && FormatIsNotEqualTo(c0) && FormatIsNotEqualTo(c1) && FormatIsNotEqualTo(c2) && FormatCanMoveForward())	FormatForwardNoCheck(); }
-		inline void FormatParamGoToForward(const CharFormat c)												{ while (FormatIsNotEqualTo('}') && FormatIsNotEqualTo(c) && FormatCanMoveForward())														FormatForwardNoCheck();	FormatForward(); }
-		inline void FormatParamGoToForward(const CharFormat c0, const CharFormat c1)						{ while (FormatIsNotEqualTo('}') && FormatIsNotEqualTo(c0) && FormatIsNotEqualTo(c1) && FormatCanMoveForward())								FormatForwardNoCheck();	FormatForward(); }
-		inline void FormatParamGoToForward(const CharFormat c0, const CharFormat c1, const CharFormat c2)	{ while (FormatIsNotEqualTo('}') && FormatIsNotEqualTo(c0) && FormatIsNotEqualTo(c1) && FormatIsNotEqualTo(c2) && FormatCanMoveForward())	FormatForwardNoCheck();	FormatForward(); }
-
+		template<typename ...CharToTest> inline void FormatParamGoTo(const CharToTest ...ele)			{ while (FormatIsNotEqualTo(ele..., '}') && FormatCanMoveForward())	FormatForwardNoCheck(); }
+		template<typename ...CharToTest> inline void FormatParamGoToForward(const CharToTest ...ele)	{ while (FormatIsNotEqualTo(ele..., '}') && FormatCanMoveForward())	FormatForwardNoCheck();	FormatForward(); }
 
 	public:
 		// Buffer
@@ -244,15 +246,8 @@ namespace CPPTools::Fmt {
 
 		inline void CopyFormatToBuffer()											{ BufferPushBack(FormatGetAndForward()); }
 
-		inline void WriteUntilNextParameter() 																	{ while (FormatIsNotEqualTo('{') && FormatCanMoveForward())																					CopyFormatToBuffer(); }
-		inline void WriteUntilNextParameterOr(const CharFormat c)												{ while (FormatIsNotEqualTo(c) && FormatIsNotEqualTo('{') && FormatCanMoveForward())														CopyFormatToBuffer(); }
-		inline void WriteUntilNextParameterOr(const CharFormat c0, const CharFormat c1)							{ while (FormatIsNotEqualTo(c0) && FormatIsNotEqualTo(c1) && FormatIsNotEqualTo('{') && FormatCanMoveForward())								CopyFormatToBuffer(); }
-		inline void WriteUntilNextParameterOr(const CharFormat c0, const CharFormat c1, const CharFormat c2)	{ while (FormatIsNotEqualTo(c0) && FormatIsNotEqualTo(c1) && FormatIsNotEqualTo(c2) && FormatIsNotEqualTo('{') && FormatCanMoveForward())	CopyFormatToBuffer(); }
-
-		inline void WriteUntilEndOfParameter()																	{ while (FormatIsNotEqualTo('}') && FormatCanMoveForward())																					CopyFormatToBuffer(); }
-		inline void WriteUntilEndOfParameterOr(const CharFormat c)												{ while (FormatIsNotEqualTo(c) && FormatIsNotEqualTo('}') && FormatCanMoveForward())														CopyFormatToBuffer(); }
-		inline void WriteUntilEndOfParameterOr(const CharFormat c0, const CharFormat c1)						{ while (FormatIsNotEqualTo(c0) && FormatIsNotEqualTo(c1) && FormatIsNotEqualTo('}') && FormatCanMoveForward())								CopyFormatToBuffer(); }
-		inline void WriteUntilEndOfParameterOr(const CharFormat c0, const CharFormat c1, const CharFormat c2)	{ while (FormatIsNotEqualTo(c0) && FormatIsNotEqualTo(c1) && FormatIsNotEqualTo(c2) && FormatIsNotEqualTo('}') && FormatCanMoveForward())	CopyFormatToBuffer(); }
+		template<typename ...CharToTest> inline void WriteUntilNextParameter(const CharToTest ...ele) 	{ while (FormatIsNotEqualTo('{', ele...) && FormatCanMoveForward())	CopyFormatToBuffer(); }
+		template<typename ...CharToTest> inline void WriteUntilEndOfParameter(const CharToTest ...ele)	{ while (FormatIsNotEqualTo('}', ele...) && FormatCanMoveForward())	CopyFormatToBuffer(); }
 	};
 
 	using CFormatContext = BasicFormatContext<char, char>;

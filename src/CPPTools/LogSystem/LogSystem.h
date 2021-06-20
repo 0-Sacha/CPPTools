@@ -145,8 +145,8 @@ namespace CPPTools {
 	void LogSystem::Log(LogSeverity severity, const std::string_view format, Args&& ...args) const {
 		if (severity >= m_SeverityMin) {
 			char formatBuffer[1024];
-			Fmt::FormatInChar(formatBuffer, m_FmtBuffer, FORMAT_CSTR("name", m_Name), FORMAT_CSTR("data", format));
-			Fmt::FilePrintLn(m_Stream, formatBuffer, std::forward<Args>(args)..., FORMAT_CSTR("color", severity));
+			Fmt::FormatInChar(formatBuffer, m_FmtBuffer, FORMAT_SV("name", m_Name), FORMAT_SV("data", format));
+			Fmt::FilePrintLn(m_Stream, formatBuffer, std::forward<Args>(args)..., FORMAT_SV("color", severity));
 		}
 	}
 
@@ -180,7 +180,7 @@ namespace CPPTools {
 	template<typename T>
 	void LogSystem::Log(LogSeverity severity, T&& t) const {
 		if (severity >= m_SeverityMin)
-			Fmt::FilePrintLn(m_Stream, m_FmtBuffer, FORMAT_CSTR("data", t), FORMAT_CSTR("color", severity), FORMAT_CSTR("name", m_Name));
+			Fmt::FilePrintLn(m_Stream, m_FmtBuffer, FORMAT_SV("data", t), FORMAT_SV("color", severity), FORMAT_SV("name", m_Name));
 	}
 
 	template<typename T>
@@ -217,8 +217,8 @@ namespace CPPTools {
 	template<typename ...Args>
 	void LogSystem::Log(LogStatus status, const std::string_view format, Args&& ...args) const {
 		char formatBuffer[500];
-		Fmt::FormatInChar(formatBuffer, m_FmtBuffer, FORMAT_CSTR("name", m_Name), FORMAT_CSTR("data", format));
-		Fmt::FilePrintLn(m_Stream, formatBuffer, std::forward<Args>(args)..., FORMAT_CSTR("color", status));
+		Fmt::FormatInChar(formatBuffer, m_FmtBuffer, FORMAT_SV("name", m_Name), FORMAT_SV("data", format));
+		Fmt::FilePrintLn(m_Stream, formatBuffer, std::forward<Args>(args)..., FORMAT_SV("color", status));
 	}
 
 	template<typename ...Args>
@@ -236,7 +236,7 @@ namespace CPPTools {
 
 	template<typename T>
 	void LogSystem::Log(LogStatus status, T&& t) const {
-		Fmt::FilePrintLn(m_Stream, m_FmtBuffer, FORMAT_CSTR("data", t), FORMAT_CSTR("color", status), FORMAT_CSTR("name", m_Name));
+		Fmt::FilePrintLn(m_Stream, m_FmtBuffer, FORMAT_SV("data", t), FORMAT_SV("color", status), FORMAT_SV("name", m_Name));
 	}
 
 	template<typename T>

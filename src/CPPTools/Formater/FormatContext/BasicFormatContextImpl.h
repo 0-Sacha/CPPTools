@@ -68,27 +68,24 @@ namespace CPPTools::Fmt {
 					GetFormatIdx(dataIdx);
 					std::apply([&](auto &&... args) { GetParameterDataRec(dataIdx, args...); }, m_ContextArgs);
 					FormatForward();
-				} else if (FormatIsEqualForward('b')) { m_FormatData.IntPrint = Detail::ValueIntPrint::Bin;	FormatReadUInt(m_FormatData.Precision);
-				} else if (FormatIsEqualForward('x')) { m_FormatData.IntPrint = Detail::ValueIntPrint::Hex;	FormatReadUInt(m_FormatData.Precision);
-				} else if (FormatIsEqualForward('o')) { m_FormatData.IntPrint = Detail::ValueIntPrint::Oct;	FormatReadUInt(m_FormatData.Precision);
-				} else if (FormatIsEqualForward('d')) { m_FormatData.IntPrint = Detail::ValueIntPrint::Int;	FormatReadUInt(m_FormatData.Precision);
+				} else if (FormatIsEqualForward('b'))	{ m_FormatData.IntPrint = Detail::ValueIntPrint::Bin;	FormatReadParameter(m_FormatData.Precision);
+				} else if (FormatIsEqualForward('x'))	{ m_FormatData.IntPrint = Detail::ValueIntPrint::Hex;	FormatReadParameter(m_FormatData.Precision);
+				} else if (FormatIsEqualForward('o'))	{ m_FormatData.IntPrint = Detail::ValueIntPrint::Oct;	FormatReadParameter(m_FormatData.Precision);
+				} else if (FormatIsEqualForward('d'))	{ m_FormatData.IntPrint = Detail::ValueIntPrint::Int;	FormatReadParameter(m_FormatData.Precision);
+				} else if (FormatIsEqualForward('C'))	{ m_FormatData.HasChangeColor = true; m_ColorMem = Detail::AnsiColorMem(); ColorValuePrint();
+				} else if (FormatIsEqualForward('>'))	{ m_FormatData.ShiftType = Detail::ShiftType::Right;	FormatReadParameter(m_FormatData.ShiftValue);
+				} else if (FormatIsEqualForward('<'))	{ m_FormatData.ShiftType = Detail::ShiftType::Left;		FormatReadParameter(m_FormatData.ShiftValue);
+				} else if (FormatIsEqualForward('^'))	{ m_FormatData.ShiftType = Detail::ShiftType::Center;	FormatReadParameter(m_FormatData.ShiftValue);
+				} else if (FormatIsEqualForward('.'))	{ FormatReadParameter(m_FormatData.FloatPrecision);
+				} else if (FormatIsEqualForward('S'))	{ FormatReadParameter(m_FormatData.Size);
+				} else if (FormatIsEqualForward('B'))	{ FormatReadParameter(m_FormatData.Begin);
+				} else if (FormatIsEqualForward('\n'))	{ m_FormatData.ContainerPrintStyle = Detail::ContainerPrintStyle::NewLine;
+				} else if (FormatIsEqualForward('='))	{ m_FormatData.BaseValue = true;
 				} else if (FormatIsLowerCase()) {	// Custom specifier
 					const char c = FormatGetAndForward();
 					std::int8_t i = 0; FormatReadInt(i);
 					m_FormatData.AddSpecifier(c, i);
-				} else if (FormatIsEqualForward('C')) {
-					m_FormatData.HasChangeColor = true; m_ColorMem = Detail::AnsiColorMem(); ColorValuePrint();
-				} else if (FormatIsEqualForward('>')) {
-					m_FormatData.ShiftType = Detail::ShiftType::Right;	FormatReadUInt(m_FormatData.ShiftValue);
-				} else if (FormatIsEqualForward('<')) {
-					m_FormatData.ShiftType = Detail::ShiftType::Left;	FormatReadUInt(m_FormatData.ShiftValue);
-				} else if (FormatIsEqualForward('^')) {
-					m_FormatData.ShiftType = Detail::ShiftType::Center;	FormatReadUInt(m_FormatData.ShiftValue);
-				} else if (FormatIsEqualForward('.')) { if (!FormatIsEqualTo('{'))  FormatReadUInt(m_FormatData.FloatPrecision); else FormatReadParameter(m_FormatData.FloatPrecision);
-				} else if (FormatIsEqualForward('S')) { FormatReadUInt(m_FormatData.Size);
-				} else if (FormatIsEqualForward('B')) { FormatReadUInt(m_FormatData.Begin);
-				} else if (FormatIsEqualForward('\n')) { m_FormatData.ContainerPrintStyle = Detail::ContainerPrintStyle::NewLine;
-				} else if (FormatIsEqualForward('=')) { m_FormatData.BaseValue = true; }
+				}
 
 				FormatParamGoTo(',');
 			}
@@ -131,9 +128,9 @@ namespace CPPTools::Fmt {
 	bool BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>::ParameterPrint() {
 		FormatForward();				// Skip {
 
-		if (FormatIsEqualForward('C'))			ColorValuePrint();
-		else if (FormatIsEqualForward('T'))		TimerValuePrint();
-		else if (FormatIsEqualForward('D'))		DateValuePrint();
+		if (FormatIsEqualTo('C') && FormatNextIsEqualForward(':', '}'))			ColorValuePrint();
+		else if (FormatIsEqualTo('T') && FormatNextIsEqualForward(':', '}'))	TimerValuePrint();
+		else if (FormatIsEqualTo('D') && FormatNextIsEqualForward(':', '}'))	DateValuePrint();
 		else {
 			FormatIdx formatIdx;
 			if (!GetFormatIdx(formatIdx))	return false;

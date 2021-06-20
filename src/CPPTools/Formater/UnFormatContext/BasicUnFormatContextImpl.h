@@ -202,8 +202,8 @@ namespace CPPTools::Fmt {
 	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
 	UnFormatContextError BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>::MainUnFormat() {
 		UnFormatContextError error;
-		if (UnFormat())				error = UnFormatContextError(GetFormatSize(), GetBufferSize());
-		else if (!BufferEnd())		error = UnFormatContextError(GetFormatSize(), GetBufferSize());
+		if (UnFormat())				error = UnFormatContextError((std::int16_t)GetFormatSize(), (std::int16_t)GetBufferSize());
+		else if (!BufferEnd())		error = UnFormatContextError((std::int16_t)GetFormatSize(), (std::int16_t)GetBufferSize());
 		return error;
 	}
 

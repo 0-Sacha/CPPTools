@@ -77,10 +77,8 @@ namespace CPPTools::Fmt {
 	std::uint8_t BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>::GetColorFG() {
 		std::uint8_t step = (std::uint8_t)(FormatIsEqualForward('+') ? Detail::AnsiColorFG::DBStep : Detail::AnsiColorFG::DStep);
 		std::uint8_t code = GetColorCode();
-		if (code == (std::numeric_limits<std::uint8_t>::max)())
-			code = (std::uint8_t)Detail::AnsiColorFG::Default;
-		else												
-			code += step;
+		if (code == (std::numeric_limits<std::uint8_t>::max)()) code = (std::uint8_t)Detail::AnsiColorFG::Default;
+		else													code += step;
 		return code;
 	}
 
@@ -138,7 +136,7 @@ namespace CPPTools::Fmt {
 	template<typename CharToTest>
 	bool BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>::FormatNextIsANamedArgs(std::basic_string_view<CharToTest> sv) {
 		const CharFormat* const prevSubFormat = m_SubFormat;
-		if (FormatNextIsSame(sv) && FormatIsEqualTo(':') || FormatIsEqualTo('}'))
+		if (FormatNextIsSame(sv) && (FormatIsEqualTo(':') || FormatIsEqualTo('}')))
 			return true;
 		m_SubFormat = prevSubFormat;
 		return false;
@@ -161,18 +159,20 @@ namespace CPPTools::Fmt {
 	template<typename ValueType, typename ...Args>
 	static inline void GetFormatValueAt(ValueType& value, FormatIdx idx) {}
 	template<typename ValueType, typename T, typename ...Args>
-	static inline std::enable_if_t<std::is_integral_v<T> || std::is_floating_point_v<T>> GetFormatValueAt(ValueType& value, FormatIdx idx, const T t, Args&& ...args) {
+	static inline std::enable_if_t<std::is_convertible_v<T, ValueType>> GetFormatValueAt(ValueType& value, FormatIdx idx, const T t, Args&& ...args) {
 		if (idx == 0)	value = (ValueType)t;
 		else			GetFormatValueAt(value, idx - 1, std::forward<Args>(args)...);
 	}
 	template<typename ValueType, typename T, typename ...Args>
-	static inline std::enable_if_t<!(std::is_integral_v<T> || std::is_floating_point_v<T>)> GetFormatValueAt(ValueType& value, FormatIdx idx, const T& t, Args&& ...args) {
+	static inline std::enable_if_t<!std::is_convertible_v<T, ValueType>> GetFormatValueAt(ValueType& value, FormatIdx idx, const T& t, Args&& ...args) {
 		if (idx != 0)	GetFormatValueAt(value, idx - 1, std::forward<Args>(args)...);
 	}
 	
 	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
 	template<typename T>
 	bool BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>::FormatReadParameter(T& i) {
+		if (!FormatIsEqualTo('{'))	return FormatReadUInt(i);
+
 		const CharFormat* const mainSubFormat = m_SubFormat;
 		FormatIdx formatIdx = FormatIdxNotFound;
 		if (GetFormatIdx(formatIdx)) {
