@@ -18,7 +18,6 @@ namespace CPPTools::Fmt {
 			context.BufferPushBack('}');
 		}
 	};
-
 	template<typename FormatContext>
 	struct FormatType<FormatData, FormatContext> {
 		static void Write(const FormatData& t, FormatContext& context) {
@@ -28,7 +27,7 @@ namespace CPPTools::Fmt {
 
 
 
-
+	// Bool
 	template<typename FormatContext>
 	struct FormatType<bool, FormatContext> {
 		static void Write(const bool t, FormatContext& context) {
@@ -42,16 +41,42 @@ namespace CPPTools::Fmt {
 		}
 	};
 
+	// Int
+	template<typename T, typename FormatContext>
+	struct FormatType<T, FormatContext, ForwardIfVoid<ForwardIfTrue<T, std::is_integral_v<T> && std::is_signed_v<T>>, IsChar<T> >> {
+		static void Write(const T t, FormatContext& context) {
+			context.BufferWriteInt(t);
+		}
+	};
+
+	// UInt
+	template<typename T, typename FormatContext>
+	struct FormatType<T, FormatContext, ForwardIfVoid<ForwardIfTrue<T, std::is_integral_v<T> && !std::is_signed_v<T>>, IsChar<T>>> {
+		static void Write(const T t, FormatContext& context) {
+			context.BufferWriteUInt(t);
+		}
+	};
+
+	// Float
+	template<typename T, typename FormatContext>
+	struct FormatType<T, FormatContext, ForwardIfTrue<T, std::is_floating_point_v<T>>> {
+		static void Write(const T t, FormatContext& context) {
+			context.BufferWriteFloat(t);
+		}
+	};
+
+
+
 	// Char type
-	template<typename FormatContext>
-	struct FormatType<char, FormatContext> {
-		static void Write(const char t, FormatContext& context) {
+	template<typename T, typename FormatContext>
+	struct FormatType<T, FormatContext, IsChar<T>> {
+		static void Write(const T t, FormatContext& context) {
 			context.BufferPushBack(t);
 		}
 	};
-	template<std::size_t SIZE, typename FormatContext>
-	struct FormatType<char[SIZE], FormatContext> {
-		static void Write(const char(&t)[SIZE], FormatContext& context) {
+	template<std::size_t SIZE, typename T, typename FormatContext>
+	struct FormatType<T [SIZE], FormatContext, IsCharArray<T, SIZE> > {
+		static void Write(const T (&t)[SIZE], FormatContext& context) {
 			FormatData& data = context.GetFormatData();
 			data.SetMaxSize(SIZE);
 
@@ -60,9 +85,9 @@ namespace CPPTools::Fmt {
 			if (data.BaseValue)	context.BufferPushBack('"');
 		}
 	};
-	template<typename FormatContext>
-	struct FormatType<char*, FormatContext> {
-		static void Write(const char* const t, FormatContext& context) {
+	template<typename T, typename FormatContext>
+	struct FormatType<T*, FormatContext, IsCharPt<T>> {
+		static void Write(const T* const t, FormatContext& context) {
 			const FormatData& data = context.GetFormatData();
 	
 			if (data.BaseValue)						context.BufferPushBack('"');
@@ -74,103 +99,12 @@ namespace CPPTools::Fmt {
 		}
 	};
 
-	template<typename FormatContext>
-	struct FormatType<wchar_t, FormatContext> {
-		static void Write(const wchar_t t, FormatContext& context) {
-			context.BufferPushBack(t);
-		}
-	};
-	template<std::size_t SIZE, typename FormatContext>
-	struct FormatType<wchar_t[SIZE], FormatContext> {
-		static void Write(const wchar_t(&t)[SIZE], FormatContext& context) {
-			FormatData& data = context.GetFormatData();
-			data.SetMaxSize(SIZE);
-	
-			if (data.BaseValue)	context.BufferPushBack('"');
-			context.BufferWriteCharType(t + data.Begin, data.Size);
-			if (data.BaseValue)	context.BufferPushBack('"');
-		}
-	};
-	template<typename FormatContext>
-	struct FormatType<wchar_t*, FormatContext> {
-		static void Write(const wchar_t* const t, FormatContext& context) {
-			const FormatData& data = context.GetFormatData();
 
-			if (data.BaseValue)						context.BufferPushBack('"');
 
-			if (data.Size != -1)					context.BufferWriteCharType(t + data.Begin, data.Size);
-			else									context.BufferWriteCharType(t + data.Begin);
-
-			if (data.BaseValue)						context.BufferPushBack('"');
-		}
-	};
-
-	template<typename FormatContext>
-	struct FormatType<char16_t, FormatContext> {
-		static void Write(const char16_t t, FormatContext& context) {
-			context.BufferPushBack(t);
-		}
-	};
-	template<std::size_t SIZE, typename FormatContext>
-	struct FormatType<char16_t[SIZE], FormatContext> {
-		static void Write(const char16_t(&t)[SIZE], FormatContext& context) {
-			FormatData& data = context.GetFormatData();
-			data.SetMaxSize(SIZE);
-
-			if (data.BaseValue)	context.BufferPushBack('"');
-			context.BufferWriteCharType(t + data.Begin, data.Size);
-			if (data.BaseValue)	context.BufferPushBack('"');
-		}
-	};
-	template<typename FormatContext>
-	struct FormatType<char16_t*, FormatContext> {
-		static void Write(const char16_t* const t, FormatContext& context) {
-			const FormatData& data = context.GetFormatData();
-
-			if (data.BaseValue)						context.BufferPushBack('"');
-
-			if (data.Size != -1)					context.BufferWriteCharType(t + data.Begin, data.Size);
-			else									context.BufferWriteCharType(t + data.Begin);
-
-			if (data.BaseValue)						context.BufferPushBack('"');
-		}
-	};
-
-	template<typename FormatContext>
-	struct FormatType<char32_t, FormatContext> {
-		static void Write(const char32_t t, FormatContext& context) {
-			context.BufferPushBack(t);
-		}
-	};
-	template<std::size_t SIZE, typename FormatContext>
-	struct FormatType<char32_t[SIZE], FormatContext> {
-		static void Write(const char32_t(&t)[SIZE], FormatContext& context) {
-			FormatData& data = context.GetFormatData();
-			data.SetMaxSize(SIZE);
-
-			if (data.BaseValue)	context.BufferPushBack('"');
-			context.BufferWriteCharType(t + data.Begin, data.Size);
-			if (data.BaseValue)	context.BufferPushBack('"');
-		}
-	};
-	template<typename FormatContext>
-	struct FormatType<char32_t*, FormatContext> {
-		static void Write(const char32_t* const t, FormatContext& context) {
-			const FormatData& data = context.GetFormatData();
-
-			if (data.BaseValue)						context.BufferPushBack('"');
-
-			if (data.Size != -1)					context.BufferWriteCharType(t + data.Begin, data.Size);
-			else									context.BufferWriteCharType(t + data.Begin);
-
-			if (data.BaseValue)						context.BufferPushBack('"');
-		}
-	};
-	
 	//------------------ Pointer/Array of Type ------------------//
 
 	template<typename T, typename FormatContext>
-	struct FormatType<T*, FormatContext>
+	struct FormatType<T*, FormatContext, ForwardIfVoid<T*, IsCharPt<T>>>
 	{
 		static void Write(const T* const t, FormatContext& context) {
 			if(t == nullptr)	context.LittleFormat("{}", (void*)t);
@@ -188,7 +122,7 @@ namespace CPPTools::Fmt {
 	};
 
 	template<std::size_t SIZE, typename T, typename FormatContext>
-	struct FormatType<T[SIZE], FormatContext>
+	struct FormatType<T[SIZE], FormatContext, ForwardIfVoid<T[SIZE], IsCharArray<T, SIZE>>>
 	{
 		static void Write(T const (&t)[SIZE], FormatContext& context) {
 			context.BufferPushBack('[');
@@ -197,8 +131,8 @@ namespace CPPTools::Fmt {
 
 			data.SetMaxSize(SIZE);
 
-			const char* nextElement = data.ContainerPrintStyle == Detail::ContainerPrintStyle::CommaSpace ? "\n" : ", ";
-			std::size_t stride		= data.ContainerPrintStyle == Detail::ContainerPrintStyle::CommaSpace ? context.GetStride() : 0;
+			const char* nextElement = data.ContainerPrintStyle == Detail::ContainerPrintStyle::NewLine ? "\n" : ", ";
+			std::size_t stride		= data.ContainerPrintStyle == Detail::ContainerPrintStyle::NewLine ? context.GetStride() : 0;
 
 			const T* begin = t + data.Begin;
 			const T* end = begin + data.Size;

@@ -37,13 +37,13 @@ namespace CPPTools::Fmt {
 	}
 	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
 	template<typename T, typename ...Args, typename CharName>
-	inline void BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>::GetNamedArgsIdxRec(FormatIdx& idx, FormatIdx currentIdx, const StringViewNamedArgs<T, CharName, CharFormat>& t, Args&& ...args) {
+	inline void BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>::GetNamedArgsIdxRec(FormatIdx& idx, FormatIdx currentIdx, const StringViewNamedArgs<T, CharName>& t, Args&& ...args) {
 		if (FormatNextIsANamedArgs(t.GetName()))	idx = currentIdx;
 		else										GetNamedArgsIdxRec(idx, currentIdx + 1, std::forward<Args>(args)...);
 	}
 	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
 	template<typename T, typename ...Args, typename CharName>
-	inline void BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>::GetNamedArgsIdxRec(FormatIdx& idx, FormatIdx currentIdx, const StringNamedArgs<T, CharName, CharFormat>& t, Args&& ...args) {
+	inline void BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>::GetNamedArgsIdxRec(FormatIdx& idx, FormatIdx currentIdx, const StringNamedArgs<T, CharName>& t, Args&& ...args) {
 		if (FormatNextIsANamedArgs(t.GetName()))	idx = currentIdx;
 		else										GetNamedArgsIdxRec(idx, currentIdx + 1, std::forward<Args>(args)...);
 	}

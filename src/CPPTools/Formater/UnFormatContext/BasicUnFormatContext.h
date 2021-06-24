@@ -100,9 +100,9 @@ namespace CPPTools::Fmt {
 		/////---------- Get NamedArgs ----------/////
 		void GetNamedArgsIdxRec(FormatIdx& idx, FormatIdx currentIdx);
 		template<typename T, typename ...Args, typename CharName>
-		void GetNamedArgsIdxRec(FormatIdx& idx, FormatIdx currentIdx, const StringViewNamedArgs<T, CharName, CharFormat>& t, Args&& ...args);
+		void GetNamedArgsIdxRec(FormatIdx& idx, FormatIdx currentIdx, const StringViewNamedArgs<T, CharName>& t, Args&& ...args);
 		template<typename T, typename ...Args, typename CharName>
-		void GetNamedArgsIdxRec(FormatIdx& idx, FormatIdx currentIdx, const StringNamedArgs<T, CharName, CharFormat>& t, Args&& ...args);
+		void GetNamedArgsIdxRec(FormatIdx& idx, FormatIdx currentIdx, const StringNamedArgs<T, CharName>& t, Args&& ...args);
 		template<typename T, typename ...Args>
 		void GetNamedArgsIdxRec(FormatIdx& idx, FormatIdx currentIdx, const T& t, Args&& ...args);
 		template<typename CharToTest>

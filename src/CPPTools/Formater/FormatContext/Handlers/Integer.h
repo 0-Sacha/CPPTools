@@ -122,9 +122,9 @@ namespace CPPTools::Fmt::FormatFunc {
 		T i_ = i;
 		int nb = 0;
 		while (i_ > 0)			{ i_ /= 10; ++nb; }
-		context.BufferForward((std::size_t)(nb - 1));
+		context.BufferForward(nb - 1);
 		while (i > 0)			{ context.BufferPushReverse(i % 10 + '0'); i /= 10; }
-		context.BufferForward((std::size_t)(nb + 1));
+		context.BufferForward(nb + 1);
 	}
 
 	template<typename T, typename FormatContext>
@@ -145,9 +145,9 @@ namespace CPPTools::Fmt::FormatFunc {
 			return;
 		}
 
-		context.BufferForward((std::size_t)(nb - 1));
+		context.BufferForward(nb - 1);
 		while (i > 0) { context.BufferPushReverse(i % 10 + '0'); i /= 10; }
-		context.BufferForward((std::size_t)(nb + 1));
+		context.BufferForward(nb + 1);
 
 		if (st == Detail::ShiftType::Left)
 			while (shift-- > 0) context.BufferPushBack(' ');

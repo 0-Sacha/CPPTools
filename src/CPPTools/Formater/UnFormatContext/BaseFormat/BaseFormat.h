@@ -42,64 +42,58 @@ namespace CPPTools::Fmt {
 	};
 
 
+	// Int
+	template<typename T, typename UnUnFormatContext>
+	struct UnFormatType<T, UnUnFormatContext, ForwardIfVoid<ForwardIfTrue<T, std::is_integral_v<T>&& std::is_signed_v<T>>, IsChar<T> >> {
+		static bool Read(T& t, UnUnFormatContext& context) {
+			return context.BufferReadInt(t);
+		}
+	};
+
+	// UInt
+	template<typename T, typename UnUnFormatContext>
+	struct UnFormatType<T, UnUnFormatContext, ForwardIfVoid<ForwardIfTrue<T, std::is_integral_v<T> && !std::is_signed_v<T>>, IsChar<T>>> {
+		static bool Read(T& t, UnUnFormatContext& context) {
+			return context.BufferReadUInt(t);
+		}
+	};
+
+	// Float
+	template<typename T, typename UnUnFormatContext>
+	struct UnFormatType<T, UnUnFormatContext, ForwardIfTrue<T, std::is_floating_point_v<T>>> {
+		static bool Read(T& t, UnUnFormatContext& context) {
+			return context.BufferReadFloat(t);
+		}
+	};
+
+
+
 	// Char type
-	template<typename UnUnFormatContext>
-	struct UnFormatType<char, UnUnFormatContext> {
-		static void Read(const char t, UnUnFormatContext& context) {
+	template<typename T, typename UnUnFormatContext>
+	struct UnFormatType<T, UnUnFormatContext, IsChar<T>> {
+		static bool Read(T& t, UnUnFormatContext& context) {
 			context.BufferGetAndForward(t);
+			return true;
 		}
 	};
-	template<std::size_t SIZE, typename UnFormatContext>
-	struct UnFormatType<char[SIZE], UnFormatContext> {
-	};
-	template<typename UnFormatContext>
-	struct UnFormatType<char*, UnFormatContext> {
-	};
-
-	template<typename UnFormatContext>
-	struct UnFormatType<wchar_t, UnFormatContext> {
-		static void Read(const wchar_t t, UnFormatContext& context) {
-			context.BufferGetAndForward(t);
+	template<std::size_t SIZE, typename T, typename UnUnFormatContext>
+	struct UnFormatType<T[SIZE], UnUnFormatContext, IsCharArray<T, SIZE> > {
+		static bool Read(T(&t)[SIZE], UnUnFormatContext& context) {
+			return false;
 		}
 	};
-	template<std::size_t SIZE, typename UnFormatContext>
-	struct UnFormatType<wchar_t[SIZE], UnFormatContext> {
-	};
-	template<typename UnFormatContext>
-	struct UnFormatType<wchar_t*, UnFormatContext> {
-	};
-
-	template<typename UnFormatContext>
-	struct UnFormatType<char16_t, UnFormatContext> {
-		static void Read(const char16_t t, UnFormatContext& context) {
-			context.BufferGetAndForward(t);
+	template<typename T, typename UnUnFormatContext>
+	struct UnFormatType<T*, UnUnFormatContext, IsCharPt<T>> {
+		static bool Read(T* const t, UnUnFormatContext& context) {
+			return false;
 		}
-	};
-	template<std::size_t SIZE, typename UnFormatContext>
-	struct UnFormatType<char16_t[SIZE], UnFormatContext> {
-	};
-	template<typename UnFormatContext>
-	struct UnFormatType<char16_t*, UnFormatContext> {
-	};
-
-	template<typename UnFormatContext>
-	struct UnFormatType<char32_t, UnFormatContext> {
-		static void Read(const char32_t t, UnFormatContext& context) {
-			context.BufferGetAndForward(t);
-		}
-	};
-	template<std::size_t SIZE, typename UnFormatContext>
-	struct UnFormatType<char32_t[SIZE], UnFormatContext> {
-	};
-	template<typename UnFormatContext>
-	struct UnFormatType<char32_t*, UnFormatContext> {
 	};
 
 	
 	//------------------ Pointer/Array of Type ------------------//
 
 	template<typename T, typename UnFormatContext>
-	struct UnFormatType<T*, UnFormatContext>
+	struct UnFormatType<T*, UnFormatContext, ForwardIfVoid<T*, IsCharPt<T>>>
 	{
 		static bool Read(T*& t, UnFormatContext& context) {
 			return false;
@@ -115,7 +109,7 @@ namespace CPPTools::Fmt {
 	};
 
 	template<std::size_t SIZE, typename T, typename UnFormatContext>
-	struct UnFormatType<T[SIZE], UnFormatContext>
+	struct UnFormatType<T[SIZE], UnFormatContext, ForwardIfVoid<T[SIZE], IsCharArray<T, SIZE>>>
 	{
 		static bool Read(T (&t)[SIZE], UnFormatContext& context) {
 			const FormatData& data = context.GetFormatData();

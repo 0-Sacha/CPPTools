@@ -156,16 +156,16 @@ namespace CPPTools::Fmt {
 	
 	// FFIND - EXPERIMENTAL
 	/////---------- FormatReadParameter ----------/////
-	template<typename ValueType, typename ...Args>
+	template<typename ValueType>
 	static inline void GetFormatValueAt(ValueType& value, FormatIdx idx) {}
 	template<typename ValueType, typename T, typename ...Args>
-	static inline std::enable_if_t<std::is_convertible_v<T, ValueType>> GetFormatValueAt(ValueType& value, FormatIdx idx, const T t, Args&& ...args) {
-		if (idx == 0)	value = (ValueType)t;
-		else			GetFormatValueAt(value, idx - 1, std::forward<Args>(args)...);
+	static inline auto GetFormatValueAt(ValueType& value, FormatIdx idx, const T t, Args&& ...args) -> std::enable_if_t<std::is_convertible_v<T, ValueType>> {
+		if (idx == 0)		value = (ValueType)t;
+		else if(idx > 0)	GetFormatValueAt(value, idx - 1, std::forward<Args>(args)...);
 	}
 	template<typename ValueType, typename T, typename ...Args>
-	static inline std::enable_if_t<!std::is_convertible_v<T, ValueType>> GetFormatValueAt(ValueType& value, FormatIdx idx, const T& t, Args&& ...args) {
-		if (idx != 0)	GetFormatValueAt(value, idx - 1, std::forward<Args>(args)...);
+	static inline auto GetFormatValueAt(ValueType& value, FormatIdx idx, const T& t, Args&& ...args) -> std::enable_if_t<!std::is_convertible_v<T, ValueType>> {
+		if (idx > 0)	GetFormatValueAt(value, idx - 1, std::forward<Args>(args)...);
 	}
 	
 	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>

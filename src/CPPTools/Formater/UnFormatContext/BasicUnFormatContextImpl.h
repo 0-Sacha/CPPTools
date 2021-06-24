@@ -19,17 +19,17 @@ namespace CPPTools::Fmt {
 	};
 
 	template<typename T, typename CharName, typename CharFormat, typename CharBuffer, typename ...ContextArgs>
-	struct UnFormatType<StringViewNamedArgs<T, CharName, CharFormat>, BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>>
+	struct UnFormatType<StringViewNamedArgs<T, CharName>, BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>>
 	{
-		inline static bool Read(StringViewNamedArgs<T, CharName, CharFormat>& t, BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>& context) {
+		inline static bool Read(StringViewNamedArgs<T, CharName>& t, BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>& context) {
 			return UnFormatType<GetBaseType<T>, BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>>::Read(t.GetValue(), context);
 		}
 	};
 
 	template<typename T, typename CharName, typename CharFormat, typename CharBuffer, typename ...ContextArgs>
-	struct UnFormatType<StringNamedArgs<T, CharName, CharFormat>, BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>>
+	struct UnFormatType<StringNamedArgs<T, CharName>, BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>>
 	{
-		inline static bool Read(StringNamedArgs<T, CharName, CharFormat>& t, BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>& context) {
+		inline static bool Read(StringNamedArgs<T, CharName>& t, BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>& context) {
 			return UnFormatType<GetBaseType<T>, BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>>::Read(t.GetValue(), context);
 		}
 	};
@@ -61,13 +61,13 @@ namespace CPPTools::Fmt {
 	inline void BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>::GetNamedArgsIdxRec(FormatIdx& idx, FormatIdx currentIdx) { idx = FormatIdxNotFound; }
 	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
 	template<typename T, typename ...Args, typename CharName>
-	inline void BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>::GetNamedArgsIdxRec(FormatIdx& idx, FormatIdx currentIdx, const StringViewNamedArgs<T, CharName, CharFormat>& t, Args&& ...args) {
+	inline void BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>::GetNamedArgsIdxRec(FormatIdx& idx, FormatIdx currentIdx, const StringViewNamedArgs<T, CharName>& t, Args&& ...args) {
 		if (FormatNextIsANamedArgs(t.GetName()))	idx = currentIdx;
 		else										GetNamedArgsIdxRec(idx, currentIdx + 1, std::forward<Args>(args)...);
 	}
 	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
 	template<typename T, typename ...Args, typename CharName>
-	inline void BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>::GetNamedArgsIdxRec(FormatIdx& idx, FormatIdx currentIdx, const StringNamedArgs<T, CharName, CharFormat>& t, Args&& ...args) {
+	inline void BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>::GetNamedArgsIdxRec(FormatIdx& idx, FormatIdx currentIdx, const StringNamedArgs<T, CharName>& t, Args&& ...args) {
 		if (FormatNextIsANamedArgs(t.GetName()))	idx = currentIdx;
 		else										GetNamedArgsIdxRec(idx, currentIdx + 1, std::forward<Args>(args)...);
 	}

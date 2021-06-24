@@ -94,9 +94,9 @@ namespace CPPTools::Fmt {
 		/////---------- Get NamedArgs ----------/////
 		void GetNamedArgsIdxRec(FormatIdx& idx, FormatIdx currentIdx);
 		template<typename T, typename ...Args, typename CharName>
-		void GetNamedArgsIdxRec(FormatIdx& idx, FormatIdx currentIdx, const StringViewNamedArgs<T, CharName, CharFormat>& t, Args&& ...args);
+		void GetNamedArgsIdxRec(FormatIdx& idx, FormatIdx currentIdx, const StringViewNamedArgs<T, CharName>& t, Args&& ...args);
 		template<typename T, typename ...Args, typename CharName>
-		void GetNamedArgsIdxRec(FormatIdx& idx, FormatIdx currentIdx, const StringNamedArgs<T, CharName, CharFormat>& t, Args&& ...args);
+		void GetNamedArgsIdxRec(FormatIdx& idx, FormatIdx currentIdx, const StringNamedArgs<T, CharName>& t, Args&& ...args);
 		template<typename T, typename ...Args>
 		void GetNamedArgsIdxRec(FormatIdx& idx, FormatIdx currentIdx, const T& t, Args&& ...args);
 		
@@ -160,8 +160,8 @@ namespace CPPTools::Fmt {
 		inline void FormatForwardNoCheck()											{ ++m_SubFormat; }
 		inline void FormatBackward()												{ if (FormatCanMoveBackward()) --m_SubFormat; }
 		inline void FormatBackwardNoCheck()											{ --m_SubFormat; }
-		inline void FormatForward(const std::size_t size)							{ m_SubFormat += size; if (!FormatCanMoveForward()) m_SubFormat = m_FormatEnd; }
-		inline void FormatBackward(const std::size_t size)							{ m_SubFormat -= size; if (!FormatCanMoveBackward()) m_SubFormat = m_Format; }
+		template<typename Int> inline void FormatForward(const Int size)			{ m_SubFormat += size; if (!FormatCanMoveForward()) m_SubFormat = m_FormatEnd; }
+		template<typename Int> inline void FormatBackward(const Int size)			{ m_SubFormat -= size; if (!FormatCanMoveBackward()) m_SubFormat = m_Format; }
 		
 		inline CharFormat FormatGet() const											{ return *m_SubFormat; }
 		inline CharFormat FormatGetAndForward()										{ return FormatCanMoveForward() ? *m_SubFormat++ : '\0'; }
@@ -219,8 +219,8 @@ namespace CPPTools::Fmt {
 		inline void BufferForward()													{ if (BufferCanMoveForward()) ++m_SubBuffer; }
 		inline void BufferForwardNoCheck()											{ ++m_SubBuffer; }
 		inline void BufferBackward()												{ if (BufferCanMoveBackward())m_SubBuffer; }
-		inline void BufferForward(const std::size_t size)							{ m_SubBuffer += size; if (!BufferCanMoveForward()) m_SubBuffer = m_BufferEnd; }
-		inline void BufferBackward(const std::size_t size)							{ m_SubBuffer -= size; if (!BufferCanMoveBackward()) m_SubBuffer = m_Buffer; }
+		template<typename Int> inline void BufferForward(const Int size)			{ m_SubBuffer += size; if (!BufferCanMoveForward()) m_SubBuffer = m_BufferEnd; }
+		template<typename Int> inline void BufferBackward(const Int size)			{ m_SubBuffer -= size; if (!BufferCanMoveBackward()) m_SubBuffer = m_Buffer; }
 
 		inline CharBuffer BufferGet() const											{ return *m_SubBuffer; }
 		inline CharBuffer BufferGetAndForward()										{ return BufferCanMoveForward() ? *m_SubBuffer++ : '\0'; }

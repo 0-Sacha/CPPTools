@@ -4,11 +4,18 @@
 
 namespace CPPTools::Fmt {
 	/////---------- string_view NamedArgs Do not allocate memory (Best) ----------/////
-	template<typename T, typename CharName = char, typename CharFormatContext = char>
+	template<typename T, typename CharName = char>
 	struct StringViewNamedArgs
 	{
 		template<std::size_t SIZE>
-		StringViewNamedArgs(const CharName (&name)[SIZE], T& t)
+		StringViewNamedArgs(const CharName(&name)[SIZE], T&& t)
+			: m_Name(name), value(t) {}
+
+		StringViewNamedArgs(const std::basic_string_view<CharName> name, T&& t)
+			: m_Name(name), value(t) {}
+
+		template<std::size_t SIZE>
+		StringViewNamedArgs(const CharName(&name)[SIZE], T& t)
 			: m_Name(name), value(t) {}
 
 		StringViewNamedArgs(const std::basic_string_view<CharName> name, T& t)
@@ -25,18 +32,26 @@ namespace CPPTools::Fmt {
 	};
 
 	template<typename T, typename CharName, typename CharFormat, typename CharBuffer, typename ...ContextArgs>
-	struct FormatType<StringViewNamedArgs<T, CharName, CharFormat>, BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>>
+	struct FormatType<StringViewNamedArgs<T, CharName>, BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>>
 	{
-		inline static void Write(const StringViewNamedArgs<T, CharName, CharFormat>& t, BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>& context) {
+		inline static void Write(const StringViewNamedArgs<T, CharName>& t, BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>& context) {
 			FormatType<GetBaseType<T>, BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>>::Write(t.GetValue(), context);
 		}
 	};
 
 
 	/////---------- stringNamedArgs Allocate memory (Only if necessary) ----------/////
-	template<typename T, typename CharName = char, typename CharFormatContext = char>
+	template<typename T, typename CharName = char>
 	struct StringNamedArgs
 	{
+
+		StringNamedArgs(const std::string& str, T&& t)
+			: m_Name(str), value(t) {}
+
+		StringNamedArgs(std::string&& str, T&& t)
+			: m_Name(std::move(str)), value(t) {}
+
+
 		StringNamedArgs(const std::string& str, T& t)
 			: m_Name(str), value(t) {}
 
@@ -54,9 +69,9 @@ namespace CPPTools::Fmt {
 	};
 
 	template<typename T, typename CharName, typename CharFormat, typename CharBuffer, typename ...ContextArgs>
-	struct FormatType<StringNamedArgs<T, CharName, CharFormat>, BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>>
+	struct FormatType<StringNamedArgs<T, CharName>, BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>>
 	{
-		inline static void Write(const StringNamedArgs<T, CharName, CharFormat>& t, BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>& context) {
+		inline static void Write(const StringNamedArgs<T, CharName>& t, BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>& context) {
 			FormatType<GetBaseType<T>, BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>>::Write(t.GetValue(), context);
 		}
 	};
@@ -64,6 +79,6 @@ namespace CPPTools::Fmt {
 
 
 #define FORMAT(value)				CPPTools::Fmt::StringViewNamedArgs(#value, value)
-#define FORMAT_SV(name, value)	CPPTools::Fmt::StringViewNamedArgs(name, value)
+#define FORMAT_SV(name, value)		CPPTools::Fmt::StringViewNamedArgs(name, value)
 
 #define FORMAT_STR(name, value)		CPPTools::Fmt::StringNamedArgs(name, value)
