@@ -1,8 +1,6 @@
 #pragma once
 
-#include "BasicFormatContext.h"
-
-#include "BaseFormat/FormatType.h"
+#include "BasicFormatContextHelperFile.h"
 
 #include "BaseFormat/BaseFormat.h"
 #include "BaseFormat/ColorFormat.h"
@@ -156,16 +154,21 @@ namespace CPPTools::Fmt {
 	
 	// FFIND - EXPERIMENTAL
 	/////---------- FormatReadParameter ----------/////
-	template<typename ValueType>
+	template<class ValueType>
 	static inline void GetFormatValueAt(ValueType& value, FormatIdx idx) {}
+	template<typename ValueType, typename T, typename ...Args>
+	static inline auto GetFormatValueAt(ValueType& value, FormatIdx idx, const T& t, Args&& ...args) -> std::enable_if_t<!std::is_convertible_v<T, ValueType>>;
+	template<typename ValueType, typename T, typename ...Args>
+	static inline auto GetFormatValueAt(ValueType& value, FormatIdx idx, const T t, Args&& ...args) -> std::enable_if_t<std::is_convertible_v<T, ValueType>>;
+
+	template<typename ValueType, typename T, typename ...Args>
+	static inline auto GetFormatValueAt(ValueType& value, FormatIdx idx, const T& t, Args&& ...args) -> std::enable_if_t<!std::is_convertible_v<T, ValueType>> {
+		if (idx > 0)		GetFormatValueAt(value, idx - 1, std::forward<Args>(args)...);
+	}
 	template<typename ValueType, typename T, typename ...Args>
 	static inline auto GetFormatValueAt(ValueType& value, FormatIdx idx, const T t, Args&& ...args) -> std::enable_if_t<std::is_convertible_v<T, ValueType>> {
 		if (idx == 0)		value = (ValueType)t;
 		else if(idx > 0)	GetFormatValueAt(value, idx - 1, std::forward<Args>(args)...);
-	}
-	template<typename ValueType, typename T, typename ...Args>
-	static inline auto GetFormatValueAt(ValueType& value, FormatIdx idx, const T& t, Args&& ...args) -> std::enable_if_t<!std::is_convertible_v<T, ValueType>> {
-		if (idx > 0)	GetFormatValueAt(value, idx - 1, std::forward<Args>(args)...);
 	}
 	
 	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>

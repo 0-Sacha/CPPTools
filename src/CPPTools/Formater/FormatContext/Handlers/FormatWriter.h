@@ -6,7 +6,31 @@
 #include "Float.h"
 
 namespace CPPTools::Fmt {
+
+
+	//------------------ C-Style String ------------------//
+	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
+	template<typename CharStr, std::size_t SIZE>
+	inline void BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>::BufferWriteCharType(const CharStr(&str)[SIZE]) {
+		BufferWriteCharType(str, SIZE);
+	}
 	
+	
+	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
+	template<typename CharStr>
+	inline void BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>::BufferWriteCharType(const CharStr* str) {
+		while (*str != 0) BufferPushBack(*str++);
+	}
+	
+	
+	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
+	template<typename CharStr>
+	inline void BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>::BufferWriteCharType(const CharStr* str, std::size_t size) {
+		while (size-- != 0 && *str != 0) BufferPushBack(*str++);
+	}
+
+	
+	//------------------ Buffer Write Int ------------------//
 	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
 	template<typename T>
 	void BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>::BufferWriteInt(T i) {
@@ -29,6 +53,7 @@ namespace CPPTools::Fmt {
 		FormatFunc::FormatContextWriteInt(*this, i);
 	}
 
+	//------------------ Buffer Write UInt ------------------//
 	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
 	template<typename T>
 	void BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>::BufferWriteUInt(T i) {

@@ -2,6 +2,7 @@
 
 #include "CPPTools/Formater/Core/Core.h"
 
+#include "BaseFormat/FormatType.h"
 #include "BaseFormat/NamedArgs.h"
 #include "BaseFormat/FormatArgs.h"
 
@@ -143,10 +144,10 @@ namespace CPPTools::Fmt {
 		// Floating point
 		template<typename T> void BufferWriteFloat(T i);
 
-		// Str
-		template<typename CharStr, std::size_t SIZE>	inline void BufferWriteCharType(const CharStr(&str)[SIZE])				{ BufferWriteCharType(str, SIZE); }
-		template<typename CharStr>						inline void BufferWriteCharType(const CharStr* str)						{ while (*str != 0) BufferPushBack(*str++); }
-		template<typename CharStr>						inline void BufferWriteCharType(const CharStr* str, std::size_t size)	{ while (size-- != 0 && *str != 0) BufferPushBack(*str++); }
+		// C-Style String
+		template<typename CharStr, std::size_t SIZE>	inline void BufferWriteCharType(const CharStr(&str)[SIZE]);
+		template<typename CharStr>						inline void BufferWriteCharType(const CharStr* str);
+		template<typename CharStr>						inline void BufferWriteCharType(const CharStr* str, std::size_t size);
 
 	public:
 		// Format

@@ -45,7 +45,7 @@ namespace CPPTools::Fmt::Detail {
 
 namespace CPPTools::Fmt {
 
-	using FormatIdx = std::int8_t;
+	using FormatIdx = int;
 	static const FormatIdx FormatIdxNotFound = -1;
 
 	struct FormatSpecifier {

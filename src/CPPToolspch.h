@@ -4,47 +4,66 @@
 // Target Define
 #ifdef BASE_TARGET_DEBUG
 	#define CPPTOOLS_DEBUG
+	#define CPPTOOLS_IF_DEBUG(x) x
+#else
+	#define CPPTOOLS_IF_DEBUG(x)
 #endif
 
 #ifdef BASE_TARGET_RELEASE
 	#define CPPTOOLS_RELEASE
+	#define CPPTOOLS_IF_RELEASE(x) x
+#else
+	#define CPPTOOLS_IF_RELEASE(x)
 #endif
-
-#ifdef BASE_TARGET_DIST
-	#define CPPTOOLS_DIST
-#endif
-
 
 // Architecture Define
 #ifdef BASE_ARCHITECTURE_X86
 	#define CPPTOOLS_X86
+	#define CPPTOOLS_IF_X86(x) x
+#else
+	#define CPPTOOLS_IF_X86(x)
 #endif
 
-#ifdef BASE_ARCHITECTURE_X86_64
+#ifdef BASE_ARCHITECTURE_X64
 	#define CPPTOOLS_X64
+	#define CPPTOOLS_IF_X64(x) x
+#else
+	#define CPPTOOLS_IF_X64(x)
 #endif
 
 
 // Platform Define 
 #ifdef BASE_PLATFORM_WINDOWS
-	#define CPPTOOLS_PLATFORM_WINDOWS
+	#define CPPTOOLS_WINDOWS
+	#define CPPTOOLS_IF_WINDOWS(x) x
+#else
+	#define CPPTOOLS_IF_WINDOWS(x)
 #endif
 
 #ifdef BASE_PLATFORM_LINUX
-	#error CPPTools doesn't support Linux yet
+	#define CPPTOOLS_IF_LINUX(x) x
+#else
+	#define CPPTOOLS_IF_LINUX(x)
 #endif
 
 
 // Compiler Define
 #ifdef BASE_COMPILER_MSVC
+	#define CPPTOOLS_IF_MSVC(x) x
+#else
+	#define CPPTOOLS_IF_MSVC(x)
 #endif
 
 #ifdef BASE_COMPILER_GCC
-	#error CPPTools doesn't support GCC yet
+	#define CPPTOOLS_IF_GCC(x) x
+#else
+	#define CPPTOOLS_IF_GCC(x)
 #endif
 
 
 // Include 
+#include <cstring>
+
 #include <utility>
 #include <limits>
 #include <array>
@@ -57,3 +76,4 @@
 #include <type_traits>
 
 #include <fstream>
+

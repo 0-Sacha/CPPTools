@@ -5,6 +5,7 @@
 
 namespace CPPTools::Fmt {
 
+	//------------------ Format Read Int ------------------//
 	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
 	template<typename T>
 	bool BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>::FormatReadInt(T& i) {
@@ -20,6 +21,8 @@ namespace CPPTools::Fmt {
 		return isValid;
 	}
 
+
+	//------------------ Format Read UInt ------------------//
 	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
 	template<typename T>
 	bool BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>::FormatReadUInt(T& i) {
@@ -32,5 +35,5 @@ namespace CPPTools::Fmt {
 
 		if (isValid)	{ i = res; }
 		return isValid;
-	}
+	}		
 }

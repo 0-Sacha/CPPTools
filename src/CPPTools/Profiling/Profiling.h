@@ -82,11 +82,9 @@ namespace CPPTools::Instrumentation {
 #define PROFILER_FUNC_AUTO(profiler)								CPPTools::Instrumentation::ProfileResult profile##__LINE__(profiler, __FUNCTION__)
 #define PROFILER_DEFAULT_FUNC_AUTO()								PROFILER_FUNC_AUTO(CPPTools::Instrumentation::Profiler::GetInstance())
 
-#define PROFILER_FUNC_FMT(profile, profiler, fmt, ...)				std::string str##__LINE__;\
-																	CPPTools::Fmt::FormatInString(str##__LINE__, fmt, __VA_ARGS__);\
-																	PROFILER_FUNC_NAME(str##__LINE__, profile, profiler);
+#define PROFILER_FUNC_FMT(profile, profiler, ...)					PROFILER_FUNC_NAME(CPPTools::Fmt::FormatString(__VA_ARGS__), profile, profiler);
 
-#define PROFILER_DEFAULT_FUNC_FMT(profile, fmt, ...)				PROFILER_FUNC_FMT(profile, CPPTools::Instrumentation::Profiler::GetInstance(), fmt, __VA_ARGS__);
+#define PROFILER_DEFAULT_FUNC_FMT(profile, ...)						PROFILER_FUNC_FMT(profile, CPPTools::Instrumentation::Profiler::GetInstance(), __VA_ARGS__);
 
 // ----------- CTools ----------- //
 

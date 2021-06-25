@@ -1,10 +1,8 @@
 #pragma once
 
 #include "CPPTools/Formater/Core/Core.h"
-#include "../BasicFormatContext.h"
 
 #define CPPTOOLS_FORMAT_DECLARED
-
 namespace CPPTools::Fmt {
 
 	template<typename CharFormat, typename CharBuffer, typename ...Args>
@@ -14,7 +12,7 @@ namespace CPPTools::Fmt {
 	struct FormatType {
 		template<class K = T>
 		static inline void Write(const K& t, FormatContext& context) {
-			static_assert(false, __FUNCSIG__);
+			CPPTOOLS_IF_MSVC(static_assert(false, __FUNCSIG__));
 		}
 	};
 }
@@ -27,3 +25,7 @@ namespace CPPTools::Fmt {
 														}\
 													};\
 												}
+
+
+
+												

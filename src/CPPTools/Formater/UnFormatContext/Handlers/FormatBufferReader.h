@@ -6,6 +6,27 @@
 
 namespace CPPTools::Fmt {
 
+
+	//------------------ C-Style String ------------------//
+	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
+	template<std::size_t SIZE>
+	inline bool BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>::BufferReadCharType(CharBuffer(&str)[SIZE]) {
+		return BufferReadCharType(str, SIZE);
+	}
+	
+	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
+	inline bool BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>::BufferReadCharType(CharBuffer* str, std::size_t size) {
+		while (size-- != 0) *str++ = BufferGetAndForward();
+		return true;
+	}
+	
+	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
+	inline bool BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>::BufferReadCharType(CharBuffer* str) {
+		return false;
+	}	
+
+
+	//------------------ Buffer Read Int ------------------//
 	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
 	template<typename T>
 	bool BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>::BufferReadInt(T& i) {
@@ -28,6 +49,7 @@ namespace CPPTools::Fmt {
 		return FormatFunc::UnFormatContextReadInt(*this, i);
 	}
 
+	//------------------ Buffer Read UInt ------------------//
 	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
 	template<typename T>
 	bool BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>::BufferReadUInt(T& i) {
@@ -50,6 +72,7 @@ namespace CPPTools::Fmt {
 		return FormatFunc::UnFormatContextReadUInt(*this, i);
 	}
 
+	//------------------ Buffer Read Float ------------------//
 	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
 	template<typename T>
 	bool BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>::BufferReadFloat(T& i) {

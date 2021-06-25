@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../BasicFormatContextImpl.h"
+#include "../BasicFormatContextHelperFile.h"
 
 namespace CPPTools::Fmt {
 
@@ -27,7 +27,7 @@ namespace CPPTools::Fmt {
 
 			context.BufferPushBack('\033');
 			context.BufferPushBack('[');
-			context.BufferWriteUInt<std::uint8_t>((std::uint8_t)t);
+			context.BufferWriteUInt((std::uint8_t)t);
 			context.BufferPushBack('m');
 
 			context.AddNoStride(context.GetCurrentBufferSize() - size);
@@ -47,7 +47,7 @@ namespace CPPTools::Fmt {
 
 			context.BufferPushBack('\033');
 			context.BufferPushBack('[');
-			context.BufferWriteUInt<std::uint8_t>((std::uint8_t)t);
+			context.BufferWriteUInt((std::uint8_t)t);
 			context.BufferPushBack('m');
 
 			context.AddNoStride(context.GetCurrentBufferSize() - size);

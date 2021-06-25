@@ -13,7 +13,7 @@ namespace CPPTools::Fmt {
 	struct UnFormatType {
 		template<class K = T>
 		static inline auto Read(K& t, UnFormatContext& context) -> std::enable_if_t<!std::is_integral_v<K> && !std::is_floating_point_v<K>, bool> {
-			static_assert(false, __FUNCSIG__);
+			CPPTOOLS_IF_MSVC(static_assert(false, __FUNCSIG__));
 			return false;
 		}
 	};
@@ -28,3 +28,11 @@ namespace CPPTools::Fmt {
 														}\
 													};\
 												}
+
+
+
+
+
+
+
+

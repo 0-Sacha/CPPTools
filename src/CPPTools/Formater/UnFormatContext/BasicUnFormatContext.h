@@ -3,8 +3,6 @@
 #include "CPPTools/Formater/Core/Core.h"
 
 #include "BaseFormat/UnFormatType.h"
-
-#include "../Core/FormaterHandler/FormaterHandler.h"
 #include "../FormatContext/BasicFormatContext.h"
 
 namespace CPPTools::Fmt {
@@ -140,9 +138,9 @@ namespace CPPTools::Fmt {
 		template<typename T> bool BufferReadFloat(T& i);
 
 		template<std::size_t SIZE>
-		inline bool BufferReadCharType(CharBuffer(&str)[SIZE])							{ BufferReadCharType(str, SIZE); }
-		inline bool BufferReadCharType(CharBuffer* str, std::size_t size)				{ while (size-- != 0) *str++ = BufferGetAndForward(); }
-		inline bool BufferReadCharType(CharBuffer* str)									{ return false; }
+		inline bool BufferReadCharType(CharBuffer(&str)[SIZE]);
+		inline bool BufferReadCharType(CharBuffer* str, std::size_t size);
+		inline bool BufferReadCharType(CharBuffer* str);
 
 	public:
 		// Format

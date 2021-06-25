@@ -1,30 +1,28 @@
 #pragma once
 
-#include "../BasicFormatContextImpl.h"
+#include "../BasicFormatContextHelperFile.h"
 #include <chrono>
 
 namespace CPPTools::Fmt::ChronoDetail {
 
 	template<typename Clock, typename Duration, typename FormatContext>
 	void WriteTestTime(const std::chrono::time_point<Clock, Duration>& value, FormatContext& context) {
-		using namespace ::CPPTools::Fmt::FormatFunc;
-		if (context.FormatNextIsSame("ns"))			FormatContextWriteUInt<uint32_t, FormatContext>(context, (uint32_t)std::chrono::time_point_cast<std::chrono::nanoseconds>(value).time_since_epoch().count());
-		else if (context.FormatNextIsSame("us"))	FormatContextWriteUInt<uint32_t, FormatContext>(context, (uint32_t)std::chrono::time_point_cast<std::chrono::microseconds>(value).time_since_epoch().count());
-		else if (context.FormatNextIsSame("ms"))	FormatContextWriteUInt<uint32_t, FormatContext>(context, (uint32_t)std::chrono::time_point_cast<std::chrono::milliseconds>(value).time_since_epoch().count());
-		else if (context.FormatNextIsSame("s"))		FormatContextWriteUInt<uint32_t, FormatContext>(context, (uint32_t)std::chrono::time_point_cast<std::chrono::seconds>(value).time_since_epoch().count());
-		else if (context.FormatNextIsSame("m"))		FormatContextWriteUInt<uint32_t, FormatContext>(context, (uint32_t)std::chrono::time_point_cast<std::chrono::minutes>(value).time_since_epoch().count());
-		else if (context.FormatNextIsSame("h"))		FormatContextWriteUInt<uint32_t, FormatContext>(context, (uint32_t)std::chrono::time_point_cast<std::chrono::hours>(value).time_since_epoch().count());
+		if (context.FormatNextIsSame("ns"))			FormatFunc::FormatContextWriteUInt<uint32_t, FormatContext>(context, (uint32_t)std::chrono::time_point_cast<std::chrono::nanoseconds>(value).time_since_epoch().count());
+		else if (context.FormatNextIsSame("us"))	FormatFunc::FormatContextWriteUInt<uint32_t, FormatContext>(context, (uint32_t)std::chrono::time_point_cast<std::chrono::microseconds>(value).time_since_epoch().count());
+		else if (context.FormatNextIsSame("ms"))	FormatFunc::FormatContextWriteUInt<uint32_t, FormatContext>(context, (uint32_t)std::chrono::time_point_cast<std::chrono::milliseconds>(value).time_since_epoch().count());
+		else if (context.FormatNextIsSame("s"))		FormatFunc::FormatContextWriteUInt<uint32_t, FormatContext>(context, (uint32_t)std::chrono::time_point_cast<std::chrono::seconds>(value).time_since_epoch().count());
+		else if (context.FormatNextIsSame("m"))		FormatFunc::FormatContextWriteUInt<uint32_t, FormatContext>(context, (uint32_t)std::chrono::time_point_cast<std::chrono::minutes>(value).time_since_epoch().count());
+		else if (context.FormatNextIsSame("h"))		FormatFunc::FormatContextWriteUInt<uint32_t, FormatContext>(context, (uint32_t)std::chrono::time_point_cast<std::chrono::hours>(value).time_since_epoch().count());
 	}
 
 	template<typename Clock, typename Duration, typename FormatContext>
 	void WriteTestTimeMod(const std::chrono::time_point<Clock, Duration>& value, FormatContext& context) {
-		using namespace ::CPPTools::Fmt::FormatFunc;
-		if (context.FormatNextIsSame("ns"))			FormatContextWriteUInt<uint32_t, FormatContext>(context, (uint32_t)std::chrono::time_point_cast<std::chrono::nanoseconds>(value).time_since_epoch().count()		% 1000, Detail::ShiftType::Right, 3, Detail::ShiftPrint::Zeros);
-		else if (context.FormatNextIsSame("us"))	FormatContextWriteUInt<uint32_t, FormatContext>(context, (uint32_t)std::chrono::time_point_cast<std::chrono::microseconds>(value).time_since_epoch().count()	% 1000, Detail::ShiftType::Right, 3, Detail::ShiftPrint::Zeros);
-		else if (context.FormatNextIsSame("ms"))	FormatContextWriteUInt<uint32_t, FormatContext>(context, (uint32_t)std::chrono::time_point_cast<std::chrono::milliseconds>(value).time_since_epoch().count()	% 1000, Detail::ShiftType::Right, 3, Detail::ShiftPrint::Zeros);
-		else if (context.FormatNextIsSame("s"))		FormatContextWriteUInt<uint32_t, FormatContext>(context, (uint32_t)std::chrono::time_point_cast<std::chrono::seconds>(value).time_since_epoch().count()			% 60,	Detail::ShiftType::Right, 2, Detail::ShiftPrint::Zeros);
-		else if (context.FormatNextIsSame("m"))		FormatContextWriteUInt<uint32_t, FormatContext>(context, (uint32_t)std::chrono::time_point_cast<std::chrono::minutes>(value).time_since_epoch().count()			% 60,	Detail::ShiftType::Right, 2, Detail::ShiftPrint::Zeros);
-		else if (context.FormatNextIsSame("h"))		FormatContextWriteUInt<uint32_t, FormatContext>(context, (uint32_t)std::chrono::time_point_cast<std::chrono::hours>(value).time_since_epoch().count()			% 24,	Detail::ShiftType::Right, 2, Detail::ShiftPrint::Zeros);
+		if (context.FormatNextIsSame("ns"))			FormatFunc::FormatContextWriteUInt<uint32_t, FormatContext>(context, (uint32_t)std::chrono::time_point_cast<std::chrono::nanoseconds>(value).time_since_epoch().count()		% 1000, Detail::ShiftType::Right, 3, Detail::ShiftPrint::Zeros);
+		else if (context.FormatNextIsSame("us"))	FormatFunc::FormatContextWriteUInt<uint32_t, FormatContext>(context, (uint32_t)std::chrono::time_point_cast<std::chrono::microseconds>(value).time_since_epoch().count()	% 1000, Detail::ShiftType::Right, 3, Detail::ShiftPrint::Zeros);
+		else if (context.FormatNextIsSame("ms"))	FormatFunc::FormatContextWriteUInt<uint32_t, FormatContext>(context, (uint32_t)std::chrono::time_point_cast<std::chrono::milliseconds>(value).time_since_epoch().count()	% 1000, Detail::ShiftType::Right, 3, Detail::ShiftPrint::Zeros);
+		else if (context.FormatNextIsSame("s"))		FormatFunc::FormatContextWriteUInt<uint32_t, FormatContext>(context, (uint32_t)std::chrono::time_point_cast<std::chrono::seconds>(value).time_since_epoch().count()			% 60,	Detail::ShiftType::Right, 2, Detail::ShiftPrint::Zeros);
+		else if (context.FormatNextIsSame("m"))		FormatFunc::FormatContextWriteUInt<uint32_t, FormatContext>(context, (uint32_t)std::chrono::time_point_cast<std::chrono::minutes>(value).time_since_epoch().count()			% 60,	Detail::ShiftType::Right, 2, Detail::ShiftPrint::Zeros);
+		else if (context.FormatNextIsSame("h"))		FormatFunc::FormatContextWriteUInt<uint32_t, FormatContext>(context, (uint32_t)std::chrono::time_point_cast<std::chrono::hours>(value).time_since_epoch().count()			% 24,	Detail::ShiftType::Right, 2, Detail::ShiftPrint::Zeros);
 	}
 
 	template<typename Clock, typename Duration, typename FormatContext>
@@ -57,6 +55,7 @@ namespace CPPTools::Fmt {
 		}
 	};
 
+#ifdef CPPTOOLS_COMPILER_MSVC
 	template<typename FormatContext>
 	struct FormatType<std::chrono::time_point<std::chrono::system_clock>, FormatContext>
 	{
@@ -65,7 +64,7 @@ namespace CPPTools::Fmt {
 				context.BufferWriteUInt((uint32_t)std::chrono::time_point_cast<std::chrono::microseconds>(t).time_since_epoch().count());
 		}
 	};
-
+#endif
 	template<typename FormatContext>
 	struct FormatType<std::chrono::seconds, FormatContext>
 	{
