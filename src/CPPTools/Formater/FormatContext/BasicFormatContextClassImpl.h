@@ -19,7 +19,7 @@ namespace CPPTools::Fmt {
 		, m_SubFormat(format.data())
 		, m_FormatEnd(format.data() + format.size())
 		, m_FormatSize(format.size())
-		, m_ContextArgs(args...)
+		, m_ContextArgs(std::forward<ContextArgs>(args)...)
 		, m_ContextArgsSize(sizeof...(ContextArgs))
 		, m_NoStride(0)
 		, m_ValuesIdx(0)
@@ -39,7 +39,7 @@ namespace CPPTools::Fmt {
 		, m_SubFormat(format.data())
 		, m_FormatEnd(format.data() + format.size())
 		, m_FormatSize(format.size())
-		, m_ContextArgs(args...)
+		, m_ContextArgs(std::forward<ContextArgs>(args)...)
 		, m_ContextArgsSize(sizeof...(ContextArgs))
 		, m_NoStride(oldContext.GetNoStride())
 		, m_ValuesIdx(0)
@@ -152,42 +152,6 @@ namespace CPPTools::Fmt {
 		return isSame;
 	}
 	
-	// FFIND - EXPERIMENTAL
-	/////---------- FormatReadParameter ----------/////
-	template<class ValueType>
-	static inline void GetFormatValueAt(ValueType& value, FormatIdx idx) {}
-	template<typename ValueType, typename T, typename ...Args>
-	static inline auto GetFormatValueAt(ValueType& value, FormatIdx idx, const T& t, Args&& ...args) -> std::enable_if_t<!std::is_convertible_v<T, ValueType>>;
-	template<typename ValueType, typename T, typename ...Args>
-	static inline auto GetFormatValueAt(ValueType& value, FormatIdx idx, const T t, Args&& ...args) -> std::enable_if_t<std::is_convertible_v<T, ValueType>>;
-
-	template<typename ValueType, typename T, typename ...Args>
-	static inline auto GetFormatValueAt(ValueType& value, FormatIdx idx, const T& t, Args&& ...args) -> std::enable_if_t<!std::is_convertible_v<T, ValueType>> {
-		if (idx > 0)		GetFormatValueAt(value, idx - 1, std::forward<Args>(args)...);
-	}
-	template<typename ValueType, typename T, typename ...Args>
-	static inline auto GetFormatValueAt(ValueType& value, FormatIdx idx, const T t, Args&& ...args) -> std::enable_if_t<std::is_convertible_v<T, ValueType>> {
-		if (idx == 0)		value = (ValueType)t;
-		else if(idx > 0)	GetFormatValueAt(value, idx - 1, std::forward<Args>(args)...);
-	}
-	
-	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
-	template<typename T>
-	bool BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>::FormatReadParameter(T& i) {
-		if (!FormatIsEqualTo('{'))	return FormatReadUInt(i);
-
-		const CharFormat* const mainSubFormat = m_SubFormat;
-		FormatIdx formatIdx = FormatIdxNotFound;
-		if (GetFormatIdx(formatIdx)) {
-			FormatForward();
-			std::apply([&](auto&& ...args) { GetFormatValueAt(i, formatIdx, args...); }, m_ContextArgs);
-			return true;
-		}
-		m_SubFormat = mainSubFormat;
-		return false;
-	}
-
-
 	/////---------- ReloadColor ----------/////
 	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
 	void BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>::ReloadColor()

@@ -5,48 +5,23 @@
 
 namespace CPPTools::Fmt {
 
-	/////---------- Default Print Rec ----------/////
+	/////---------- Get format parameter ----------/////
 	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
-	inline void BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>::FormatTypeFromIdxRec(FormatIdx idx) {}
+	template<typename T>
+	bool BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>::FormatReadParameter(T& i) {
+		if (!FormatIsEqualTo('{'))	return FormatReadUInt(i);
 
-	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
-	template<typename T, typename ...Args>
-	inline void BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>::FormatTypeFromIdxRec(FormatIdx idx, const T& t, Args&& ...args) {
-		if (idx == 0)	FormatType<GetBaseType<T>, BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>>::Write(t, *this);
-		else			FormatTypeFromIdxRec(idx - 1, std::forward<Args>(args)...);
-	}
-
-	/////---------- Data Print Rec ----------/////
-	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
-	inline void BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>::GetParameterDataRec(FormatIdx idx) {}
-
-	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
-	template<typename T, typename ...Args>
-	inline void BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>::GetParameterDataRec(FormatIdx idx, const T& t, Args&& ...args) {
-		if (idx == 0)	Detail::CopyFormatData<T>::Copy(m_FormatData, t);
-		else			GetParameterDataRec(idx - 1, std::forward<Args>(args)...);
-	}
-	/////---------- NamedArgs Print Rec ----------/////
-	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
-	inline void BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>::GetNamedArgsIdxRec(FormatIdx& idx, FormatIdx currentIdx) {
-		idx = FormatIdxNotFound;
-	}
-	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
-	template<typename T, typename ...Args, typename CharName>
-	inline void BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>::GetNamedArgsIdxRec(FormatIdx& idx, FormatIdx currentIdx, const StringViewNamedArgs<T, CharName>& t, Args&& ...args) {
-		if (FormatNextIsANamedArgs(t.GetName()))	idx = currentIdx;
-		else										GetNamedArgsIdxRec(idx, currentIdx + 1, std::forward<Args>(args)...);
-	}
-	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
-	template<typename T, typename ...Args, typename CharName>
-	inline void BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>::GetNamedArgsIdxRec(FormatIdx& idx, FormatIdx currentIdx, const StringNamedArgs<T, CharName>& t, Args&& ...args) {
-		if (FormatNextIsANamedArgs(t.GetName()))	idx = currentIdx;
-		else										GetNamedArgsIdxRec(idx, currentIdx + 1, std::forward<Args>(args)...);
-	}
-	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
-	template<typename T, typename ...Args>
-	inline void BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>::GetNamedArgsIdxRec(FormatIdx& idx, FormatIdx currentIdx, const T& t, Args&& ...args) {
-		GetNamedArgsIdxRec(idx, currentIdx + 1, std::forward<Args>(args)...);
+		const CharFormat* const mainSubFormat = m_SubFormat;
+		FormatIdx formatIdx = FormatIdxNotFound;
+		if (GetFormatIdx(formatIdx)) {
+			FormatForward();
+			
+			m_ContextArgs.GetFormatValueAt(i, formatIdx);
+			// std::apply([&](auto&& ...args) { GetFormatValueAt(i, formatIdx, args...); }, m_ContextArgs);
+			return true;
+		}
+		m_SubFormat = mainSubFormat;
+		return false;
 	}
 
 
@@ -62,7 +37,8 @@ namespace CPPTools::Fmt {
 				if (FormatIsEqualForward('{')) {		// Forward specifier
 					FormatIdx dataIdx;
 					GetFormatIdx(dataIdx);
-					std::apply([&](auto &&... args) { GetParameterDataRec(dataIdx, args...); }, m_ContextArgs);
+					m_ContextArgs.GetParameterDataFromIdx(*this, dataIdx);
+					// std::apply([&](auto&& ...args) { GetParameterDataRec(dataIdx, args...); }, m_ContextArgs);
 					FormatForward();
 				} else if (FormatIsEqualForward('b'))	{ m_FormatData.IntPrint = Detail::ValueIntPrint::Bin;	FormatReadParameter(m_FormatData.Precision);
 				} else if (FormatIsEqualForward('x'))	{ m_FormatData.IntPrint = Detail::ValueIntPrint::Hex;	FormatReadParameter(m_FormatData.Precision);
@@ -106,7 +82,8 @@ namespace CPPTools::Fmt {
 		m_SubFormat = mainSubFormat;
 
 		// III : A name
-		std::apply([&](auto &&... args) { GetNamedArgsIdxRec(idx, 0, args...); }, m_ContextArgs);
+		m_ContextArgs.GetNamedArgsIdx(*this, idx, 0);
+		// std::apply([&](auto&& ...args) { GetNamedArgsIdxRec(idx, 0, args...); }, m_ContextArgs);
 		if (idx < m_ContextArgsSize /* || idx != FormatIdxNotFound */)
 			return true;
 		m_SubFormat = mainSubFormat;
@@ -139,7 +116,8 @@ namespace CPPTools::Fmt {
 
 				if (!m_FormatData.IsInit)		ParameterData();
 
-				std::apply([&](auto &&... args) { FormatTypeFromIdxRec(formatIdx, args...); }, m_ContextArgs);
+				m_ContextArgs.FormatTypeFromIdx(*this, formatIdx);
+				// std::apply([&](auto&& ...args) { FormatTypeFromIdxRec(formatIdx, args...); }, m_ContextArgs);
 
 				if (m_FormatData.HasChangeColor) { m_ColorMem = colorMem; ReloadColor(); }
 				m_FormatData.Clone(data);

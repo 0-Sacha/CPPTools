@@ -19,7 +19,7 @@ namespace CPPTools::Fmt {
 		, m_SubFormat(format.data())
 		, m_FormatEnd(format.data() + format.size())
 		, m_FormatSize(format.size())
-		, m_ContextArgs(args...)
+		, m_ContextArgs(std::forward<ContextArgs>(args)...)
 		, m_ContextArgsSize(sizeof...(ContextArgs))
 		, m_ValuesIdx(0)
 	{
@@ -36,7 +36,7 @@ namespace CPPTools::Fmt {
 		, m_SubFormat(format.data())
 		, m_FormatEnd(format.data() + format.size())
 		, m_FormatSize(format.size())
-		, m_ContextArgs(args...)
+		, m_ContextArgs(std::forward<ContextArgs>(args)...)
 		, m_ContextArgsSize(sizeof...(ContextArgs))
 		, m_ValuesIdx(0)
 	{
@@ -101,23 +101,4 @@ namespace CPPTools::Fmt {
 		if (!isSame)												m_SubBuffer = prevSubBuffer;
 		return isSame;
 	}
-
-
-	// FFIND - EXPERIMENTAL
-	/////---------- FormatReadParameter ----------/////
-	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
-	template<typename T>
-	bool BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>::FormatReadParameter(T& i) {
-		const CharFormat* const mainSubFormat = m_SubFormat;
-		FormatIdx formatIdx = FormatIdxNotFound;
-		if (GetFormatIdx(formatIdx)) {
-			FormatForward();
-			std::apply([&](auto&& ...args) { GetFormatValueAt(i, formatIdx, args...); }, m_ContextArgs);
-			return true;
-		}
-		m_SubFormat = mainSubFormat;
-		return false;
-	}
-
-
 }

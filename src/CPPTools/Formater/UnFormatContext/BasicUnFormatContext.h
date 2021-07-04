@@ -1,9 +1,10 @@
 #pragma once
 
 #include "CPPTools/Formater/Core/Core.h"
-
 #include "BaseFormat/UnFormatType.h"
 #include "../FormatContext/BasicFormatContext.h"
+
+#include "UnFormatContextArgsTuple.h"
 
 namespace CPPTools::Fmt {
 
@@ -47,8 +48,8 @@ namespace CPPTools::Fmt {
 		const CharFormat*	m_FormatEnd;
 		std::size_t			m_FormatSize;
 
-		std::tuple<ContextArgs...>	m_ContextArgs;
-		std::size_t					m_ContextArgsSize;
+		Detail::UnFormatContextArgsTuple<ContextArgs...>	m_ContextArgs;
+		std::size_t											m_ContextArgsSize;
 
 		FormatIdx				m_ValuesIdx;
 		Detail::AnsiColorMem	m_ColorMem;
@@ -83,29 +84,6 @@ namespace CPPTools::Fmt {
 		inline std::int16_t NoError()						{ return -1; }
 
 	private:
-
-		/////---------- Read Rec ----------/////
-		void UnFormatTypeFromIdxRec(FormatIdx idx);
-		template<typename T, typename ...Args>
-		void UnFormatTypeFromIdxRec(FormatIdx idx, T& t, Args&& ...args);
-
-		/////---------- Data Print Rec ----------/////
-		inline void GetParameterDataRec(FormatIdx idx);
-		template<typename T, typename ...Args>
-		inline void GetParameterDataRec(FormatIdx idx, const T& t, Args&& ...args);
-
-
-		/////---------- Get NamedArgs ----------/////
-		void GetNamedArgsIdxRec(FormatIdx& idx, FormatIdx currentIdx);
-		template<typename T, typename ...Args, typename CharName>
-		void GetNamedArgsIdxRec(FormatIdx& idx, FormatIdx currentIdx, const StringViewNamedArgs<T, CharName>& t, Args&& ...args);
-		template<typename T, typename ...Args, typename CharName>
-		void GetNamedArgsIdxRec(FormatIdx& idx, FormatIdx currentIdx, const StringNamedArgs<T, CharName>& t, Args&& ...args);
-		template<typename T, typename ...Args>
-		void GetNamedArgsIdxRec(FormatIdx& idx, FormatIdx currentIdx, const T& t, Args&& ...args);
-		template<typename CharToTest>
-		bool FormatNextIsANamedArgs(std::basic_string_view<CharToTest> sv);
-
 		/////---------- Impl ----------/////
 		bool GetFormatIdx(FormatIdx& i);
 		bool ParameterRead();
@@ -124,23 +102,29 @@ namespace CPPTools::Fmt {
 		template<typename NewCharFormat, typename ...NewContextArgs>
 		void LittleUnFormat(const std::basic_string_view<NewCharFormat> format, NewContextArgs&& ...args);
 		template<typename CharType, std::size_t SIZE, typename ...NewContextArgs>
-		inline void LittleFormat(const CharType(&format)[SIZE], NewContextArgs&& ...args)						{ LittleFormat(std::basic_string_view<CharType>(format), std::forward<NewContextArgs>(args)...); }
+		inline void LittleFormat(const CharType(&format)[SIZE], NewContextArgs&& ...args)			{ LittleFormat(std::basic_string_view<CharType>(format), std::forward<NewContextArgs>(args)...); }
 
 	public:
 		template<typename T> bool FormatReadInt(T& i);
 		template<typename T> bool FormatReadUInt(T& i);
 
-	public:
-		template<typename T> bool BufferReadInt(T& i);
-		template<typename T> bool BufferReadUInt(T& i);
 		template<typename T> bool FormatReadParameter(T& i);
 
-		template<typename T> bool BufferReadFloat(T& i);
+	public:
+		// Integer
+		template<typename T> bool BufferReadInt(T& i);
+		template<typename T> bool BufferReadUInt(T& i);
 
-		template<std::size_t SIZE>
-		inline bool BufferReadCharType(CharBuffer(&str)[SIZE]);
-		inline bool BufferReadCharType(CharBuffer* str, std::size_t size);
-		inline bool BufferReadCharType(CharBuffer* str);
+		// Floating point
+		template<typename T> bool BufferReadFloat(T& i);
+		
+		// C-Style String
+		template<typename CharStr, std::size_t SIZE> 	inline bool BufferReadCharType(CharStr (&str) [SIZE]);
+		template<typename CharStr> 						inline bool BufferReadCharType(CharStr* str, std::size_t size);
+		template<typename CharStr> 						inline bool BufferReadCharType(CharStr* str);
+
+		// Other Type from UnFormatType
+		template<typename Type>							inline bool ReadType(Type& type) { return UnFormatType<GetBaseType<Type>, BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>>::Read(type, *this); }
 
 	public:
 		// Format
@@ -170,20 +154,23 @@ namespace CPPTools::Fmt {
 		inline bool FormatIsNotEqualTo(const CharFormat c) const					{ return FormatGet() != c; }
 		inline bool FormatIsEqualForward(const CharFormat c)						{ if (FormatIsEqualTo(c)) { FormatForward(); return true; } return false; }
 		inline bool FormatIsNotEqualForward(const CharFormat c)						{ if (FormatIsNotEqualTo(c)) { FormatForward(); return true; } return false; }
-		template<typename ...CharToTest> inline bool FormatIsEqualTo(const CharFormat c, const CharToTest ...ele) const		{ return FormatIsEqualTo(c) || FormatIsEqualTo(ele...); }
-		template<typename ...CharToTest> inline bool FormatIsEqualForward(const CharToTest ...ele) const					{ if (FormatIsEqualTo(ele...)) { FormatForward(); return true; } return false; }
-		template<typename ...CharToTest> inline bool FormatIsNotEqualTo(const CharFormat c, const CharToTest ...ele) const	{ return FormatIsNotEqualTo(c) && FormatIsNotEqualTo(ele...); }
-		template<typename ...CharToTest> inline bool FormatIsNotEqualForward(const CharToTest ...ele) const					{ if (FormatIsNotEqualTo(ele...)) { FormatForward(); return true; } return false; }
+		template<typename ...CharToTest> 	inline bool FormatIsEqualTo(const CharFormat c, const CharToTest ...ele) const		{ return FormatIsEqualTo(c) || FormatIsEqualTo(ele...); }
+		template<typename ...CharToTest> 	inline bool FormatIsEqualForward(const CharToTest ...ele) const						{ if (FormatIsEqualTo(ele...)) { FormatForward(); return true; } return false; }
+		template<typename ...CharToTest> 	inline bool FormatIsNotEqualTo(const CharFormat c, const CharToTest ...ele) const	{ return FormatIsNotEqualTo(c) && FormatIsNotEqualTo(ele...); }
+		template<typename ...CharToTest> 	inline bool FormatIsNotEqualForward(const CharToTest ...ele) const					{ if (FormatIsNotEqualTo(ele...)) { FormatForward(); return true; } return false; }
+
+		template<typename CharToTest>		bool FormatNextIsANamedArgs(std::basic_string_view<CharToTest> sv);
+
 
 		// Format Next check
 		inline bool FormatNextIsEqualTo(const CharFormat c) const					{ return FormatGetNext() == c; }
 		inline bool FormatNextIsNotEqualTo(const CharFormat c) const				{ return FormatGetNext() != c; }
 		inline bool FormatNextIsEqualForward(const CharFormat c)					{ FormatForward(); if(!FormatIsEqualTo(c)) { FormatBackwardNoCheck(); return false; } return true; }
 		inline bool FormatNextIsNotEqualForward(const CharFormat c)					{ FormatForward(); if (!FormatIsNotEqualTo(c)) { FormatBackwardNoCheck(); return false; } return true; }
-		template<typename ...CharToTest> inline bool FormatNextIsEqualForward(const CharToTest ...ele)		{ FormatForward(); if (FormatIsEqualTo(ele...)) { return true; } FormatBackwardNoCheck(); return false; }
-		template<typename ...CharToTest> inline bool FormatNextIsEqualTo(const CharToTest ...ele) const		{ FormatForward(); if (FormatIsEqualTo(ele...)) { FormatBackwardNoCheck(); return true; } FormatBackwardNoCheck(); return false; }
-		template<typename ...CharToTest> inline bool FormatNextIsNotEqualForward(const CharToTest ...ele)	{ FormatForward(); if (FormatIsNotEqualTo(ele...)) { return true; } FormatBackwardNoCheck(); return false; }
-		template<typename ...CharToTest> inline bool FormatNextIsNotEqualTo(const CharToTest ...ele) const	{ FormatForward(); if (FormatIsNotEqualTo(ele...)) { FormatBackwardNoCheck(); return true; } FormatBackwardNoCheck(); return false; }
+		template<typename ...CharToTest> 	inline bool FormatNextIsEqualForward(const CharToTest ...ele)		{ FormatForward(); if (FormatIsEqualTo(ele...)) { return true; } FormatBackwardNoCheck(); return false; }
+		template<typename ...CharToTest> 	inline bool FormatNextIsEqualTo(const CharToTest ...ele) const		{ FormatForward(); if (FormatIsEqualTo(ele...)) { FormatBackwardNoCheck(); return true; } FormatBackwardNoCheck(); return false; }
+		template<typename ...CharToTest> 	inline bool FormatNextIsNotEqualForward(const CharToTest ...ele)	{ FormatForward(); if (FormatIsNotEqualTo(ele...)) { return true; } FormatBackwardNoCheck(); return false; }
+		template<typename ...CharToTest> 	inline bool FormatNextIsNotEqualTo(const CharToTest ...ele) const	{ FormatForward(); if (FormatIsNotEqualTo(ele...)) { FormatBackwardNoCheck(); return true; } FormatBackwardNoCheck(); return false; }
 		
 		template<typename CharToTest>
 		bool FormatNextIsSame(std::basic_string_view<CharToTest> sv);

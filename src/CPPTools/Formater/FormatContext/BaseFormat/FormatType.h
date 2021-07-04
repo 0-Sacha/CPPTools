@@ -12,7 +12,7 @@ namespace CPPTools::Fmt {
 	struct FormatType {
 		template<class K = T>
 		static inline void Write(const K& t, FormatContext& context) {
-			CPPTOOLS_IF_MSVC(static_assert(false, __FUNCSIG__));
+			// CPPTOOLS_IF_MSVC(static_assert(false, __FUNCSIG__));
 		}
 	};
 }

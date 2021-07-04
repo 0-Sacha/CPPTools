@@ -61,7 +61,7 @@ namespace CPPTools::Fmt {
 	public:
 		T& GetValue()											{ return value; }
 		const T& GetValue() const								{ return value; }
-		const std::basic_string<CharName>& GetName() const		{ return m_Name; }
+		const std::basic_string_view<CharName> GetName() const	{ return m_Name; }
 
 	protected:
 		std::basic_string<CharName> m_Name;
@@ -75,6 +75,34 @@ namespace CPPTools::Fmt {
 			FormatType<GetBaseType<T>, BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>>::Write(t.GetValue(), context);
 		}
 	};
+
+
+	namespace Detail {
+		template <typename T>
+		struct IsANamedArgs {
+		public:
+			inline constexpr static bool value = false;
+		};
+
+		template <typename T, typename CharName>
+		struct IsANamedArgs<StringViewNamedArgs<T, CharName>> {
+			inline constexpr static bool value = true;
+		};
+
+		template <typename T, typename CharName>
+		struct IsANamedArgs<StringNamedArgs<T, CharName>> {
+			inline constexpr static bool value = true;
+		};
+
+		template <typename T>
+		inline constexpr bool IsANamedArgsValue = false;
+
+		template <typename T, typename CharName>
+		inline constexpr bool IsANamedArgsValue<StringViewNamedArgs<T, CharName>> = true;
+
+		template <typename T, typename CharName>
+		inline constexpr bool IsANamedArgsValue<StringNamedArgs<T, CharName>> = true;
+	}
 }
 
 

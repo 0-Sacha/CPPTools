@@ -9,19 +9,21 @@ namespace CPPTools::Fmt {
 
 	//------------------ C-Style String ------------------//
 	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
-	template<std::size_t SIZE>
-	inline bool BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>::BufferReadCharType(CharBuffer(&str)[SIZE]) {
+	template<typename CharStr, std::size_t SIZE>
+	inline bool BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>::BufferReadCharType(CharStr (&str) [SIZE]) {
 		return BufferReadCharType(str, SIZE);
 	}
 	
 	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
-	inline bool BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>::BufferReadCharType(CharBuffer* str, std::size_t size) {
+	template<typename CharStr>
+	inline bool BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>::BufferReadCharType(CharStr* str, std::size_t size) {
 		while (size-- != 0) *str++ = BufferGetAndForward();
 		return true;
 	}
 	
 	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
-	inline bool BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>::BufferReadCharType(CharBuffer* str) {
+	template<typename CharStr>
+	inline bool BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>::BufferReadCharType(CharStr* str) {
 		return false;
 	}	
 

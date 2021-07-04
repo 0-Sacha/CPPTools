@@ -6,19 +6,19 @@
 #include "BaseFormat/NamedArgs.h"
 #include "BaseFormat/FormatArgs.h"
 
+#include "FormatContextArgsTuple.h"
+
 #include "../Core/FormaterHandler/FormaterHandler.h"
 
 namespace CPPTools::Fmt {
-
 	template<typename CharFormat = char, typename CharBuffer = CharFormat, typename ...ContextArgs>
 	class BasicFormatContext {
 	public:
-		BasicFormatContext(const std::basic_string_view<CharFormat> format, CharBuffer* const buffer, const std::size_t bufferSize, ContextArgs&& ...args);
-		
-		template<typename OldCharFormat, typename ...OldContextArgs>
-		BasicFormatContext(const std::basic_string_view<CharFormat> format, BasicFormatContext<OldCharFormat, CharBuffer, OldContextArgs...>& oldContext, ContextArgs&& ...args);
-		
-		
+		BasicFormatContext(const std::basic_string_view<CharFormat> format, CharBuffer *const buffer, const std::size_t bufferSize, ContextArgs &&...args);
+
+		template <typename OldCharFormat, typename... OldContextArgs>
+		BasicFormatContext(const std::basic_string_view<CharFormat> format, BasicFormatContext<OldCharFormat, CharBuffer, OldContextArgs...> &oldContext, ContextArgs &&...args);
+
 		template<typename OldCharFormat, typename ...OldContextArgs>
 		inline void UpdateOldContext(BasicFormatContext<OldCharFormat, CharBuffer, OldContextArgs...>& oldContext) { oldContext.SetSubBuffer(m_SubBuffer); }
 
@@ -36,11 +36,11 @@ namespace CPPTools::Fmt {
 		std::size_t			m_FormatSize;			// Do not count the end char
 
 		// Args
-		std::tuple<ContextArgs...>	m_ContextArgs;
-		std::size_t					m_ContextArgsSize;
+		Detail::FormatContextArgsTuple<ContextArgs...> 	m_ContextArgs;
+		std::size_t					 					m_ContextArgsSize;
 
 		// Stride (mostly for container and new line format-style)
-		std::size_t m_NoStride;
+		std::size_t 			m_NoStride;
 
 		// For handling color / format data and idx (for not specified parameter)
 		FormatIdx				m_ValuesIdx;
@@ -79,31 +79,9 @@ namespace CPPTools::Fmt {
 		inline std::size_t GetStride() const					{ return GetCurrentBufferSize() - m_NoStride; }
 
 	public:
-		inline static FormaterHandler& GetAPI()				{ return FormaterHandler::GetInstance(); }
+		inline static FormaterHandler& GetAPI()					{ return FormaterHandler::GetInstance(); }
 
 	private:
-		/////---------- Default Print Rec ----------/////
-		void FormatTypeFromIdxRec(FormatIdx idx);
-		template<typename T, typename ...Args>
-		void FormatTypeFromIdxRec(FormatIdx idx, const T& t, Args&& ...args);
-
-		/////---------- Data Print Rec ----------/////
-		inline void GetParameterDataRec(FormatIdx idx);
-		template<typename T, typename ...Args>
-		inline void GetParameterDataRec(FormatIdx idx, const T& t, Args&& ...args);
-
-		/////---------- Get NamedArgs ----------/////
-		void GetNamedArgsIdxRec(FormatIdx& idx, FormatIdx currentIdx);
-		template<typename T, typename ...Args, typename CharName>
-		void GetNamedArgsIdxRec(FormatIdx& idx, FormatIdx currentIdx, const StringViewNamedArgs<T, CharName>& t, Args&& ...args);
-		template<typename T, typename ...Args, typename CharName>
-		void GetNamedArgsIdxRec(FormatIdx& idx, FormatIdx currentIdx, const StringNamedArgs<T, CharName>& t, Args&& ...args);
-		template<typename T, typename ...Args>
-		void GetNamedArgsIdxRec(FormatIdx& idx, FormatIdx currentIdx, const T& t, Args&& ...args);
-		
-		template<typename CharToTest>
-		bool FormatNextIsANamedArgs(std::basic_string_view<CharToTest> sv);
-
 		/////---------- Impl ----------/////
 		bool GetFormatIdx(FormatIdx& i);
 		bool ParameterPrint();
@@ -132,8 +110,11 @@ namespace CPPTools::Fmt {
 		void ReloadColor();
 
 	public:
+		// Integer
 		template<typename T> bool FormatReadInt(T& i);
 		template<typename T> bool FormatReadUInt(T& i);
+
+		// unsigned Integer
 		template<typename T> bool FormatReadParameter(T& i);
 
 	public:
@@ -148,6 +129,9 @@ namespace CPPTools::Fmt {
 		template<typename CharStr, std::size_t SIZE>	inline void BufferWriteCharType(const CharStr(&str)[SIZE]);
 		template<typename CharStr>						inline void BufferWriteCharType(const CharStr* str);
 		template<typename CharStr>						inline void BufferWriteCharType(const CharStr* str, std::size_t size);
+
+		// Type formating from FormatType<>
+		template<typename Type>							inline void WriteType(Type&& type) { FormatType<GetBaseType<Type>, BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>>::Write(type, *this); }
 
 	public:
 		// Format
@@ -181,6 +165,8 @@ namespace CPPTools::Fmt {
 		template<typename ...CharToTest> inline bool FormatIsEqualForward(const CharToTest ...ele) const					{ if (FormatIsEqualTo(ele...)) { FormatForward(); return true; } return false; }
 		template<typename ...CharToTest> inline bool FormatIsNotEqualTo(const CharFormat c, const CharToTest ...ele) const	{ return FormatIsNotEqualTo(c) && FormatIsNotEqualTo(ele...); }
 		template<typename ...CharToTest> inline bool FormatIsNotEqualForward(const CharToTest ...ele) const					{ if (FormatIsNotEqualTo(ele...)) { FormatForward(); return true; } return false; }
+
+		template<typename CharToTest> 	bool FormatNextIsANamedArgs(std::basic_string_view<CharToTest> sv);
 
 		// Format Next check
 		inline bool FormatNextIsEqualTo(const CharFormat c) const					{ return FormatGetNext() == c; }
