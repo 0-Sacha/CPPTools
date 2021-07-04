@@ -65,6 +65,7 @@
 #include <cstring>
 
 #include <utility>
+#include <memory>
 #include <limits>
 #include <array>
 #include <bitset>

@@ -28,6 +28,6 @@ namespace CPPTools::Fmt {
 	};
 }
 
-#define GTM(i) (std::chrono::hours)i
+#define CPPTOOLS_FORMATER_TIME_BEGIN()	CPPTools::Fmt::FormaterHandler::SetBeginTime()
 
-#define RESET_STRFORMAT_API_TIME(i)	CPPTools::Fmt::FormaterHandler::SetBeginTime(); CPPTools::Fmt::FormaterHandler::SetHoursShift(i)
+#define CPPTOOLS_FORMATER_SET_TIME_GTM(i) CPPTools::Fmt::FormaterHandler::SetHoursShift(std::chrono::hours(i))

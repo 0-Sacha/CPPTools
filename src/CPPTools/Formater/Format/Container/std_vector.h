@@ -8,25 +8,25 @@ namespace CPPTools::Fmt {
 	template<typename T, typename FormatContext>
 	struct FormatType<std::vector<T>, FormatContext>
 	{
-		static void Write(const std::vector<T>& t, FormatContext& formater) {
-			formater.BufferPushBack('[');
+		static void Write(const std::vector<T>& t, FormatContext& context) {
+			context.BufferPushBack('[');
 
-			FormatData& data = formater.GetFormatData();
+			FormatData& data = context.GetFormatData();
 			data.SetMaxSize(t.size());
 
 			const char* nextElement = data.ContainerPrintStyle == Detail::ContainerPrintStyle::NewLine ? "\n" : ", ";
-			std::size_t stride		= data.ContainerPrintStyle == Detail::ContainerPrintStyle::NewLine ? formater.GetStride() : 0;
+			std::size_t stride		= data.ContainerPrintStyle == Detail::ContainerPrintStyle::NewLine ? context.GetStride() : 0;
 
 			bool first = true;
 			std::for_each_n(t.cbegin() + data.Begin, data.Size, [&](const T& element) {
 				if (first)	first = false;
 				else {
-					formater.BufferWriteCharType(nextElement);
-					formater.BufferAddSpaces(stride);
+					context.BufferWriteCharType(nextElement);
+					context.BufferAddSpaces(stride);
 				}
-				FormatType<T, FormatContext>::Write(element, formater); });
+				context.WriteType(element); });
 
-			formater.BufferPushBack(']');
+			context.BufferPushBack(']');
 		}
 	};
 

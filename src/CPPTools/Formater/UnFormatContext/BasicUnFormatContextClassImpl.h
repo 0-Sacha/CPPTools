@@ -5,7 +5,7 @@
 #include "BaseFormat/BaseFormat.h"
 #include "BaseFormat/ColorFormat.h"
 #include "BaseFormat/Chrono.h"
-#include "BaseFormat/String.h"
+#include "BaseFormat/BaseSTDLib.h"
 
 namespace CPPTools::Fmt {
 
