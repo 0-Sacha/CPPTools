@@ -31,8 +31,8 @@ namespace CPPTools::Fmt {
 	struct FormatType<bool, FormatContext> {
 		static void Write(const bool t, FormatContext& context) {
 			if (context.GetFormatData().BaseValue) {
-				if (t == true)	context.BufferWriteCharType("True");
-				else			context.BufferWriteCharType("False");
+				if (t == true)	context.BufferWriteCharArray("True");
+				else			context.BufferWriteCharArray("False");
 			} else {
 				if (t == true)	context.BufferPushBack('1');
 				else			context.BufferPushBack('0');
@@ -80,7 +80,7 @@ namespace CPPTools::Fmt {
 			data.SetMaxSize(SIZE);
 
 			if (data.BaseValue)	context.BufferPushBack('"');
-			context.BufferWriteCharType(t + data.Begin, data.Size);
+			context.BufferWriteCharPt(t + data.Begin, data.Size);
 			if (data.BaseValue)	context.BufferPushBack('"');
 		}
 	};
@@ -91,8 +91,8 @@ namespace CPPTools::Fmt {
 	
 			if (data.BaseValue)						context.BufferPushBack('"');
 	
-			if (data.Size != -1)					context.BufferWriteCharType(t + data.Begin, data.Size);
-			else									context.BufferWriteCharType(t + data.Begin);
+			if (data.Size != -1)					context.BufferWriteCharPt(t + data.Begin, data.Size);
+			else									context.BufferWriteCharPt(t + data.Begin);
 	
 			if (data.BaseValue)						context.BufferPushBack('"');
 		}
@@ -140,7 +140,7 @@ namespace CPPTools::Fmt {
 			while (begin < end) {
 				if (first)	first = false;
 				else {
-					context.BufferWriteCharType(nextElement);
+					context.BufferWriteCharPt(nextElement);
 					context.BufferAddSpaces(stride);
 				}
 				FormatType<T, FormatContext>::Write(*begin++, context);

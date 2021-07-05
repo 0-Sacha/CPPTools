@@ -21,7 +21,7 @@ namespace CPPTools::Fmt {
 			bool first = true;
 			std::for_each_n(t.cbegin() + data.Begin, data.Size, [&](const T& element) {
 				if (first)	first = false;
-				else		{ context.BufferWriteCharType(nextElement); context.BufferAddSpaces(stride); }
+				else		{ context.BufferWriteCharPt(nextElement); context.BufferAddSpaces(stride); }
 				context.WriteType(element); });
 
 			context.BufferPushBack(']');

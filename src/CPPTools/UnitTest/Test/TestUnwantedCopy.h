@@ -4,15 +4,15 @@
 namespace UnitTest {
 
     struct TestCopy {
-        TestCopy() {
+        TestCopy() noexcept {
             std::clog << "Construct" << std::endl;
         }
 
-        TestCopy(const TestCopy& t) {
+        TestCopy(const TestCopy& t) noexcept {
             std::clog << "Copy" << std::endl;
         }
 
-        TestCopy(TestCopy&& t) {
+        TestCopy(TestCopy&& t) noexcept {
             std::clog << "Move" << std::endl;
         }
     };

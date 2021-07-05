@@ -23,7 +23,7 @@ namespace CPPTools::Fmt {
 			std::for_each(t.cbegin(), t.cend(), [&](const std::pair<T1, T2>& element) {
 				if (first)	first = false;
 				else {
-					context.BufferWriteCharType(nextElement);
+					context.BufferWriteCharPt(nextElement);
 					context.BufferAddSpaces(stride);
 				}
 				context.WriteType(element); });
@@ -48,7 +48,7 @@ namespace CPPTools::Fmt {
 			std::for_each(t.cbegin(), t.cend(), [&](const std::pair<T1, T2>& element) {
 				if (first)	first = false;
 				else {
-					context.BufferWriteCharType(nextElement);
+					context.BufferWriteCharPt(nextElement);
 					context.BufferAddSpaces(stride);
 				}
 				context.WriteType(element); });

@@ -126,9 +126,9 @@ namespace CPPTools::Fmt {
 		template<typename T> void BufferWriteFloat(T i);
 
 		// C-Style String
-		template<typename CharStr, std::size_t SIZE>	inline void BufferWriteCharType(const CharStr(&str)[SIZE]);
-		template<typename CharStr>						inline void BufferWriteCharType(const CharStr* str);
-		template<typename CharStr>						inline void BufferWriteCharType(const CharStr* str, std::size_t size);
+		template<typename CharStr, std::size_t SIZE>	inline void BufferWriteCharArray(const CharStr(&str)[SIZE]);
+		template<typename CharStr>						inline void BufferWriteCharPt(const CharStr* str);
+		template<typename CharStr>						inline void BufferWriteCharPt(const CharStr* str, std::size_t size);
 
 		// Type formating from FormatType<>
 		template<typename Type>							inline void WriteType(Type&& type) { FormatType<GetBaseType<Type>, BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>>::Write(type, *this); }

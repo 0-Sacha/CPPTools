@@ -119,9 +119,9 @@ namespace CPPTools::Fmt {
 		template<typename T> bool BufferReadFloat(T& i);
 		
 		// C-Style String
-		template<typename CharStr, std::size_t SIZE> 	inline bool BufferReadCharType(CharStr (&str) [SIZE]);
-		template<typename CharStr> 						inline bool BufferReadCharType(CharStr* str, std::size_t size);
-		template<typename CharStr> 						inline bool BufferReadCharType(CharStr* str);
+		template<typename CharStr, std::size_t SIZE> 	inline bool BufferReadCharArray(CharStr (&str) [SIZE]);
+		template<typename CharStr> 						inline bool BufferReadCharPt(CharStr* str, std::size_t size);
+		template<typename CharStr> 						inline bool BufferReadCharPt(CharStr* str);
 
 		// Other Type from UnFormatType
 		template<typename Type>							inline bool ReadType(Type& type) { return UnFormatType<GetBaseType<Type>, BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>>::Read(type, *this); }
