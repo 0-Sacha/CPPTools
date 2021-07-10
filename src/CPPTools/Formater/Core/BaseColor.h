@@ -98,5 +98,5 @@ namespace CPPTools::Fmt::Detail {
 		AnsiColor Color;
 	};
 
-	inline ResetAnsiColor RESET_ANSI_COLOR;
+	const static inline ResetAnsiColor RESET_ANSI_COLOR;
 }

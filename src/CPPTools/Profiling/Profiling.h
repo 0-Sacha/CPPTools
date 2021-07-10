@@ -26,17 +26,16 @@ namespace CPPTools::Instrumentation {
 
 	public:
 		void Stop();
-		const std::string& GetName() const;
-		const float GetStart() const;
-		const float GetDuration() const;
-		const std::size_t GetTID() const;
-
+		const std::string& GetName() const 	{ return m_Name; } 
+		double GetStart() const				{ return m_Start; }
+		double GetDuration() const			{ return m_End - m_Start; }
+		std::size_t GetTID() const			{ return m_TID; }
 
 	private:
 		Profiler& m_Link;
 		std::string m_Name;
-		float m_Start, m_End;
-		size_t m_TID;
+		double m_Start, m_End;
+		std::size_t m_TID;
 		bool m_IsStoped = false;
 	};
 
@@ -44,19 +43,19 @@ namespace CPPTools::Instrumentation {
 
 	class Profiler {
 	public:
-		Profiler(const std::string& name);
+		explicit Profiler(const std::string& name);
 		~Profiler();
 
 	public:
 		void WriteProfile(const ProfileResult* const result);
-		void WriteProfile(std::string name, const float start, const float dur, const std::size_t tid);
+		void WriteProfile(std::string name, const double start, const double dur, const std::size_t tid);
 		void EndSession();
 
-		inline const CPPTools::LogSystem& GetLogger() { return m_Logger; }
+		inline const CPPTools::LogSystem& GetLogger() const		{ return m_Logger; }
 
 	public:
-		static Profiler& GetInstance();
-		static float GetMicroseconds();
+		static Profiler& GetInstance()		{ static Profiler profiler("Profiler"); return profiler; }
+		static double GetMicroseconds();
 
 	private:
 		void WriteHeaderFile();
@@ -66,7 +65,7 @@ namespace CPPTools::Instrumentation {
 		std::string m_Name;
 		std::ofstream m_File;
 		CPPTools::LogSystem m_Logger;
-		float m_Start;
+		double m_Start;
 		bool m_IsEnd;
 		size_t m_ProfilesCount;
 	};
@@ -140,4 +139,6 @@ namespace CPPTools::Instrumentation {
 #define PROFILER_DEFAULT_END()										
 
 #endif // PROFILING_ENABLE
-#endif // CTOOLS_MEMORY_PROFILER_ENABLE
+
+
+#endif // CTOOLS_PROFILER_ENABLE

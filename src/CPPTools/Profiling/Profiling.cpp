@@ -38,22 +38,6 @@ namespace CPPTools::Instrumentation {
 		m_IsStoped = true;
 	}
 
-	const std::string& ProfileResult::GetName() const {
-		return m_Name;
-	}
-
-	const float ProfileResult::GetStart() const {
-		return m_Start;
-	}
-
-	const float ProfileResult::GetDuration() const {
-		return m_End - m_Start;
-	}
-
-	const std::size_t ProfileResult::GetTID() const {
-		return m_TID;
-	}
-
 
 
 
@@ -61,7 +45,7 @@ namespace CPPTools::Instrumentation {
 
 
 	Profiler::Profiler(const std::string& name)
-		: m_Name(name), m_File(m_Name + ".json", std::ios::out), m_Start(GetMicroseconds()), m_Logger(m_Name), m_IsEnd(false), m_ProfilesCount(0)
+		: m_Name(name), m_File(m_Name + ".json", std::ios::out), m_Logger(m_Name), m_Start(GetMicroseconds()), m_IsEnd(false), m_ProfilesCount(0)
 	{
 		WriteHeaderFile();
 	}
@@ -75,7 +59,7 @@ namespace CPPTools::Instrumentation {
 		WriteProfile(result->GetName(), result->GetStart(), result->GetDuration(), result->GetTID());
 	}
 
-	void Profiler::WriteProfile(std::string name, const float start, const float dur, const std::size_t tid)
+	void Profiler::WriteProfile(std::string name, const double start, const double dur, const std::size_t tid)
 	{
 		std::replace(name.begin(), name.end(), '"', '\'');
 
@@ -100,15 +84,10 @@ namespace CPPTools::Instrumentation {
 
 		m_IsEnd = true;
 	}
-
-	Profiler& Profiler::GetInstance() {
-		static Profiler profiler("Profiler");
-		return profiler;
-	}
-
-	float Profiler::GetMicroseconds()
+	
+	auto Profiler::GetMicroseconds() -> double
 	{
-		return (float)std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now()).time_since_epoch().count() / 1000;
+		return (double)std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now()).time_since_epoch().count() / 1000;
 	}
 
 	void Profiler::WriteHeaderFile() {

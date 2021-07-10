@@ -8,7 +8,7 @@
 
 #include "FormatContextArgsTuple.h"
 
-#include "../Core/FormaterHandler/FormaterHandler.h"
+#include "../Core/FormaterHandler.h"
 
 namespace CPPTools::Fmt {
 	template<typename CharFormat = char, typename CharBuffer = CharFormat, typename ...ContextArgs>
@@ -83,7 +83,7 @@ namespace CPPTools::Fmt {
 
 	private:
 		/////---------- Impl ----------/////
-		bool GetFormatIdx(FormatIdx& i);
+		bool GetFormatIdx(FormatIdx& idx);
 		bool ParameterPrint();
 		void ParameterData();
 
@@ -205,7 +205,7 @@ namespace CPPTools::Fmt {
 		// Buffer base commands
 		inline void BufferForward()													{ if (BufferCanMoveForward()) ++m_SubBuffer; }
 		inline void BufferForwardNoCheck()											{ ++m_SubBuffer; }
-		inline void BufferBackward()												{ if (BufferCanMoveBackward())m_SubBuffer; }
+		inline void BufferBackward()												{ if (BufferCanMoveBackward()) --m_SubBuffer; }
 		template<typename Int> inline void BufferForward(const Int size)			{ m_SubBuffer += size; if (!BufferCanMoveForward()) m_SubBuffer = m_BufferEnd; }
 		template<typename Int> inline void BufferBackward(const Int size)			{ m_SubBuffer -= size; if (!BufferCanMoveBackward()) m_SubBuffer = m_Buffer; }
 

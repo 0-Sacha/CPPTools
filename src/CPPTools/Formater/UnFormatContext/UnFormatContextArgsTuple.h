@@ -12,7 +12,7 @@ namespace CPPTools::Fmt::Detail {
     template <>
     struct UnFormatContextArgsTuple<> {
     public:
-        UnFormatContextArgsTuple() {}
+        UnFormatContextArgsTuple() = default;
 
     public:
         template <typename UnFormatContext>

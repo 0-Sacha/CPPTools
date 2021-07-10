@@ -91,12 +91,12 @@ namespace CPPTools::Fmt::FormatFunc {
 
 	template<typename T, typename FormatContext>
 	void FormatContextWriteIntAsHex(FormatContext& context, T i, FormatDataType def) {
-		static char arr[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+		// static char arr[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 	}
 
 	template<typename T, typename FormatContext>
 	void FormatContextWriteIntAsHex(FormatContext& context, T i, FormatDataType def, Detail::ShiftType st, FormatDataType shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
-		static char arr[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+		// static char arr[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 	}
 
 
@@ -170,7 +170,6 @@ namespace CPPTools::Fmt::FormatFunc {
 	template<typename T, typename FormatContext>
 	void FormatContextWriteUIntAsBin(FormatContext& context, T i, FormatDataType def, Detail::ShiftType st, FormatDataType shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
 		if (def < 2)	def = sizeof(T) * 8;
-		T i_ = i;
 		std::uint64_t mask = (std::uint64_t)1 << (def - 1);
 		shift -= def;
 
@@ -214,7 +213,7 @@ namespace CPPTools::Fmt::FormatFunc {
 
 	template<typename T, typename FormatContext>
 	void FormatContextWriteUIntAsHex(FormatContext& context, T i, FormatDataType def, Detail::ShiftType st, FormatDataType shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
-		static char arr[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+		// static char arr[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 	}
 
 

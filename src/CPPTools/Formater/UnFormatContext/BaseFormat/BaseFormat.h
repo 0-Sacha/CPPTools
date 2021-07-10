@@ -112,7 +112,6 @@ namespace CPPTools::Fmt {
 	struct UnFormatType<T[SIZE], UnFormatContext, ForwardIfVoid<T[SIZE], IsCharArray<T, SIZE>>>
 	{
 		static bool Read(T (&t)[SIZE], UnFormatContext& context) {
-			const FormatData& data = context.GetFormatData();
 			return false;
 		}
 	};

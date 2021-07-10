@@ -67,6 +67,7 @@ namespace CPPTools::Fmt {
 		, ShiftType(other.ShiftType)
 		, ShiftValue(other.ShiftValue)
 		, SpecIdx(other.SpecIdx)
+		, Spec(other.Spec)
 		, HasChangeColor(false)
 	{
 	}
@@ -84,11 +85,10 @@ namespace CPPTools::Fmt {
 		return *this;
 	}
 
-	const int8_t FormatData::GetValueOf(const char c) const
+	std::int8_t FormatData::GetValueOf(const char c) const
 	{
 		for (std::uint8_t i = 0; i < SpecIdx; ++i)
-			if (Spec[i].Type == c)
-				return Spec[i].Value;
+			if (Spec[i].Type == c)	return Spec[i].Value;
 		return NotFound();
 	}
 

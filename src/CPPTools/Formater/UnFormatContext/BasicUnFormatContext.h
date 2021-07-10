@@ -10,9 +10,9 @@ namespace CPPTools::Fmt {
 
 	struct UnFormatContextError
 	{
-		bool error;
-		std::int16_t FormatPosError;
-		std::int16_t BufferPosError;
+		bool error					{false};
+		std::int16_t FormatPosError	{0};
+		std::int16_t BufferPosError	{0};
 		UnFormatContextError()
 			: error(false), FormatPosError(0), BufferPosError(0) { }
 		UnFormatContextError(std::int16_t formatPosError, std::int16_t bufferPosError)
@@ -81,18 +81,18 @@ namespace CPPTools::Fmt {
 		inline const FormatData& GetFormatData() const		{ return m_FormatData; }
 		inline FormatData ForwardFormatData() const			{ return m_FormatData; }
 
-		inline std::int16_t NoError()						{ return -1; }
+		static inline std::int16_t NoError()				{ return -1; }
 
 	private:
 		/////---------- Impl ----------/////
-		bool GetFormatIdx(FormatIdx& i);
+		bool GetFormatIdx(FormatIdx& idx);
 		bool ParameterRead();
 		void ParameterData();
 
 	private:
-		void GetColorValue();
-		void GetTimerPrinted();
-		void GetDatePrinted();
+		static void GetColorValue();
+		static void GetTimerPrinted();
+		static void GetDatePrinted();
 		void IgnoreParameter();
 
 	public:

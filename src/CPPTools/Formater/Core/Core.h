@@ -7,7 +7,7 @@
 
 namespace CPPTools::Fmt {
 	using FormatDataType = std::int16_t;
-}
+} // namespace CPPTools::Fmt
 
 namespace CPPTools::Fmt::Detail {
 
@@ -41,7 +41,7 @@ namespace CPPTools::Fmt::Detail {
 		CommaSpace,
 		NewLine
 	};
-}
+} // CPPTools::Fmt::Detail
 
 namespace CPPTools::Fmt {
 
@@ -49,17 +49,17 @@ namespace CPPTools::Fmt {
 	static const FormatIdx FormatIdxNotFound = -1;
 
 	struct FormatSpecifier {
-		char Type = 0;
+		char		Type = 0;
 		std::int8_t Value = 0;
 	};
 
 	struct FormatData {
 	public:
-		FormatData();
-		FormatData(const FormatData& other);
+		explicit FormatData();
+		explicit FormatData(const FormatData& other);
 		FormatData& operator=(const FormatData& other);
 
-		FormatData(bool hasSpec
+		explicit FormatData(bool hasSpec
 			, bool baseValue = false
 			, Detail::ValueIntPrint intPrint = Detail::ValueIntPrint::Int
 			, FormatDataType precision = 0
@@ -72,7 +72,7 @@ namespace CPPTools::Fmt {
 			, FormatDataType shiftValue = 0);
 
 	public:
-		void Clone(const FormatData& data);
+		void Clone(const FormatData& other);
 
 	public:
 		bool IsInit;
@@ -102,7 +102,7 @@ namespace CPPTools::Fmt {
 		inline void SetDefaultSize(FormatDataType size)	{ if (Size == -1) Size = size; }
 		inline void SetMaxSize(FormatDataType size)		{ if (Size == -1) SetDefaultSize(size); if(Begin + Size > size) Size = size - Begin; }
 
-		const std::int8_t GetValueOf(const char c) const;
+		std::int8_t GetValueOf(const char c) const;
 		inline void AddSpecifier(const FormatSpecifier specifier) {
 			if (SpecIdx < Spec.size())
 				Spec[SpecIdx++] = specifier;
@@ -110,13 +110,13 @@ namespace CPPTools::Fmt {
 		inline void AddSpecifier(const char c, const std::int8_t value) {
 			AddSpecifier(FormatSpecifier{ c, value });
 		}
-		static inline constexpr const std::int8_t NotFound() {
+		static inline constexpr std::int8_t NotFound() {
 			return (std::numeric_limits<std::int8_t>::max)();
 		}
 	};
-}
+} // CPPTools::Fmt
 
 namespace CPPTools::Fmt::Detail {
-	template<typename T>	struct CopyFormatData { static void Copy(FormatData& data, const T& t) { } };
-	template<>				struct CopyFormatData<FormatData> { static void Copy(FormatData& data, const FormatData& t) { data = t; } };
-}
+	template<typename T>	struct CopyFormatData				{ static void Copy(FormatData& data, const T& t) { } };
+	template<>				struct CopyFormatData<FormatData>	{ static void Copy(FormatData& data, const FormatData& t) { data = t; } };
+} // CPPTools::Fmt::Detail

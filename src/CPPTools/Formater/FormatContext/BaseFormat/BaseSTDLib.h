@@ -32,7 +32,7 @@ namespace CPPTools::Fmt {
 	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
 	struct FormatType<std::basic_stringstream<CharBuffer>, BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>> {
 		inline static void Write(const std::basic_stringstream<CharBuffer>& t, BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>& context) {
-			FormatType<std::basic_string<CharBuffer>, FormatContext>::Write(t.str(), context);
+			FormatType<std::basic_string<CharBuffer>, BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>>::Write(t.str(), context);
 		}
 	};
 

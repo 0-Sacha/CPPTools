@@ -15,7 +15,7 @@ namespace CPPTools::Fmt::Detail {
     template <>
     struct FormatContextArgsTuple<> {
     public:
-        FormatContextArgsTuple() {}
+        FormatContextArgsTuple() = default;
 
     public:
         template <typename FormatContext>

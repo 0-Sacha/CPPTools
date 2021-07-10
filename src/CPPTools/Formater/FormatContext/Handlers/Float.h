@@ -32,9 +32,8 @@ namespace CPPTools::Fmt::FormatFunc {
 			std::int8_t nb = 0;
 			while (i_ > 0)		{ i_ /= 10; ++nb; --shift; }
 			shift -= nbDecimal;
-			if (i_int < 0)		--shift;
 
-			if (i_int < 0)		{ context.BufferPushBack('-'); i_int = -i_int; }
+			if (i_int < 0)		{ --shift;  context.BufferPushBack('-'); i_int = -i_int; }
 			context.BufferForward(nb - 1);
 			while (i_int > 0) {
 				context.BufferPushReverse(i_int % 10 + '0');

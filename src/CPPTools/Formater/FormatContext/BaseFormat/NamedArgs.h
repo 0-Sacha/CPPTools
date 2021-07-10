@@ -24,7 +24,7 @@ namespace CPPTools::Fmt {
 	public:
 		T& GetValue()											{ return value; }
 		const T& GetValue() const								{ return value; }
-		const std::basic_string_view<CharName> GetName() const	{ return m_Name; }
+		std::basic_string_view<CharName> GetName() const		{ return m_Name; }
 
 	protected:
 		std::basic_string_view<CharName> m_Name;
@@ -61,7 +61,7 @@ namespace CPPTools::Fmt {
 	public:
 		T& GetValue()											{ return value; }
 		const T& GetValue() const								{ return value; }
-		const std::basic_string_view<CharName> GetName() const	{ return m_Name; }
+		std::basic_string_view<CharName> GetName() const		{ return m_Name; }
 
 	protected:
 		std::basic_string<CharName> m_Name;
