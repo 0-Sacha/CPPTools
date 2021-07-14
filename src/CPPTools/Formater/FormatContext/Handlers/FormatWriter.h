@@ -10,13 +10,6 @@ namespace CPPTools::Fmt {
 
 	//------------------ C-Style String ------------------//
 	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
-	template<typename CharStr, std::size_t SIZE>
-	inline void BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>::BufferWriteCharArray(const CharStr(&str)[SIZE]) {
-		BufferWriteCharPt(str, SIZE);
-	}
-	
-	
-	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
 	template<typename CharStr>
 	inline void BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>::BufferWriteCharPt(const CharStr* str) {
 		while (*str != 0) BufferPushBack(*str++);

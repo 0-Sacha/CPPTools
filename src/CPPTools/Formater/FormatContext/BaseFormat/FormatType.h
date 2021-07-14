@@ -17,9 +17,8 @@ namespace CPPTools::Fmt {
 	};
 }
 
-#define CPPTOOLS_AUTO_FORMAT(Type, fmt, ...)	namespace CPPTools::Fmt {\
-													template<typename FormatContext>\
-													struct FormatType<Type> {\
+#define CPPTOOLS_AUTO_FORMAT(Type, fmt, ...)	template<typename FormatContext>\
+													struct CPPTools::Fmt::FormatType<Type, FormatContext> {\
 														static void Write(const Type& value, FormatContext& context) {\
 															context.LittleFormat(fmt, __VA_ARGS__);\
 														}\

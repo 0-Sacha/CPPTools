@@ -20,9 +20,8 @@ namespace CPPTools::Fmt {
 
 }
 
-#define CPPTOOLS_AUTO_UNFORMAT(Type, fmt, ...)	namespace CPPTools::Fmt {\
-													template<typename UnFormatContext>\
-													struct UnFormatType<Type, UnFormatContext> {\
+#define CPPTOOLS_AUTO_UNFORMAT(Type, fmt, ...)	template<typename UnFormatContext>\
+													struct CPPTools::Fmt::UnFormatType<Type, UnFormatContext> {\
 														static bool Read(Type& value, UnFormatContext& context) {\
 															return context.LittleUnFormat(fmt, __VA_ARGS__);\
 														}\
