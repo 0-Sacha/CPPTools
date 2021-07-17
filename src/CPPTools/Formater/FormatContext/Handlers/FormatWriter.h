@@ -19,7 +19,8 @@ namespace CPPTools::Fmt {
 	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
 	template<typename CharStr>
 	inline void BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>::BufferWriteCharPt(const CharStr* str, std::size_t size) {
-		while (size-- != 0 && *str != 0) BufferPushBack(*str++);
+		if (BufferCanMoveForward(size))		while (size-- != 0 && *str != 0) BufferPushBackNoCheck(*str++);
+		else								while (size-- != 0 && *str != 0) BufferPushBack(*str++);
 	}
 
 	

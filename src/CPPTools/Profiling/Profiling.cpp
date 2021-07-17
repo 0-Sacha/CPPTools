@@ -7,6 +7,7 @@ namespace CPPTools::Instrumentation {
 	ProfileResult::ProfileResult(Profiler& link, const std::string& name)
 		: m_Link(link), m_Name(name), m_Start(0), m_End(0)
 	{
+		std::replace(m_Name.begin(), m_Name.end(), '"', '\'');
 		m_Start = Profiler::GetMicroseconds();
 		m_TID = std::hash<std::thread::id>{}(std::this_thread::get_id());
 	}
@@ -14,6 +15,7 @@ namespace CPPTools::Instrumentation {
 	ProfileResult::ProfileResult(Profiler& link, std::string&& name)
 		: m_Link(link), m_Name(std::move(name)), m_Start(0), m_End(0)
 	{
+		std::replace(m_Name.begin(), m_Name.end(), '"', '\'');
 		m_Start = Profiler::GetMicroseconds();
 		m_TID = std::hash<std::thread::id>{}(std::this_thread::get_id());
 	}
@@ -47,6 +49,7 @@ namespace CPPTools::Instrumentation {
 	Profiler::Profiler(const std::string& name)
 		: m_Name(name), m_File(m_Name + ".json", std::ios::out), m_Logger(m_Name), m_Start(GetMicroseconds()), m_IsEnd(false), m_ProfilesCount(0)
 	{
+		std::replace(m_Name.begin(), m_Name.end(), '"', '\'');
 		WriteHeaderFile();
 	}
 
@@ -59,14 +62,12 @@ namespace CPPTools::Instrumentation {
 		WriteProfile(result->GetName(), result->GetStart(), result->GetDuration(), result->GetTID());
 	}
 
-	void Profiler::WriteProfile(std::string name, const double start, const double dur, const std::size_t tid)
+	void Profiler::WriteProfile(const std::string& name, const double start, const double dur, const std::size_t tid)
 	{
-		std::replace(name.begin(), name.end(), '"', '\'');
-
 		const char* newLine = m_ProfilesCount++ ? ",\n" : "";
 
 		Fmt::FilePrint(m_File,
-			std::string_view(R"({}#{"cat":"function","dur":{},"name":"{}","ph":"X","pid":{},"tid":{},"ts":{}})"),
+			R"({0}{"cat":"function","dur":{1},"name":"{2}","ph":"X","pid":{3},"tid":{4},"ts":{5}})",
 			newLine,
 			dur,
 			name,
@@ -85,7 +86,7 @@ namespace CPPTools::Instrumentation {
 		m_IsEnd = true;
 	}
 	
-	auto Profiler::GetMicroseconds() -> double
+	double Profiler::GetMicroseconds()
 	{
 		return (double)std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now()).time_since_epoch().count() / 1000;
 	}

@@ -129,9 +129,9 @@ namespace CPPTools::Fmt {
 		template<typename CharStr>						inline void BufferWriteCharPt(const CharStr* str);
 		template<typename CharStr>						inline void BufferWriteCharPt(const CharStr* str, std::size_t size);
 
-		// C-Style String wapper
+		// C-Style String wrapper
 		template<typename CharStr, std::size_t SIZE>	inline void BufferWriteCharArray(const CharStr(&str)[SIZE]) { BufferWriteCharPt(str, SIZE); }
-		template<typename CharStr, std::size_t SIZE>	inline void Print(const CharStr(&str)[SIZE]) { BufferWriteCharPt(str, SIZE); }
+		template<typename CharStr, std::size_t SIZE>	inline void Print(const CharStr(&str)[SIZE])				{ BufferWriteCharPt(str, SIZE); }
 
 		// Type formating from FormatType<>
 		template<typename Type>							inline void WriteType(Type&& type) { FormatType<GetBaseType<Type>, BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>>::Write(type, *this); }
@@ -140,6 +140,8 @@ namespace CPPTools::Fmt {
 		// Format
 		inline bool FormatCanMoveForward() const									{ return m_SubFormat < m_FormatEnd; }
 		inline bool FormatCanMoveBackward() const									{ return m_SubFormat > m_Format; }
+		inline bool FormatCanMoveForward(const std::size_t count) const				{ return m_SubFormat + count <= m_FormatEnd; }
+		inline bool FormatCanMoveBackward(const std::size_t count) const			{ return m_SubFormat + count >= m_Format; }
 		inline bool FormatIsNotOutOfBound() const									{ return !FormatCanMoveForward() || !FormatCanMoveBackward(); }
 		inline bool FormatEnd() const												{ return m_SubFormat >= m_FormatEnd; }
 
@@ -203,6 +205,8 @@ namespace CPPTools::Fmt {
 		// Buffer
 		inline bool BufferCanMoveForward() const									{ return m_SubBuffer < m_BufferEnd; }
 		inline bool BufferCanMoveBackward() const									{ return m_SubBuffer > m_Buffer; }
+		inline bool BufferCanMoveForward(const std::size_t count) const				{ return m_SubBuffer + count <= m_BufferEnd; }
+		inline bool BufferCanMoveBackward(const std::size_t count) const			{ return m_SubBuffer + count >= m_Buffer; }
 		inline bool BufferIsNotOutOfBound() const									{ return !BufferCanMoveForward() || !BufferCanMoveBackward(); }
 
 		// Buffer base commands

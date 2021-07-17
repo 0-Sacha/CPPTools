@@ -3,6 +3,10 @@
 #include <iostream>
 #include "CPPTools/Formater/Formater.h"
 
+#ifndef CPPTOOLS_BASE_LOGGER_NAME
+	#define CPPTOOLS_BASE_LOGGER_NAME "APP"
+#endif
+
 namespace CPPTools {
 
 	class LogSystem {
@@ -21,23 +25,23 @@ namespace CPPTools {
 		};
 
 	public:
-		LogSystem();
-		explicit LogSystem(const std::string& name, LogSeverity severityMin = LogSeverity::Trace, std::ostream& stream = std::cout);
-		explicit LogSystem(std::string&& name, LogSeverity severityMin = LogSeverity::Trace, std::ostream& stream = std::cout);
-		~LogSystem();
+		LogSystem() : m_Name("Logger"), m_SeverityMin(LogSeverity::Trace), m_Stream(std::cout) { ResetFormat(); }
+		explicit LogSystem(const std::string& name, LogSeverity severityMin = LogSeverity::Trace, std::ostream& stream = std::cout) : m_Name(name), m_SeverityMin(severityMin), m_Stream(stream)			{ ResetFormat(); }
+		explicit LogSystem(std::string&& name, LogSeverity severityMin = LogSeverity::Trace, std::ostream& stream = std::cout)		: m_Name(std::move(name)), m_SeverityMin(severityMin), m_Stream(stream) { ResetFormat(); }
+		~LogSystem() = default;
 
 	public:
-		static LogSystem& GetCoreInstance();
-		static LogSystem& GetClientInstance();
+		static LogSystem& GetCoreInstance()				{ static LogSystem instance(CPPTOOLS_BASE_LOGGER_NAME "-Client", LogSeverity::Trace); return instance; }
+		static LogSystem& GetClientInstance()			{ static LogSystem instance(CPPTOOLS_BASE_LOGGER_NAME "-Core", LogSeverity::Trace); return instance; }
 
 	public:
-		void SetSeverity(LogSeverity severityMin);
-		void SetName(const std::string& name);
-		void SetName(std::string&& name);
-		void SetBaseFormat(std::string_view basetFmt);
+		void SetSeverity(LogSeverity severityMin)		{ m_SeverityMin = severityMin; }
+		void SetName(const std::string& name)			{ m_Name = name; }
+		void SetName(std::string&& name)				{ m_Name = std::move(name); }
+		void SetBaseFormat(std::string_view basetFmt)	{ Fmt::FormatInChar(m_FmtBuffer, "{color}{}", basetFmt); }
 		// You need to put {color} flag to have color ; use SetBaseColor instead
-		void SetFormat(std::string_view basetFmt);
-		void ResetFormat();
+		void SetFormat(std::string_view basetFmt)		{ Fmt::FormatInChar(m_FmtBuffer, basetFmt); }
+		void ResetFormat()								{ SetBaseFormat("[{T:%h:%m:%s:%ms}] {name} >> {data}"); }
 
 	public:
 

@@ -132,6 +132,8 @@ namespace CPPTools::Fmt {
 		// Format
 		inline bool FormatCanMoveForward() const									{ return m_SubFormat < m_FormatEnd; }
 		inline bool FormatCanMoveBackward() const									{ return m_SubFormat > m_Format; }
+		inline bool FormatCanMoveForward(const std::size_t count) const				{ return m_SubFormat + count <= m_FormatEnd; }
+		inline bool FormatCanMoveBackward(const std::size_t count) const			{ return m_SubFormat + count >= m_Format; }
 		inline bool FormatIsNotOutOfBound() const									{ return !FormatCanMoveForward() || !FormatCanMoveBackward(); }
 		inline bool FormatEnd() const												{ return m_SubFormat >= m_FormatEnd; }
 
@@ -196,6 +198,8 @@ namespace CPPTools::Fmt {
 		// Buffer
 		inline bool BufferCanMoveForward() const									{ return m_SubBuffer < m_BufferEnd; }
 		inline bool BufferCanMoveBackward() const									{ return m_SubBuffer > m_Buffer; }
+		inline bool BufferCanMoveForward(const std::size_t count) const				{ return m_SubBuffer + count <= m_BufferEnd; }
+		inline bool BufferCanMoveBackward(const std::size_t count) const			{ return m_SubBuffer + count >= m_Buffer; }
 		inline bool BufferIsNotOutOfBound() const									{ return !BufferCanMoveForward() || !BufferCanMoveBackward(); }
 		inline bool BufferEnd() const												{ return m_SubBuffer >= m_BufferEnd; }
 
