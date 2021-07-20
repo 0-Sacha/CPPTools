@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Core/Core.h"
+#include "../TestCore/TestCore.h"
 
 // Assert log if false
 #define CPPTOOLS_TEST_ASSERT(x) if(!(x)) CPPTOOLS_TEST_FAIL("ASSERT ERROR : {0:C:red}", #x)

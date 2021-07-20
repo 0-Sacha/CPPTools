@@ -87,17 +87,11 @@ OBJECTS :=
 GENERATED += $(OBJDIR)/BaseColor.o
 GENERATED += $(OBJDIR)/CPPToolspch.o
 GENERATED += $(OBJDIR)/Core.o
-GENERATED += $(OBJDIR)/FormaterHandler.o
-GENERATED += $(OBJDIR)/LogSystem.o
 GENERATED += $(OBJDIR)/Profiling.o
-GENERATED += $(OBJDIR)/UnitTestCore.o
 OBJECTS += $(OBJDIR)/BaseColor.o
 OBJECTS += $(OBJDIR)/CPPToolspch.o
 OBJECTS += $(OBJDIR)/Core.o
-OBJECTS += $(OBJDIR)/FormaterHandler.o
-OBJECTS += $(OBJDIR)/LogSystem.o
 OBJECTS += $(OBJDIR)/Profiling.o
-OBJECTS += $(OBJDIR)/UnitTestCore.o
 
 # Rules
 # #############################################
@@ -167,16 +161,7 @@ $(OBJDIR)/BaseColor.o: src/CPPTools/Formater/Core/BaseColor.cpp
 $(OBJDIR)/Core.o: src/CPPTools/Formater/Core/Core.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) -include $(PCH_PLACEHOLDER) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
-$(OBJDIR)/FormaterHandler.o: src/CPPTools/Formater/Core/FormaterHandler/FormaterHandler.cpp
-	@echo $(notdir $<)
-	$(SILENT) $(CXX) -include $(PCH_PLACEHOLDER) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
-$(OBJDIR)/LogSystem.o: src/CPPTools/LogSystem/LogSystem.cpp
-	@echo $(notdir $<)
-	$(SILENT) $(CXX) -include $(PCH_PLACEHOLDER) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/Profiling.o: src/CPPTools/Profiling/Profiling.cpp
-	@echo $(notdir $<)
-	$(SILENT) $(CXX) -include $(PCH_PLACEHOLDER) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
-$(OBJDIR)/UnitTestCore.o: src/CPPTools/UnitTest/Core/UnitTestCore.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) -include $(PCH_PLACEHOLDER) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/CPPToolspch.o: src/CPPToolspch.cpp

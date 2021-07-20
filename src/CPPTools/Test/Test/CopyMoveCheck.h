@@ -1,5 +1,5 @@
 
-#include "../Core/TestCore.h"
+#include "../TestCore/TestCore.h"
 
 namespace CPPTools::Test {
 

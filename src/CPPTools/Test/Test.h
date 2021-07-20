@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/TestCore.h"
+#include "TestCore/TestCore.h"
 #include "Test/Test.h"
 
 #include "Test/CopyMoveCheck.h"
