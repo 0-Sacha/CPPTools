@@ -69,8 +69,8 @@ namespace CPPTools::Instrumentation {
 		bool m_IsEnd;
 		size_t m_ProfilesCount;
 	};
-
 }
+
 
 #ifdef PROFILING_ENABLE
 

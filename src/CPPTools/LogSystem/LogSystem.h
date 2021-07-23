@@ -1,7 +1,7 @@
 #pragma once
 
 #include <iostream>
-#include "CPPTools/Formater/Formater.h"
+#include "CPPTools/Formatter/Formatter.h"
 
 #ifndef CPPTOOLS_BASE_LOGGER_NAME
 	#define CPPTOOLS_BASE_LOGGER_NAME "APP"

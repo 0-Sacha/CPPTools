@@ -84,13 +84,9 @@ endif
 GENERATED :=
 OBJECTS :=
 
-GENERATED += $(OBJDIR)/BaseColor.o
 GENERATED += $(OBJDIR)/CPPToolspch.o
-GENERATED += $(OBJDIR)/Core.o
 GENERATED += $(OBJDIR)/Profiling.o
-OBJECTS += $(OBJDIR)/BaseColor.o
 OBJECTS += $(OBJDIR)/CPPToolspch.o
-OBJECTS += $(OBJDIR)/Core.o
 OBJECTS += $(OBJDIR)/Profiling.o
 
 # Rules
@@ -155,12 +151,6 @@ endif
 # File Rules
 # #############################################
 
-$(OBJDIR)/BaseColor.o: src/CPPTools/Formater/Core/BaseColor.cpp
-	@echo $(notdir $<)
-	$(SILENT) $(CXX) -include $(PCH_PLACEHOLDER) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
-$(OBJDIR)/Core.o: src/CPPTools/Formater/Core/Core.cpp
-	@echo $(notdir $<)
-	$(SILENT) $(CXX) -include $(PCH_PLACEHOLDER) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/Profiling.o: src/CPPTools/Profiling/Profiling.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) -include $(PCH_PLACEHOLDER) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
