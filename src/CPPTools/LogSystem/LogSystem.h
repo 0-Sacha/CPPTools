@@ -44,9 +44,7 @@ namespace CPPTools {
 		void ResetFormat()								{ SetBaseFormat("[{T:%h:%m:%s:%ms}] {name} >> {data}"); }
 
 	public:
-
 		/////---------- Logger Severity with array as format ----------/////
-
 		template<typename ...Args>
 		void Log(LogSeverity severity, const std::string_view format, Args&& ...args) const;
 		template<typename ...Args>
@@ -61,7 +59,6 @@ namespace CPPTools {
 		inline void LogFatal(const std::string_view format, Args&& ...args) const;
 
 		/////---------- NO-FORMAT Logger Severity ----------/////
-
 		template<typename T>
 		void Log(LogSeverity severity, T&& t) const;
 		template<typename T>
@@ -77,7 +74,6 @@ namespace CPPTools {
 
 	public:
 		/////---------- Logger Status with array as format ----------/////
-
 		template<typename ...Args>
 		void Log(LogStatus status, const std::string_view format, Args&& ...args) const;
 		template<typename ...Args>
@@ -86,13 +82,18 @@ namespace CPPTools {
 		inline void LogFail(const std::string_view format, Args&& ...args) const;
 
 		/////---------- NO-FORMAT Logger Status ----------/////
-
 		template<typename T>
 		void Log(LogStatus status, T&& t) const;
 		template<typename T>
 		inline void LogOk(T&& t) const;
 		template<typename T>
 		inline void LogFail(T&& t) const;
+
+	public:
+		template<typename ...Args>
+		inline void LogBasic(const std::string_view format, Args&& ...args) const;
+		template<typename T>
+		inline void LogBasic(T&& t) const;
 
 	private:
 		std::string m_Name;
@@ -144,7 +145,6 @@ namespace CPPTools::Fmt {
 namespace CPPTools {
 
 	/////---------- Logger Severity with array as format ----------/////
-
 	template<typename ...Args>
 	void LogSystem::Log(LogSeverity severity, const std::string_view format, Args&& ...args) const {
 		if (severity >= m_SeverityMin) {
@@ -180,7 +180,6 @@ namespace CPPTools {
 	}
 
 	/////---------- NO-FORMAT Logger Severity ----------/////
-
 	template<typename T>
 	void LogSystem::Log(LogSeverity severity, T&& t) const {
 		if (severity >= m_SeverityMin)
@@ -217,7 +216,6 @@ namespace CPPTools {
 namespace CPPTools {
 
 	/////---------- Logger Status with array as format ----------/////
-
 	template<typename ...Args>
 	void LogSystem::Log(LogStatus status, const std::string_view format, Args&& ...args) const {
 		char formatBuffer[500];
@@ -237,7 +235,6 @@ namespace CPPTools {
 
 
 	/////---------- NO-FORMAT Logger Status ----------/////
-
 	template<typename T>
 	void LogSystem::Log(LogStatus status, T&& t) const {
 		Fmt::FilePrintLn(m_Stream, m_FmtBuffer, FORMAT_SV("data", t), FORMAT_SV("color", status), FORMAT_SV("name", m_Name));
@@ -254,4 +251,18 @@ namespace CPPTools {
 	}
 }
 
+
+namespace CPPTools {
+	template<typename ...Args>
+	inline void LogSystem::LogBasic(const std::string_view format, Args&& ...args) const {
+		char formatBuffer[500];
+		Fmt::FormatInChar(formatBuffer, m_FmtBuffer, FORMAT_SV("name", m_Name), FORMAT_SV("data", format));
+		Fmt::FilePrintLn(m_Stream, formatBuffer, std::forward<Args>(args)...);
+	}
+
+	template<typename T>
+	inline void LogSystem::LogBasic(T&& t) const {
+		Fmt::FilePrintLn(m_Stream, m_FmtBuffer, FORMAT_SV("data", t), FORMAT_SV("name", m_Name));
+	}
+}
 

@@ -45,7 +45,11 @@ namespace CPPTools::Fmt {
 
 	struct FormatSpecifier {
 
-		FormatSpecifier() = default;
+		FormatSpecifier()
+			: Name(nullptr, 0)
+			, ValueAsText(nullptr, 0)
+			, ValueAsNumber(0)
+			, ValueIsText(true) {}
 
 		FormatSpecifier(const std::string_view name, const std::string_view value)
 			: Name(name)

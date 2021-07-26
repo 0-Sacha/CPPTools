@@ -13,7 +13,7 @@ namespace CPPTools::Fmt {
 		sign	= FormatIsEqualForward('-');
 		isValid = FormatIsADigit();
 
-		while (FormatIsADigit()) { res = res * 10 + (FormatGetAndForward() - '0'); }
+		while (FormatIsADigit()) { res = res * 10 + int(FormatGetAndForward() - '0'); }
 		if (isValid)	{ i = sign ? -res : res; }
 		return isValid;
 	}

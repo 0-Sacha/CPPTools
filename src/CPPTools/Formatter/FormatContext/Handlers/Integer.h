@@ -14,7 +14,7 @@ namespace CPPTools::Fmt::FormatFunc {
 		if (i < 0)	{ context.BufferPushBack('-'); i = -i; }
 
 		T i_ = i;
-		std::int8_t nb = 0;
+		int nb = 0;
 		while (i_ > 0)		{ i_ /= 10; ++nb; }
 		context.BufferForward(nb - 1);
 		while (i > 0)		{ context.BufferPushReverse(i % 10 + '0'); i /= 10; }
@@ -24,7 +24,7 @@ namespace CPPTools::Fmt::FormatFunc {
 	template<typename T, typename FormatContext>
 	void FormatContextWriteInt(FormatContext& context, T i, Detail::ShiftType st, FormatDataType shift, Detail::ShiftPrint sp = Detail::ShiftPrint::Space) {
 		T i_ = i < 0 ? -i : i;
-		std::int8_t nb = 0;
+		int nb = 0;
 
 		while (i_ > 0)			{ i_ /= 10; ++nb; --shift; }
 		if (i == 0)				--shift;
