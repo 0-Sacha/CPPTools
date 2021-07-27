@@ -15,6 +15,18 @@ namespace CPPTools::Fmt {
 	template<typename CharFormat = char, typename CharBuffer = CharFormat, typename ...ContextArgs>
 	class BasicFormatContext {
 	public:
+		using CharFormatType = CharFormat;
+		using CharBufferType = CharBuffer;
+
+		using FormatDataType		= FormatData<CharFormat>;
+		using FormatSpecifierType	= FormatSpecifier<CharFormat>;
+
+		using StringViewFormat = std::basic_string_view<CharFormat>;
+		using StringViewBuffer = std::basic_string_view<CharBuffer>;
+
+		using M_Type = BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>;
+
+	public:
 		BasicFormatContext(const std::basic_string_view<CharFormat> format, CharBuffer *const buffer, const std::size_t bufferSize, ContextArgs &&...args);
 
 		template <typename OldCharFormat, typename... OldContextArgs>
@@ -45,7 +57,7 @@ namespace CPPTools::Fmt {
 
 		// For handling color / format data and idx (for not specified parameter)
 		FormatIdx				m_ValuesIdx;
-		FormatData				m_FormatData;
+		FormatDataType			m_FormatData;
 		Detail::AnsiColorMem	m_ColorMem;
 
 	public:
@@ -68,9 +80,9 @@ namespace CPPTools::Fmt {
 
 		inline Detail::AnsiColorMem& GetColorMem()				{ return m_ColorMem; }
 		inline const Detail::AnsiColorMem& GetColorMem() const	{ return m_ColorMem; }
-		inline FormatData& GetFormatData()						{ return m_FormatData; }
-		inline const FormatData& GetFormatData() const			{ return m_FormatData; }
-		inline FormatData ForwardFormatData() const				{ return m_FormatData; }
+		inline FormatData<CharFormat>& GetFormatData()						{ return m_FormatData; }
+		inline const FormatData<CharFormat>& GetFormatData() const			{ return m_FormatData; }
+		inline FormatData<CharFormat> ForwardFormatData() const				{ return m_FormatData; }
 
 		inline void AddNoStride(const std::size_t noStride)		{ m_NoStride += noStride; }
 		inline std::size_t GetNoStride() const					{ return m_NoStride; }

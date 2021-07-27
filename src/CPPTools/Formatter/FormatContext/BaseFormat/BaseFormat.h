@@ -5,8 +5,8 @@
 namespace CPPTools::Fmt {
 
 	template<typename FormatContext>
-	struct FormatType<FormatSpecifier, FormatContext> {
-		static void Write(const FormatSpecifier& specifier, FormatContext& context) {
+	struct FormatType<typename FormatContext::FormatSpecifierType, FormatContext> {
+		static void Write(const typename FormatContext::FormatSpecifierType& specifier, FormatContext& context) {
 			if(specifier.ValueIsText)
 				context.LittleFormat("{ '{}', '{}' }", specifier.Name, specifier.ValueAsText);
 			else
@@ -15,8 +15,8 @@ namespace CPPTools::Fmt {
 	};
 
 	template<typename FormatContext>
-	struct FormatType<FormatData, FormatContext> {
-		static void Write(const FormatData& t, FormatContext& context) {
+	struct FormatType<typename FormatContext::FormatDataType, FormatContext> {
+		static void Write(const typename FormatContext::FormatDataType& t, FormatContext& context) {
 			context.LittleFormat("{:C:red}", "Missing '{' or '}' because currently the format data is used as a parameter");
 		}
 	};
@@ -80,7 +80,7 @@ namespace CPPTools::Fmt {
 	template<typename T, std::size_t SIZE, typename FormatContext>
 	struct FormatType<Detail::ForwardAsCharArray<T, SIZE>, FormatContext> {
 		static void Write(const T (&t)[SIZE], FormatContext& context) {
-			FormatData& data = context.GetFormatData();
+			auto& data = context.GetFormatData();
 			
 			std::size_t begin = context.GetFormatData().GetValueAsNumberOfSpecifierOr("begin", 0);
 			std::size_t size = context.GetFormatData().GetValueAsNumberOfSpecifierOr("size", SIZE - begin);
@@ -94,7 +94,7 @@ namespace CPPTools::Fmt {
 	template<typename T, typename FormatContext>
 	struct FormatType<Detail::ForwardAsCharPt<T>, FormatContext> {
 		static void Write(const T* t, FormatContext& context) {
-			FormatData& data = context.GetFormatData();
+			auto& data = context.GetFormatData();
 
 			if (data.BaseValue)										context.BufferPushBack('\'');
 	

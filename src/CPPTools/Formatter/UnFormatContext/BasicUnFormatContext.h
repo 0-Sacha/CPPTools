@@ -28,6 +28,18 @@ namespace CPPTools::Fmt {
 	class BasicUnFormatContext
 	{
 	public:
+		using CharFormatType = CharFormat;
+		using CharBufferType = CharBuffer;
+
+		using FormatDataType		= FormatData<CharFormat>;
+		using FormatSpecifierType	= FormatSpecifier<CharFormat>;
+
+		using StringViewFormat = std::basic_string_view<CharFormat>;
+		using StringViewBuffer = std::basic_string_view<CharBuffer>;
+
+		using M_Type = BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>;
+
+	public:
 		BasicUnFormatContext(const std::basic_string_view<CharFormat> format, const std::basic_string_view<CharBuffer> buffer, ContextArgs&& ...args);
 
 		template<typename OldCharFormat, typename ...OldContextArgs>
@@ -52,8 +64,8 @@ namespace CPPTools::Fmt {
 		std::size_t											m_ContextArgsSize;
 
 		FormatIdx				m_ValuesIdx;
+		FormatDataType			m_FormatData;
 		Detail::AnsiColorMem	m_ColorMem;
-		FormatData				m_FormatData;
 
 	public:
 		inline const CharBuffer*	GetBuffer() const						{ return m_Buffer; }
@@ -71,9 +83,9 @@ namespace CPPTools::Fmt {
 		inline void					SetSubFormat(CharFormat* const pos)		{ m_SubFormat = pos; }
 
 		inline Detail::AnsiColorMem& GetColorMem()			{ return m_ColorMem; }
-		inline FormatData& GetFormatData()					{ return m_FormatData; }
-		inline const FormatData& GetFormatData() const		{ return m_FormatData; }
-		inline FormatData ForwardFormatData() const			{ return m_FormatData; }
+		inline FormatDataType& GetFormatData()					{ return m_FormatData; }
+		inline const FormatDataType& GetFormatData() const { return m_FormatData; }
+		inline FormatDataType ForwardFormatData() const { return m_FormatData; }
 
 		static inline std::int16_t NoError()				{ return -1; }
 

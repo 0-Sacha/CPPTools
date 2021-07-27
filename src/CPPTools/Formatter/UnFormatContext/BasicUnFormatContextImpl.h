@@ -80,7 +80,7 @@ namespace CPPTools::Fmt {
 				} else if (FormatIsLowerCase()) {	// Custom specifier
 					const char* namePos = GetSubFormat();
 					FormatParamGoTo(' ', '=');
-					std::string_view name(namePos, GetSubFormat() - namePos);
+					StringViewFormat name(namePos, GetSubFormat() - namePos);
 
 					FormatParamGoToForward('=');
 					FormatIgnoreSpace();
@@ -89,7 +89,7 @@ namespace CPPTools::Fmt {
 						const char* valuePos = GetSubFormat();
 						FormatParamGoTo('\'');
 						std::size_t valueSize = GetSubFormat() - valuePos;
-						m_FormatData.AddSpecifier(name, std::string_view(valuePos, valueSize));
+						m_FormatData.AddSpecifier(name, StringViewFormat(valuePos, valueSize));
 					} else if(FormatIsADigit()) {
 						std::intmax_t value = 0;
 						FormatReadInt(value);
@@ -149,7 +149,7 @@ namespace CPPTools::Fmt {
 			else {
 				FormatData data;
 				data.Clone(m_FormatData);
-				m_FormatData = FormatData();
+				m_FormatData = FormatDataType();
 
 				Detail::AnsiColorMem colorMem(m_ColorMem);
 

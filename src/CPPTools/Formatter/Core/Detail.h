@@ -43,6 +43,7 @@ namespace CPPTools::Fmt {
 	using FormatIdx = int;
 	static const FormatIdx FormatIdxNotFound = -1;
 
+	template <typename CharFormat>
 	struct FormatSpecifier {
 
 		FormatSpecifier()
@@ -51,27 +52,25 @@ namespace CPPTools::Fmt {
 			, ValueAsNumber(0)
 			, ValueIsText(true) {}
 
-		FormatSpecifier(const std::string_view name, const std::string_view value)
+		FormatSpecifier(const std::basic_string_view<CharFormat> name, const std::basic_string_view<CharFormat> value)
 			: Name(name)
 			, ValueAsText(value)
 			, ValueAsNumber(0)
 			, ValueIsText(true) {}
 
-		FormatSpecifier(const std::string_view name, const std::size_t value)
+		FormatSpecifier(const std::basic_string_view<CharFormat> name, const std::size_t value)
 			: Name(name)
 			, ValueAsText(nullptr, 0)
 			, ValueAsNumber(value)
 			, ValueIsText(false) {}
 
-		std::string_view Name;
-		std::string_view	ValueAsText;
-		std::intmax_t		ValueAsNumber;
+		std::basic_string_view<CharFormat>	Name;
+		std::basic_string_view<CharFormat>	ValueAsText;
+		std::intmax_t						ValueAsNumber;
 		bool ValueIsText;
 	};
 
-	// TODO : delete SetMaxSize (FomatData must not handle this) ...
-
-	// Only with char
+	template <typename CharFormat>
 	struct FormatData {
 	public:
 		explicit FormatData()
@@ -168,7 +167,7 @@ namespace CPPTools::Fmt {
 		FormatDataType ShiftValue;			// < - > - ^
 
 		std::uint8_t SpecifierCount;
-		std::array<FormatSpecifier, 10> Specifier;
+		std::array<FormatSpecifier<CharFormat>, 10> Specifier;
 
 	public:
 		bool HasChangeColor;
@@ -176,30 +175,30 @@ namespace CPPTools::Fmt {
 	public:
 		static inline constexpr std::int8_t NotFound() { return (std::numeric_limits<std::int8_t>::max)(); }
 
-		std::string_view GetValueAsTextOfSpecifierOr(const std::string_view str, const std::string_view defaultValue = "") const {
+		std::basic_string_view<CharFormat> GetValueAsTextOfSpecifierOr(const std::basic_string_view<CharFormat> str, const std::basic_string_view<CharFormat> defaultValue = "") const {
 			for (auto i = 0; i < SpecifierCount; ++i)
 				if (Specifier[i].ValueIsText == true && Specifier[i].Name == str)
 					return Specifier[i].ValueAsText;
 			return defaultValue;
 		}
 
-		std::size_t GetValueAsNumberOfSpecifierOr(const std::string_view str, const std::size_t defaultValue = 0) const {
+		std::size_t GetValueAsNumberOfSpecifierOr(const std::basic_string_view<CharFormat> str, const std::size_t defaultValue = 0) const {
 			for (std::uint8_t i = 0; i < SpecifierCount; ++i)
 				if (Specifier[i].ValueIsText == false && Specifier[i].Name == str)
 					return Specifier[i].ValueAsNumber;
 			return defaultValue;
 		}
 
-		void AddSpecifier(const FormatSpecifier specifier)									{ if (SpecifierCount < Specifier.size()) Specifier[SpecifierCount++] = specifier; }
-		void AddSpecifier(const std::string_view name, const std::string_view value)		{ AddSpecifier(FormatSpecifier(name, value)); }
-		void AddSpecifier(const std::string_view name, const std::size_t value)				{ AddSpecifier(FormatSpecifier(name, value)); }
+		void AddSpecifier(const FormatSpecifier<CharFormat> specifier)														{ if (SpecifierCount < Specifier.size()) Specifier[SpecifierCount++] = specifier; }
+		void AddSpecifier(const std::basic_string_view<CharFormat> name, const std::basic_string_view<CharFormat> value)	{ AddSpecifier(FormatSpecifier<CharFormat>(name, value)); }
+		void AddSpecifier(const std::basic_string_view<CharFormat> name, const std::size_t value)							{ AddSpecifier(FormatSpecifier<CharFormat>(name, value)); }
 
 	};
 } // CPPTools::Fmt
 
 namespace CPPTools::Fmt::Detail {
-	template<typename T>	struct CopyFormatData				{ static void Copy(FormatData& data, const T& t) { } };
-	template<>				struct CopyFormatData<FormatData>	{ static void Copy(FormatData& data, const FormatData& t) { data = t; } };
+	template<typename T, typename CharFormat>	struct CopyFormatData										{ static void Copy(FormatData<CharFormat>& data, const T& t) { } };
+	template<typename CharFormat>				struct CopyFormatData<FormatData<CharFormat>, CharFormat>	{ static void Copy(FormatData<CharFormat>& data, const FormatData<CharFormat>& t) { data = t; } };
 
 	template <typename CharJoin>
 	struct FormatSpecifierJoinSpliter {

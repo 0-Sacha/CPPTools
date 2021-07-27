@@ -5,8 +5,8 @@
 namespace CPPTools::Fmt {
 
 	template<typename UnFormatContext>
-	struct UnFormatType<FormatData, UnFormatContext> {
-		static bool Read(FormatData& t, UnFormatContext& context) {
+	struct UnFormatType<typename UnFormatContext::FormatDataType, UnFormatContext> {
+		static bool Read(typename UnFormatContext::FormatDataType& t, UnFormatContext& context) {
 			return false;
 		}
 	};
