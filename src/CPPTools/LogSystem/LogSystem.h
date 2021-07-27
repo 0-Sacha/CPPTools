@@ -256,13 +256,13 @@ namespace CPPTools {
 	template<typename ...Args>
 	inline void LogSystem::LogBasic(const std::string_view format, Args&& ...args) const {
 		char formatBuffer[500];
-		Fmt::FormatInChar(formatBuffer, m_FmtBuffer, FORMAT_SV("name", m_Name), FORMAT_SV("data", format));
+		Fmt::FormatInChar(formatBuffer, m_FmtBuffer, FORMAT_SV("color", ""), FORMAT_SV("name", m_Name), FORMAT_SV("data", format));
 		Fmt::FilePrintLn(m_Stream, formatBuffer, std::forward<Args>(args)...);
 	}
 
 	template<typename T>
 	inline void LogSystem::LogBasic(T&& t) const {
-		Fmt::FilePrintLn(m_Stream, m_FmtBuffer, FORMAT_SV("data", t), FORMAT_SV("name", m_Name));
+		Fmt::FilePrintLn(m_Stream, m_FmtBuffer, FORMAT_SV("color", ""), FORMAT_SV("data", t), FORMAT_SV("name", m_Name));
 	}
 }
 
