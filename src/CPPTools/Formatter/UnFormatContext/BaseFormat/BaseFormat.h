@@ -15,7 +15,7 @@ namespace CPPTools::Fmt {
 	template<typename UnFormatContext>
 	struct UnFormatType<bool, UnFormatContext> {
 		static bool Read(bool& t, UnFormatContext& context) {
-			const FormatData& data = context.GetFormatData();
+			const auto& data = context.GetFormatData();
 
 			if (data.BaseValue) {
 				switch (context.BufferGet())

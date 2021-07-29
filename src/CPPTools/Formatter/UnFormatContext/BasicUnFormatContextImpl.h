@@ -147,7 +147,7 @@ namespace CPPTools::Fmt {
 			FormatIdx formatIdx;
 			if (!GetFormatIdx(formatIdx))	return false;
 			else {
-				FormatData data;
+				FormatDataType data;
 				data.Clone(m_FormatData);
 				m_FormatData = FormatDataType();
 
