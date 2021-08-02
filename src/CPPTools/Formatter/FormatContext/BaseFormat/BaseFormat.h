@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../BasicFormatContextHelperFile.h"
+#include "../BasicFormatContext.h"
 
 namespace CPPTools::Fmt {
 
@@ -27,12 +27,12 @@ namespace CPPTools::Fmt {
 	template<typename FormatContext>
 	struct FormatType<bool, FormatContext> {
 		static void Write(const bool t, FormatContext& context) {
-			if (context.GetFormatData().BaseValue) {
-				if (t == true)	context.BufferWriteCharArray("True");
-				else			context.BufferWriteCharArray("False");
+			if (!context.GetFormatData().BaseValue) {
+				if (t == true)	context.Print("True");
+				else			context.Print("False");
 			} else {
-				if (t == true)	context.BufferPushBack('1');
-				else			context.BufferPushBack('0');
+				if (t == true)	context.BufferOut().PushBack('1');
+				else			context.BufferOut().PushBack('0');
 			}
 		}
 	};
@@ -41,7 +41,7 @@ namespace CPPTools::Fmt {
 	template<typename T, typename FormatContext>
 	struct FormatType<T, FormatContext, Detail::ForwardIfVoid<Detail::ForwardIfTrue<T, std::is_integral_v<T> && std::is_signed_v<T>>, Detail::IsChar<T> >> {
 		static void Write(const T t, FormatContext& context) {
-			context.BufferWriteInt(t);
+			context.BufferOut().WriteIntFormatData(t, context.GetFormatData());
 		}
 	};
 
@@ -49,7 +49,7 @@ namespace CPPTools::Fmt {
 	template<typename T, typename FormatContext>
 	struct FormatType<T, FormatContext, Detail::ForwardIfVoid<Detail::ForwardIfTrue<T, std::is_integral_v<T> && !std::is_signed_v<T>>, Detail::IsChar<T>>> {
 		static void Write(const T t, FormatContext& context) {
-			context.BufferWriteUInt(t);
+			context.BufferOut().WriteUIntFormatData(t, context.GetFormatData());
 		}
 	};
 
@@ -57,7 +57,7 @@ namespace CPPTools::Fmt {
 	template<typename T, typename FormatContext>
 	struct FormatType<T, FormatContext, Detail::ForwardIfTrue<T, std::is_floating_point_v<T>>> {
 		static void Write(const T t, FormatContext& context) {
-			context.BufferWriteFloat(t);
+			context.BufferOut().WriteFloatFormatData(t, context.GetFormatData());
 		}
 	};
 
@@ -73,7 +73,7 @@ namespace CPPTools::Fmt {
 	template<typename T, typename FormatContext>
 	struct FormatType<Detail::ForwardAsChar<T>, FormatContext> {
 		inline static void Write(const T t, FormatContext& context) {
-			context.BufferPushBack(t);
+			context.BufferOut().PushBack(t);
 		}
 	};
 
@@ -82,12 +82,12 @@ namespace CPPTools::Fmt {
 		static void Write(const T (&t)[SIZE], FormatContext& context) {
 			auto& data = context.GetFormatData();
 			
-			std::size_t begin = context.GetFormatData().GetValueAsNumberOfSpecifierOr("begin", 0);
-			std::size_t size = context.GetFormatData().GetValueAsNumberOfSpecifierOr("size", SIZE - begin);
+			std::size_t begin	= context.GetFormatData().GetValueAsNumberOfSpecifierOr("begin", 0);
+			std::size_t size	= context.GetFormatData().GetValueAsNumberOfSpecifierOr("size", SIZE - begin);
 
-			if (data.BaseValue)	context.BufferPushBack('\'');
-			context.BufferWriteCharPt(t + begin, size);
-			if (data.BaseValue)	context.BufferPushBack('\'');
+			if (data.BaseValue)	context.BufferOut().PushBack('\'');
+			context.BufferOut().WriteCharPt(t + begin, size);
+			if (data.BaseValue)	context.BufferOut().PushBack('\'');
 		}
 	};
 
@@ -96,15 +96,15 @@ namespace CPPTools::Fmt {
 		static void Write(const T* t, FormatContext& context) {
 			auto& data = context.GetFormatData();
 
-			if (data.BaseValue)										context.BufferPushBack('\'');
+			if (data.BaseValue)										context.BufferOut().PushBack('\'');
 	
-			std::size_t begin = context.GetFormatData().GetValueAsNumberOfSpecifierOr("begin", 0);
-			std::size_t size = context.GetFormatData().GetValueAsNumberOfSpecifierOr("size", std::numeric_limits<std::size_t>::max());
+			std::size_t begin	= context.GetFormatData().GetValueAsNumberOfSpecifierOr("begin", 0);
+			std::size_t size	= context.GetFormatData().GetValueAsNumberOfSpecifierOr("size", std::numeric_limits<std::size_t>::max());
 
-			if (size != std::numeric_limits<std::size_t>::max())	context.BufferWriteCharPt(t + begin, size);
-			else													context.BufferWriteCharPt(t + begin);
+			if (size != std::numeric_limits<std::size_t>::max())	context.PrintCharPt(t + begin, size);
+			else													context.PrintCharPt(t + begin);
 	
-			if (data.BaseValue)										context.BufferPushBack('\'');
+			if (data.BaseValue)										context.BufferOut().PushBack('\'');
 		}
 	};
 

@@ -17,27 +17,24 @@ namespace CPPTools::Fmt {
 		static bool Read(bool& t, UnFormatContext& context) {
 			const auto& data = context.GetFormatData();
 
-			if (data.BaseValue) {
+			if (!data.BaseValue) {
 				switch (context.BufferGet())
 				{
 				case 'T':
 				case 't':
-					if (context.BufferNextIsSame("True"))	t = true;
-					return true;
+					if (context.BufferNextIsSame("True"))	t = true;	return true;
 				case 'F':
 				case 'f':
-					if (context.BufferNextIsSame("False"))	t = false;
-					return true;
+					if (context.BufferNextIsSame("False"))	t = false;	return true;
+				default:												return false;
 				}
-				return false;
 			}
 			else {
-				if (context.BufferIsEqualForward('0'))		t = false;
-				else if (context.BufferIsEqualForward('1'))	t = true;
-					else
-						return false;
+				if (context.BufferIsEqualForward('0'))		{ t = false;	return true; }
+				else if (context.BufferIsEqualForward('1'))	{ t = true;		return true; }
+				else										return false;
 			}
-			return true;
+			return false;
 		}
 	};
 

@@ -59,7 +59,7 @@ namespace CPPTools::Fmt {
 	struct FormatType<STDEnumerable<T, CharBegin, CharJoin, CharEnd>, FormatContext> {
 		static void Write(const STDEnumerable<T, CharBegin, CharJoin, CharEnd>& enumerable, FormatContext& context) {
 
-			context.BufferWriteStringView(enumerable.GetStrBegin());
+			context.BufferOut().WriteStringView(enumerable.GetStrBegin());
 
 			std::size_t stride = context.GetStride();
 
@@ -69,7 +69,7 @@ namespace CPPTools::Fmt {
 				else		{ enumerable.GetJoinSplited().Write(context, stride); }
 				context.WriteType(element); });
 
-			context.BufferWriteStringView(enumerable.GetStrEnd());
+			context.BufferOut().WriteStringView(enumerable.GetStrEnd());
 		}
 	};
 

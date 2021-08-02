@@ -9,16 +9,16 @@ namespace CPPTools::Fmt {
 	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
 	template<typename T>
 	bool BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>::FormatReadParameter(T& i) {
-		if (!FormatIsEqualTo('{'))	return FormatReadUInt(i);
+		if (!m_FormatStr.IsEqualTo('{'))	return FormatStr().ReadUInt(i);
 
-		const CharFormat* const mainSubFormat = m_SubFormat;
+		const CharFormat* const mainSubFormat = m_FormatStr.GetSubFormat();
 		FormatIdx formatIdx = FormatIdxNotFound;
 		if (GetFormatIdx(formatIdx)) {
-			FormatForward();
+			m_FormatStr.Forward();
 			m_ContextArgs.GetFormatValueAt(i, formatIdx);
 			return true;
 		}
-		m_SubFormat = mainSubFormat;
+		m_FormatStr.SetSubFormat(mainSubFormat);
 		return false;
 	}
 
@@ -26,98 +26,99 @@ namespace CPPTools::Fmt {
 	/////---------- Impl ----------/////
 	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
 	void BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>::ParameterData() {
-		if (FormatIsEqualTo(':')) {
+		if (m_FormatStr.IsEqualTo(':')) {
 			m_FormatData.HasSpec = true;
-			while (!FormatIsEndOfParameter()) {
-				FormatForward();
-				FormatIgnoreSpace();
+			while (!m_FormatStr.IsEndOfParameter()) {
+				m_FormatStr.Forward();
+				m_FormatStr.IgnoreSpace();
 
-				if (FormatIsEqualForward('{')) {		// Forward specifier
+				if (m_FormatStr.IsEqualForward('{')) {		// Forward specifier
 					FormatIdx dataIdx;
 					GetFormatIdx(dataIdx);
 					m_ContextArgs.GetParameterDataFromIdx(*this, dataIdx);
-					FormatForward();
+					m_FormatStr.Forward();
 
-				} else if (FormatIsEqualForward('C'))	{ m_FormatData.HasChangeColor = true; m_ColorMem = Detail::AnsiColorMem(); ColorValuePrint();
+				} else if (m_FormatStr.IsEqualForward('C'))	{ m_FormatData.HasChangeColor = true; m_ColorMem = Detail::AnsiColorMem(); ColorValuePrint();
 
-				} else if (FormatIsEqualForward('='))	{ m_FormatData.BaseValue = true;
+				} else if (m_FormatStr.IsEqualForward('='))	{ m_FormatData.BaseValue = true;
 
-				} else if (FormatIsEqualForward('B'))	{ m_FormatData.IntPrint = Detail::ValueIntPrint::Bin;	FormatReadParameter(m_FormatData.Precision);
-				} else if (FormatIsEqualForward('X'))	{ m_FormatData.IntPrint = Detail::ValueIntPrint::Hex;	FormatReadParameter(m_FormatData.Precision);
-				} else if (FormatIsEqualForward('O'))	{ m_FormatData.IntPrint = Detail::ValueIntPrint::Oct;	FormatReadParameter(m_FormatData.Precision);
-				} else if (FormatIsEqualForward('D'))	{ m_FormatData.IntPrint = Detail::ValueIntPrint::Int;	FormatReadParameter(m_FormatData.Precision);
-				} else if (FormatIsEqualForward('.'))	{ FormatReadParameter(m_FormatData.FloatPrecision);
+				} else if (m_FormatStr.IsEqualForward('B'))	{ m_FormatData.IntPrint = Detail::ValueIntPrint::Bin;	FormatReadParameter(m_FormatData.Precision);
+				} else if (m_FormatStr.IsEqualForward('X'))	{ m_FormatData.IntPrint = Detail::ValueIntPrint::Hex;	FormatReadParameter(m_FormatData.Precision);
+				} else if (m_FormatStr.IsEqualForward('O'))	{ m_FormatData.IntPrint = Detail::ValueIntPrint::Oct;	FormatReadParameter(m_FormatData.Precision);
+				} else if (m_FormatStr.IsEqualForward('D'))	{ m_FormatData.IntPrint = Detail::ValueIntPrint::Int;	FormatReadParameter(m_FormatData.Precision);
+				} else if (m_FormatStr.IsEqualForward('.'))	{ FormatReadParameter(m_FormatData.FloatPrecision);
 
-				} else if (FormatIsEqualForward('>'))	{ m_FormatData.ShiftType = Detail::ShiftType::Right;	FormatReadParameter(m_FormatData.ShiftValue);
-				} else if (FormatIsEqualForward('<'))	{ m_FormatData.ShiftType = Detail::ShiftType::Left;		FormatReadParameter(m_FormatData.ShiftValue);
-				} else if (FormatIsEqualForward('^'))	{ m_FormatData.ShiftType = Detail::ShiftType::Center;	FormatReadParameter(m_FormatData.ShiftValue);
-				} else if (FormatIsEqualForward('0'))	{ m_FormatData.ShiftPrint = Detail::ShiftPrint::Zeros;
+				} else if (m_FormatStr.IsEqualForward('>'))	{ m_FormatData.ShiftType = Detail::ShiftType::Right;	FormatReadParameter(m_FormatData.ShiftValue);
+				} else if (m_FormatStr.IsEqualForward('<'))	{ m_FormatData.ShiftType = Detail::ShiftType::Left;		FormatReadParameter(m_FormatData.ShiftValue);
+				} else if (m_FormatStr.IsEqualForward('^'))	{ m_FormatData.ShiftType = Detail::ShiftType::Center;	FormatReadParameter(m_FormatData.ShiftValue);
+				} else if (m_FormatStr.IsEqualForward('0'))	{ m_FormatData.ShiftPrint = Detail::ShiftPrint::Zeros;
 
-				} else if (FormatIsLowerCase()) {	// Custom Specifier / NameSpecifier
-					const char* namePos = GetSubFormat();
-					FormatParamGoTo(' ', '=');
-					StringViewFormat name(namePos, GetSubFormat() - namePos);
+				} else if (m_FormatStr.IsLowerCase()) {	// Custom Specifier / NameSpecifier
+					const char* namePos = m_FormatStr.GetSubFormat();
+					m_FormatStr.ParamGoTo(' ', '=');
+					StringViewFormat name(namePos, m_FormatStr.GetSubFormat() - namePos);
 
-					FormatParamGoToForward('=');
-					FormatIgnoreSpace();
+					m_FormatStr.ParamGoToForward('=');
+					m_FormatStr.IgnoreSpace();
 
-					if (FormatIsEqualForward('\'')) {
-						const char* valuePos = GetSubFormat();
-						FormatParamGoTo('\'');
-						std::size_t valueSize = GetSubFormat() - valuePos;
+					if (m_FormatStr.IsEqualForward('\'')) {
+						const char* valuePos = m_FormatStr.GetSubFormat();
+						m_FormatStr.ParamGoTo('\'');
+						std::size_t valueSize = m_FormatStr.GetSubFormat() - valuePos;
 						m_FormatData.AddSpecifier(name, StringViewFormat(valuePos, valueSize));
-					} else if(FormatIsADigit()) {
+					} else if(m_FormatStr.IsADigit()) {
 						std::intmax_t value = 0;
-						FormatReadInt(value);
+						m_FormatStr.ReadInt(value);
 						m_FormatData.AddSpecifier(name, value);
 					}
 				}
 
-				FormatParamGoTo(',');
+				m_FormatStr.ParamGoTo(',');
 			}
 		}
 	}
 
 	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
 	bool BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>::GetFormatIdx(FormatIdx& idx) {
-		const CharFormat* mainSubFormat = m_SubFormat;
+		const CharFormat* mainSubFormat = m_FormatStr.GetSubFormat();
 
 		// I : if there is no number specified : ':' or '}'
-		if (FormatIsEqualTo(':') || FormatIsEqualTo('}')) {
+		if (m_FormatStr.IsEqualTo(':') || m_FormatStr.IsEqualTo('}')) {
 			idx = m_ValuesIdx++;
-			if(idx < m_ContextArgsSize)	return true;
+			if(idx < m_ContextArgs.Size())	return true;
 			--m_ValuesIdx;
 		}
 
 		// II: A number(idx)
-		if (FormatReadUInt(idx))
-			if (FormatIsEqualTo(':') || FormatIsEqualTo('}'))
-				if (idx < m_ContextArgsSize)	return true;
-		m_SubFormat = mainSubFormat;
+		if (m_FormatStr.ReadUInt(idx))
+			if (m_FormatStr.IsEqualTo(':') || m_FormatStr.IsEqualTo('}'))
+				if (idx < m_ContextArgs.Size())	return true;
+		m_FormatStr.SetSubFormat(mainSubFormat);
 
 		// III : A name
 		m_ContextArgs.GetNamedArgsIdx(*this, idx, 0);
-		if (idx < m_ContextArgsSize /* || idx != FormatIdxNotFound */)
+		if (idx < m_ContextArgs.Size() /* || idx != FormatIdxNotFound */)
 			return true;
-		m_SubFormat = mainSubFormat;
+		m_FormatStr.SetSubFormat(mainSubFormat);
 
 		// VI : { which is a idx to a number
-		if (FormatIsEqualForward('{'))
+		if (m_FormatStr.IsEqualForward('{'))
 			if (GetFormatIdx(idx))
-				if (idx < m_ContextArgsSize)	return true;
-		m_SubFormat = mainSubFormat;
+				if (idx < m_ContextArgs.Size())	return true;
+		m_FormatStr.SetSubFormat(mainSubFormat);
 
 		return false;
 	}
 
 	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
 	bool BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>::ParameterPrint() {
-		FormatForward();				// Skip {
+		m_FormatStr.Forward();				// Skip {
 
-		if (FormatIsEqualTo('C') && FormatNextIsEqualForward(':', '}'))			ColorValuePrint();
-		else if (FormatIsEqualTo('T') && FormatNextIsEqualForward(':', '}'))	TimerValuePrint();
-		else if (FormatIsEqualTo('D') && FormatNextIsEqualForward(':', '}'))	DateValuePrint();
-		else {
+		if (m_FormatStr.IsUpperCase()) {
+			if		(m_FormatStr.IsEqualTo('C') && m_FormatStr.NextIsEqualForward(':', '}'))		ColorValuePrint();
+			else if (m_FormatStr.IsEqualTo('T') && m_FormatStr.NextIsEqualForward(':', '}'))		TimerValuePrint();
+			else if (m_FormatStr.IsEqualTo('D') && m_FormatStr.NextIsEqualForward(':', '}'))		DateValuePrint();
+		} else {
 			FormatIdx formatIdx;
 			if (!GetFormatIdx(formatIdx))	return false;
 			else {
@@ -136,18 +137,18 @@ namespace CPPTools::Fmt {
 			}
 		}
 
-		FormatGoOutOfParameter();		// Skip}
+		m_FormatStr.GoOutOfParameter();		// Skip}
 		return true;
 	}
 
 	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
 	void BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>::Format() {
-		while (!FormatEnd()) {
+		while (!m_FormatStr.End()) {
 
 			WriteUntilNextParameter();
 
-			if (FormatIsEqualTo('{'))
-				if (!ParameterPrint())	BufferPushBack('{');
+			if (m_FormatStr.IsEqualTo('{'))
+				if (!ParameterPrint())	m_BufferOut.PushBack('{');
 		}
 	}
 
@@ -160,9 +161,9 @@ namespace CPPTools::Fmt {
 	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
 	template<typename NewCharFormat, typename ...Args>
 	void BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>::LittleFormat(const std::basic_string_view<NewCharFormat> format, Args&& ...args) {
-		BasicFormatContext<NewCharFormat, CharBuffer, Args...> newContext(format, *this, std::forward<Args>(args)...);
-		newContext.Format();
-		newContext.UpdateOldContext(*this);
+		BasicFormatContext<NewCharFormat, CharBuffer, Args...> child(format, *this, std::forward<Args>(args)...);
+		child.Format();
+		UpdateContextFromChild(child);
 	}
 
 	/////---------- Impl with as Format ----------//////
@@ -172,7 +173,7 @@ namespace CPPTools::Fmt {
 	void FormatInChar(CharBuffer(&buffer)[BUFFER_SIZE], const std::basic_string_view<CharFormat> format, Args&& ...args) {
 		BasicFormatContext<CharFormat, CharBuffer, Args...> context(format, buffer, BUFFER_SIZE, std::forward<Args>(args)...);
 		context.MainFormat();
-		context.BufferPushEndChar();
+		context.BufferOut().PushEndChar();
 	}
 	template<typename CharFormat = char, typename CharBuffer = CharFormat, std::size_t BUFFER_SIZE, std::size_t FORMAT_SIZE, typename ...Args>
 	inline void FormatInChar(CharBuffer(&buffer)[BUFFER_SIZE], const CharFormat(&format)[FORMAT_SIZE], Args&& ...args) {
@@ -183,7 +184,7 @@ namespace CPPTools::Fmt {
 	void FormatInChar(CharBuffer* const buffer, const std::size_t bufferSize, const std::basic_string_view<CharFormat> format, Args&& ...args) {
 		BasicFormatContext<CharFormat, CharBuffer, Args...> context(format, buffer, bufferSize, std::forward<Args>(args)...);
 		context.MainFormat();
-		context.BufferPushEndChar();
+		context.BufferOut().PushEndChar();
 	}
 	template<typename CharFormat = char, typename CharBuffer = CharFormat, std::size_t FORMAT_SIZE, typename ...Args>
 	void FormatInChar(CharBuffer* const buffer, const std::size_t bufferSize, const CharFormat(&format)[FORMAT_SIZE], Args&& ...args) {
@@ -196,7 +197,7 @@ namespace CPPTools::Fmt {
 		BasicFormatContext<CharFormat, CharBuffer, Args...> context(format, buffer, BUFFER_SIZE, std::forward<Args>(args)...);
 		context.MainFormat();
 	
-		std::fwrite(context.GetBuffer(), context.GetSize(), 1, stream);
+		std::fwrite(context.BufferOut().GetBuffer(), context.BufferOut().GetCurrentSize(), 1, stream);
 		std::fflush(stream);
 	}
 	template<std::size_t BUFFER_SIZE = 1024, typename CharFormat = char, typename CharBuffer = CharFormat, std::size_t FORMAT_SIZE, typename ...Args>
@@ -209,9 +210,9 @@ namespace CPPTools::Fmt {
 		CharBuffer buffer[BUFFER_SIZE];
 		BasicFormatContext<CharFormat, CharBuffer, Args...> context(format, buffer, BUFFER_SIZE, std::forward<Args>(args)...);
 		context.MainFormat();
-		context.BufferPushBack('\n');
+		context.BufferOut().PushBack('\n');
 	
-		std::fwrite(context.GetBuffer(), context.GetSize(), 1, stream);
+		std::fwrite(context.BufferOut().GetBuffer(), context.BufferOut().GetCurrentSize(), 1, stream);
 		std::fflush(stream);
 	}
 	template<std::size_t BUFFER_SIZE = 1024, typename CharFormat = char, typename CharBuffer = CharFormat, std::size_t FORMAT_SIZE, typename ...Args>
@@ -225,7 +226,7 @@ namespace CPPTools::Fmt {
 		BasicFormatContext<CharFormat, CharBuffer, Args...> context(format, buffer, BUFFER_SIZE, std::forward<Args>(args)...);
 		context.MainFormat();
 	
-		stream.write(context.GetBuffer(), context.GetCurrentBufferSize());
+		stream.write(context.BufferOut().GetBuffer(), context.BufferOut().GetCurrentSize());
 		stream.flush();
 	}
 	template<std::size_t BUFFER_SIZE = 1024, typename CharFormat = char, typename CharBuffer = CharFormat, std::size_t FORMAT_SIZE, typename ...Args>
@@ -238,9 +239,9 @@ namespace CPPTools::Fmt {
 		CharBuffer buffer[BUFFER_SIZE];
 		BasicFormatContext<CharFormat, CharBuffer, Args...> context(format, buffer, BUFFER_SIZE, std::forward<Args>(args)...);
 		context.MainFormat();
-		context.BufferPushBack('\n');
+		context.BufferOut().PushBack('\n');
 	
-		stream.write(context.GetBuffer(), context.GetCurrentBufferSize());
+		stream.write(context.BufferOut().GetBuffer(), context.BufferOut().GetCurrentSize());
 		stream.flush();
 	}
 	template<std::size_t BUFFER_SIZE = 1024, typename CharFormat = char, typename CharBuffer = CharFormat, std::size_t FORMAT_SIZE, typename ...Args>
@@ -253,8 +254,8 @@ namespace CPPTools::Fmt {
 		CharBuffer buffer[BUFFER_SIZE];
 		BasicFormatContext<CharFormat, CharBuffer, Args...> context(format, buffer, BUFFER_SIZE, std::forward<Args>(args)...);
 		context.MainFormat();
-		context.BufferPushEndChar();
-		str = context.GetBuffer();
+		context.BufferOut().PushEndChar();
+		str = context.BufferOut().GetBuffer();
 	}
 	template<std::size_t BUFFER_SIZE = 1024, typename CharFormat = char, typename CharBuffer = CharFormat, std::size_t FORMAT_SIZE, typename ...Args>
 	inline void FormatInString(std::basic_string<CharBuffer>& str, const CharFormat(&format)[FORMAT_SIZE], Args&& ...args) {
@@ -266,8 +267,8 @@ namespace CPPTools::Fmt {
 		CharBuffer buffer[BUFFER_SIZE];
 		BasicFormatContext<CharFormat, CharBuffer, Args...> context(format, buffer, BUFFER_SIZE, std::forward<Args>(args)...);
 		context.MainFormat();
-		context.BufferPushEndChar();
-		return context.GetBuffer();
+		context.BufferOut().PushEndChar();
+		return context.BufferOut().GetBuffer();
 	}
 	template<std::size_t BUFFER_SIZE = 1024, typename CharFormat = char, typename CharBuffer = CharFormat, std::size_t FORMAT_SIZE, typename ...Args>
 	inline std::basic_string<CharBuffer> FormatString(const CharFormat(&format)[FORMAT_SIZE], Args&& ...args) {
@@ -280,14 +281,14 @@ namespace CPPTools::Fmt {
 	void FormatInChar(CharBuffer(&buffer)[BUFFER_SIZE], T&& t) {
 		BasicFormatContext<char, CharBuffer> context(std::basic_string_view<char>(), buffer, BUFFER_SIZE);
 		FormatType<Detail::GetBaseType<T>, BasicFormatContext<char, CharBuffer>>::Write(t, context);
-		context.BufferPushEndChar();
+		context.BufferOut().PushEndChar();
 	}
 	
 	template<typename CharBuffer = char, typename T>
 	void FormatInChar(CharBuffer* const buffer, const std::size_t bufferSize, T&& t) {
 		BasicFormatContext<char, CharBuffer> context(std::basic_string_view<char>(), buffer, bufferSize);
 		FormatType<Detail::GetBaseType<T>, BasicFormatContext<char, CharBuffer>>::Write(t, context);
-		context.BufferPushEndChar();
+		context.BufferOut().PushEndChar();
 	}
 	
 	template<std::size_t BUFFER_SIZE = 256, typename CharBuffer = char, typename T>
@@ -296,7 +297,7 @@ namespace CPPTools::Fmt {
 		BasicFormatContext<char, CharBuffer> context(std::basic_string_view<char>(), buffer, BUFFER_SIZE);
 		FormatType<Detail::GetBaseType<T>, BasicFormatContext<char, CharBuffer>>::Write(t, context);
 	
-		std::fwrite(context.GetBuffer(), context.GetCurrentBufferSize(), 1, stream);
+		std::fwrite(context.BufferOut().GetBuffer(), context.BufferOut().GetCurrentSize(), 1, stream);
 		std::fflush(stream);
 	}
 	
@@ -305,9 +306,9 @@ namespace CPPTools::Fmt {
 		CharBuffer buffer[BUFFER_SIZE];
 		BasicFormatContext<char, CharBuffer> context(std::basic_string_view<char>(), buffer, BUFFER_SIZE);
 		FormatType<Detail::GetBaseType<T>, BasicFormatContext<char, CharBuffer>>::Write(t, context);
-		context.BufferPushBack('\n');
+		context.BufferOut().PushBack('\n');
 	
-		std::fwrite(context.GetBuffer(), context.GetCurrentBufferSize(), 1, stream);
+		std::fwrite(context.BufferOut().GetBuffer(), context.BufferOut().GetCurrentSize(), 1, stream);
 		std::fflush(stream);
 	}
 	
@@ -317,7 +318,7 @@ namespace CPPTools::Fmt {
 		BasicFormatContext<char, CharBuffer> context(std::basic_string_view<char>(), buffer, BUFFER_SIZE);
 		FormatType<Detail::GetBaseType<T>, BasicFormatContext<char, CharBuffer>>::Write(t, context);
 	
-		stream.write(context.GetBuffer(), context.GetCurrentBufferSize());
+		stream.write(context.BufferOut().GetBuffer(), context.BufferOut().GetCurrentSize());
 		stream.flush();
 	}
 	
@@ -326,9 +327,9 @@ namespace CPPTools::Fmt {
 		CharBuffer buffer[BUFFER_SIZE];
 		BasicFormatContext<char, CharBuffer> context(std::basic_string_view<char>(), buffer, BUFFER_SIZE);
 		FormatType<Detail::GetBaseType<T>, BasicFormatContext<char, CharBuffer>>::Write(t, context);
-		context.BufferPushBack('\n');
+		context.BufferOut().PushBack('\n');
 	
-		stream.write(context.GetBuffer(), context.GetCurrentBufferSize());
+		stream.write(context.BufferOut().GetBuffer(), context.BufferOut().GetCurrentSize());
 		stream.flush();
 	}
 	
@@ -337,8 +338,8 @@ namespace CPPTools::Fmt {
 		CharBuffer buffer[BUFFER_SIZE];
 		BasicFormatContext<char, CharBuffer> context(std::basic_string_view<char>(), buffer, BUFFER_SIZE);
 		FormatType<Detail::GetBaseType<T>, BasicFormatContext<char, CharBuffer>>::Write(t, context);
-		context.BufferPushEndChar();
-		str = context.GetBuffer();
+		context.BufferOut().PushEndChar();
+		str = context.BufferOut().GetBuffer();
 	}
 	
 	template<std::size_t BUFFER_SIZE = 256, typename CharBuffer = char, typename T>
@@ -346,8 +347,8 @@ namespace CPPTools::Fmt {
 		CharBuffer buffer[BUFFER_SIZE];
 		BasicFormatContext<char, CharBuffer> context(std::basic_string_view<char>(), buffer, BUFFER_SIZE);
 		FormatType<Detail::GetBaseType<T>, BasicFormatContext<char, CharBuffer>>::Write(t, context);
-		context.BufferPushEndChar();
-		return context.GetBuffer();
+		context.BufferOut().PushEndChar();
+		return context.BufferOut().GetBuffer();
 	}
 }
 

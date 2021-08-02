@@ -1,6 +1,6 @@
 #pragma once
 
-#include "BasicFormatContextHelperFile.h"
+#include "BasicFormatContext.h"
 
 #include "BaseFormat/BaseFormat.h"
 #include "BaseFormat/ColorFormat.h"
@@ -11,42 +11,35 @@ namespace CPPTools::Fmt {
 
 	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
 	BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>::BasicFormatContext(const std::basic_string_view<CharFormat> format, CharBuffer* const buffer, const std::size_t bufferSize, ContextArgs&& ...args)
-		: m_Buffer(buffer)
-		, m_SubBuffer(buffer)
-		, m_BufferEnd(buffer + bufferSize)
-		, m_BufferSize(bufferSize)
-		, m_Format(format.data())
-		, m_SubFormat(format.data())
-		, m_FormatEnd(format.data() + format.size())
-		, m_FormatSize(format.size())
+		: m_BufferOut(buffer, bufferSize)
+		, m_FormatStr(format)
 		, m_ContextArgs(std::forward<ContextArgs>(args)...)
-		, m_ContextArgsSize(sizeof...(ContextArgs))
 		, m_NoStride(0)
 		, m_ValuesIdx(0)
 	{
-		*(m_BufferEnd - 1) = 0;
+		m_BufferOut.PushEndCharOnTheEnd();
+	}
+
+	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
+	template<typename ParentCharFormat, typename ...ParentContextArgs>
+	BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>::BasicFormatContext(const std::basic_string_view<CharFormat> format, BasicFormatContext<ParentCharFormat, CharBuffer, ParentContextArgs...>& parentContext, ContextArgs&& ...args)
+		: m_BufferOut(parentContext.BufferOut())
+		, m_FormatStr(format)
+		, m_ContextArgs(std::forward<ContextArgs>(args)...)
+		, m_NoStride(parentContext.GetNoStride())
+		, m_ValuesIdx(0)
+	{
+		m_FormatData.Clone(parentContext.GetFormatData());
+		m_ColorMem = parentContext.GetColorMem();
 	}
 
 
 	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
-	template<typename OldCharFormat, typename ...OldContextArgs>
-	BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>::BasicFormatContext(const std::basic_string_view<CharFormat> format, BasicFormatContext<OldCharFormat, CharBuffer, OldContextArgs...>& oldContext, ContextArgs&& ...args)
-		: m_Buffer(oldContext.GetBuffer())
-		, m_SubBuffer(oldContext.GetSubBuffer())
-		, m_BufferEnd(oldContext.GetBufferEnd())
-		, m_BufferSize(oldContext.GetBufferSize())
-		, m_Format(format.data())
-		, m_SubFormat(format.data())
-		, m_FormatEnd(format.data() + format.size())
-		, m_FormatSize(format.size())
-		, m_ContextArgs(std::forward<ContextArgs>(args)...)
-		, m_ContextArgsSize(sizeof...(ContextArgs))
-		, m_NoStride(oldContext.GetNoStride())
-		, m_ValuesIdx(0)
-	{
-		m_FormatData.Clone(oldContext.GetFormatData());
-		m_ColorMem = oldContext.GetColorMem();
+	template<typename ChildCharFormat, typename ...ChildContextArgs>
+	inline void BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>::UpdateContextFromChild(BasicFormatContext<ChildCharFormat, CharBuffer, ChildContextArgs...>& childContext) {
+		m_BufferOut.UpdateFromClidBuffer(childContext.BufferOut());
 	}
+
 
 
 	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
@@ -73,7 +66,7 @@ namespace CPPTools::Fmt {
 
 	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
 	std::uint8_t BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>::GetColorFG() {
-		std::uint8_t step = (std::uint8_t)(FormatIsEqualForward('+') ? Detail::AnsiColorFG::DBStep : Detail::AnsiColorFG::DStep);
+		std::uint8_t step = (std::uint8_t)(FormatStr().IsEqualForward('+') ? Detail::AnsiColorFG::DBStep : Detail::AnsiColorFG::DStep);
 		std::uint8_t code = GetColorCode();
 		if (code == (std::numeric_limits<std::uint8_t>::max)()) code = (std::uint8_t)Detail::AnsiColorFG::Default;
 		else													code += step;
@@ -82,7 +75,7 @@ namespace CPPTools::Fmt {
 
 	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
 	std::uint8_t BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>::GetColorBG() {
-		std::uint8_t step = (std::uint8_t)(FormatIsEqualForward('+') ? Detail::AnsiColorBG::DBStep : Detail::AnsiColorBG::DStep);
+		std::uint8_t step = (std::uint8_t)(FormatStr().IsEqualForward('+') ? Detail::AnsiColorBG::DBStep : Detail::AnsiColorBG::DStep);
 		std::uint8_t code = GetColorCode();
 		if (code == (std::numeric_limits<std::uint8_t>::max)())	code = (std::uint8_t)Detail::AnsiColorBG::Default;
 		else													code += step;
@@ -91,13 +84,13 @@ namespace CPPTools::Fmt {
 
 	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
 	void BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>::ColorValuePrint() {
-		if (FormatIsEqualForward(':')) {
-			FormatIgnoreSpace();
+		if (m_FormatStr.IsEqualForward(':')) {
+			m_FormatStr.IgnoreSpace();
 			Detail::AnsiColor color;
 			color.Fg = (Detail::AnsiColorFG)GetColorFG();
-			FormatParamGoTo(',');
-			if (FormatIsEqualForward(',')) {
-				FormatIgnoreSpace();
+			m_FormatStr.ParamGoTo(',');
+			if (m_FormatStr.IsEqualForward(',')) {
+				m_FormatStr.IgnoreSpace();
 				color.Bg = (Detail::AnsiColorBG)GetColorBG();
 			}
 			FormatType<Detail::AnsiColor, BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>>::Write(color, *this);
@@ -122,34 +115,11 @@ namespace CPPTools::Fmt {
 	std::size_t BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>::GetWordFromList(const std::basic_string_view<CharList> (&formatTypes)[SIZE]) {
 		std::uint8_t res = (std::numeric_limits<std::uint8_t>::max)();
 		for (int idx = 0; idx < SIZE; ++idx) {
-			if (FormatNextIsSame(formatTypes[idx])) {
+			if (m_FormatStr.NextIsSame(formatTypes[idx])) {
 				res = idx; idx = SIZE;
 			}
 		}
 		return res;	
-	}
-
-
-	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
-	template<typename CharToTest>
-	bool BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>::FormatNextIsANamedArgs(std::basic_string_view<CharToTest> sv) {
-		const CharFormat* const prevSubFormat = m_SubFormat;
-		if (FormatNextIsSame(sv) && (FormatIsEqualTo(':') || FormatIsEqualTo('}')))
-			return true;
-		m_SubFormat = prevSubFormat;
-		return false;
-	}
-
-	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
-	template<typename CharToTest>
-	bool BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>::FormatNextIsSame(std::basic_string_view<CharToTest> sv) {
-		const CharToTest* str = sv.data();
-		std::size_t size = sv.size();
-		const CharFormat* prevSubFormat = m_SubFormat;				bool isSame = true;
-		while (isSame && size-- != 0 && FormatCanMoveForward())		isSame = FormatGetAndForwardNoCheck() == *str++;
-		if (isSame && size == 0)									isSame = false;
-		if (!isSame)												m_SubFormat = prevSubFormat;
-		return isSame;
 	}
 	
 	/////---------- ReloadColor ----------/////

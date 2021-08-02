@@ -14,24 +14,28 @@ namespace CPPTools::Fmt::Detail {
 
     template <>
     struct FormatContextArgsTuple<> {
+
     public:
         FormatContextArgsTuple() = default;
 
+	public:
+		static inline constexpr std::size_t Size() { return 0; }
+
     public:
         template <typename FormatContext>
-        inline void FormatTypeFromIdx(FormatContext &context, FormatIdx idx) {}
+        inline void FormatTypeFromIdx(FormatContext &context, FormatIdx idx)        {}
 
         template <typename FormatContext>
-        inline void GetParameterDataFromIdx(FormatContext &context, FormatIdx idx) {}
+        inline void GetParameterDataFromIdx(FormatContext &context, FormatIdx idx)  {}
 
         template <typename FormatContext>
-        inline void GetParameterData(FormatContext &context, FormatIdx idx) { context.GetFormatData() = FormatContext::FormatDataType(); }
+        inline void GetParameterData(FormatContext &context, FormatIdx idx)         { context.GetFormatData() = FormatContext::FormatDataType(); }
 
         template <typename FormatContext>
         inline void GetNamedArgsIdx(FormatContext& context, FormatIdx& idx, FormatIdx currentIdx) { idx = FormatIdxNotFound; }
 
         template <class ValueType>
-        inline void GetFormatValueAt(ValueType& value, FormatIdx idx) {}
+        inline void GetFormatValueAt(ValueType& value, FormatIdx idx)               {}
     };
 
 
@@ -50,6 +54,9 @@ namespace CPPTools::Fmt::Detail {
 
     private:
         const TypeWithoutRef &m_Value;
+
+    public:
+        static inline constexpr std::size_t Size() { return sizeof...(Rest) + 1; }
 
     public:
         /////---------- FormatTypeFromIdx ----------/////
@@ -80,7 +87,7 @@ namespace CPPTools::Fmt::Detail {
 
         template<typename FormatContext, class KType = TypeWithoutRef>
         inline auto GetNamedArgsIdx(FormatContext& context, FormatIdx& idx, FormatIdx currentIdx) -> std::enable_if_t<Detail::IsANamedArgs<Detail::GetBaseType<KType>>::value>{
-            if (context.FormatNextIsANamedArgs(m_Value.GetName()))  idx = currentIdx;
+            if (context.FormatStr().NextIsANamedArgs(m_Value.GetName()))  idx = currentIdx;
             else                                                    FormatContextArgsTuple<Rest...>::GetNamedArgsIdx(context, idx, currentIdx + 1);
         }
 

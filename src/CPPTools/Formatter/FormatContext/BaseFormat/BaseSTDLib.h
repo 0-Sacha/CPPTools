@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../BasicFormatContextHelperFile.h"
+#include "../BasicFormatContext.h"
 
 #include <string>
 #include <string_view>
@@ -16,7 +16,7 @@ namespace CPPTools::Fmt {
 	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
 	struct FormatType<std::basic_string<CharBuffer>, BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>> {
 		inline static void Write(const std::basic_string<CharBuffer>& t, BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>& context) {
-			context.BufferWriteCharPt(t.c_str(), t.size());
+			context.BufferOut().WriteCharPt(t.c_str(), t.size());
 		}
 	};
 
@@ -24,7 +24,7 @@ namespace CPPTools::Fmt {
 	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
 	struct FormatType<std::basic_string_view<CharBuffer>, BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>> {
 		inline static void Write(const std::basic_string_view<CharBuffer>& t, BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>& context) {
-			context.BufferWriteCharPt(t.data(), t.size());
+			context.BufferOut().WriteCharPt(t.data(), t.size());
 		}
 	};
 

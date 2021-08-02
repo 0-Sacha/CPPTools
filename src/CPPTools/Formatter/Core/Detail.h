@@ -5,8 +5,13 @@
 #include "BaseColor.h"
 #include "GetBaseType.h"
 
-namespace CPPTools::Fmt {
+namespace CPPTools::Fmt::Detail {
 	using FormatDataType = std::int16_t;
+} // namespace CPPTools::Fmt::Detail
+
+//ToRemove
+namespace CPPTools::Fmt {
+	using FormatDataType = Detail::FormatDataType;
 } // namespace CPPTools::Fmt
 
 namespace CPPTools::Fmt::Detail {
@@ -117,12 +122,12 @@ namespace CPPTools::Fmt {
 			, bool baseValue = false
 
 			, Detail::ValueIntPrint intPrint = Detail::ValueIntPrint::Int
-			, FormatDataType precision = 0
-			, FormatDataType floatPrecision = 3
+			, Detail::FormatDataType precision = 0
+			, Detail::FormatDataType floatPrecision = 3
 
 			, Detail::ShiftPrint shiftPrint = Detail::ShiftPrint::Space
 			, Detail::ShiftType shiftType = Detail::ShiftType::Nothing
-			, FormatDataType shiftValue = 0)
+			, Detail::FormatDataType shiftValue = 0)
 
 			: IsInit(true)
 			, HasSpec(hasSpec)
@@ -156,15 +161,15 @@ namespace CPPTools::Fmt {
 		bool IsInit;
 		bool HasSpec;
 
-		bool BaseValue;						// = 
+		bool BaseValue;							// = 
 
-		Detail::ValueIntPrint IntPrint; 	// B - X - O - D
-		FormatDataType Precision;			// B - X - O - D
-		FormatDataType FloatPrecision;		// .
+		Detail::ValueIntPrint IntPrint; 		// B - X - O - D
+		Detail::FormatDataType Precision;		// B - X - O - D
+		Detail::FormatDataType FloatPrecision;	// .
 
-		Detail::ShiftPrint ShiftPrint;		// < - > - ^
-		Detail::ShiftType ShiftType; 		// 0
-		FormatDataType ShiftValue;			// < - > - ^
+		Detail::ShiftPrint ShiftPrint;			// < - > - ^
+		Detail::ShiftType ShiftType; 			// 0
+		Detail::FormatDataType ShiftValue;		// < - > - ^
 
 		std::uint8_t SpecifierCount;
 		std::array<FormatSpecifier<CharFormat>, 10> Specifier;
