@@ -99,9 +99,9 @@ namespace CPPTools::Fmt {
 			if (data.BaseValue)										context.BufferOut().PushBack('\'');
 	
 			std::size_t begin	= context.GetFormatData().GetValueAsNumberOfSpecifierOr("begin", 0);
-			std::size_t size	= context.GetFormatData().GetValueAsNumberOfSpecifierOr("size", std::numeric_limits<std::size_t>::max());
+			std::size_t size	= context.GetFormatData().GetValueAsNumberOfSpecifierOr("size", (std::numeric_limits<std::size_t>::max)());
 
-			if (size != std::numeric_limits<std::size_t>::max())	context.PrintCharPt(t + begin, size);
+			if (size != (std::numeric_limits<std::size_t>::max)())	context.PrintCharPt(t + begin, size);
 			else													context.PrintCharPt(t + begin);
 	
 			if (data.BaseValue)										context.BufferOut().PushBack('\'');
@@ -156,7 +156,7 @@ namespace CPPTools::Fmt {
 	{
 		static void Write(T const (&t)[SIZE], FormatContext& context) {
 
-			context.BufferWriteStringView(context.GetFormatData().GetValueAsTextOfSpecifierOr("begin", STDEnumerableUtility::DefaultBegin));
+			context.BufferOut().WriteStringView(context.GetFormatData().GetValueAsTextOfSpecifierOr("begin", STDEnumerableUtility::DefaultBegin));
 
 			std::size_t stride = context.GetStride();
 
@@ -173,7 +173,7 @@ namespace CPPTools::Fmt {
 				context.WriteType(*begin++);
 			}
 
-			context.BufferWriteStringView(context.GetFormatData().GetValueAsTextOfSpecifierOr("end", STDEnumerableUtility::DefaultEnd));
+			context.BufferOut().WriteStringView(context.GetFormatData().GetValueAsTextOfSpecifierOr("end", STDEnumerableUtility::DefaultEnd));
 		}
 	};
 }

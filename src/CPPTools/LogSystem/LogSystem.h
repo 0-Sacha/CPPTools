@@ -100,7 +100,7 @@ namespace CPPTools {
 		LogSeverity m_SeverityMin;
 		std::ostream& m_Stream;
 
-		char m_FmtBuffer[50];
+		char m_FmtBuffer[64];
 	};
 }
 
@@ -148,9 +148,8 @@ namespace CPPTools {
 	template<typename ...Args>
 	void LogSystem::Log(LogSeverity severity, const std::string_view format, Args&& ...args) const {
 		if (severity >= m_SeverityMin) {
-			char formatBuffer[1024];
-			Fmt::FormatInChar(formatBuffer, m_FmtBuffer, FORMAT_SV("name", m_Name), FORMAT_SV("data", format));
-			Fmt::FilePrintLn(m_Stream, formatBuffer, std::forward<Args>(args)..., FORMAT_SV("color", severity));
+			auto formatBuffer = Fmt::Detail::FormatAndGetBufferOut<char, char>(m_FmtBuffer, FORMAT_SV("name", m_Name), FORMAT_SV("data", format));
+			Fmt::FilePrintLn(m_Stream, (std::string_view)formatBuffer, std::forward<Args>(args)..., FORMAT_SV("color", severity));
 		}
 	}
 
@@ -218,9 +217,8 @@ namespace CPPTools {
 	/////---------- Logger Status with array as format ----------/////
 	template<typename ...Args>
 	void LogSystem::Log(LogStatus status, const std::string_view format, Args&& ...args) const {
-		char formatBuffer[500];
-		Fmt::FormatInChar(formatBuffer, m_FmtBuffer, FORMAT_SV("name", m_Name), FORMAT_SV("data", format));
-		Fmt::FilePrintLn(m_Stream, formatBuffer, std::forward<Args>(args)..., FORMAT_SV("color", status));
+		auto formatBuffer = Fmt::Detail::FormatAndGetBufferOut<char, char>(m_FmtBuffer, FORMAT_SV("name", m_Name), FORMAT_SV("data", format));
+		Fmt::FilePrintLn(m_Stream, (std::string_view)formatBuffer, std::forward<Args>(args)..., FORMAT_SV("color", status));
 	}
 
 	template<typename ...Args>
@@ -255,9 +253,8 @@ namespace CPPTools {
 namespace CPPTools {
 	template<typename ...Args>
 	inline void LogSystem::LogBasic(const std::string_view format, Args&& ...args) const {
-		char formatBuffer[500];
-		Fmt::FormatInChar(formatBuffer, m_FmtBuffer, FORMAT_SV("color", ""), FORMAT_SV("name", m_Name), FORMAT_SV("data", format));
-		Fmt::FilePrintLn(m_Stream, formatBuffer, std::forward<Args>(args)...);
+		auto formatBuffer = Fmt::Detail::FormatAndGetBufferOut<char, char>(m_FmtBuffer, FORMAT_SV("name", m_Name), FORMAT_SV("data", format));
+		Fmt::FilePrintLn(m_Stream, (std::string_view)formatBuffer, std::forward<Args>(args)...);
 	}
 
 	template<typename T>
@@ -265,4 +262,3 @@ namespace CPPTools {
 		Fmt::FilePrintLn(m_Stream, m_FmtBuffer, FORMAT_SV("color", ""), FORMAT_SV("data", t), FORMAT_SV("name", m_Name));
 	}
 }
-

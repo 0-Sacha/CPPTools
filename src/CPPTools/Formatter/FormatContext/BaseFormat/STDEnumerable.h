@@ -23,13 +23,13 @@ namespace CPPTools::Fmt {
 			const std::basic_string_view<CharJoin> strJoin = ", ",
 			const std::basic_string_view<CharEnd> strEnd = " }",
 			const std::size_t beginIdx = 0,
-			const std::size_t size = std::numeric_limits<std::size_t>::max())
+			const std::size_t size = (std::numeric_limits<std::size_t>::max)())
 			: m_Value(value)
 			, m_StrBegin(strBegin)
 			, m_JoinSplited(strJoin)
 			, m_StrEnd(strEnd)
 			, m_BeginIdx(beginIdx)
-			, m_Size(size == std::numeric_limits<std::size_t>::max() ? value.size() - beginIdx : size)
+			, m_Size(size == (std::numeric_limits<std::size_t>::max)() ? value.size() - beginIdx : size)
 		{
 		}
 
@@ -81,11 +81,11 @@ namespace CPPTools::Fmt {
 	struct FormatType<ForwardAsSTDEnumerable<T>, FormatContext> {
 		static void Write(const T& container, FormatContext& context) {
 			STDEnumerable<T> enumerable(container,
-				context.GetFormatData().GetValueAsTextOfSpecifierOr("begin", STDEnumerableUtility::DefaultBegin),
-				context.GetFormatData().GetValueAsTextOfSpecifierOr("join", STDEnumerableUtility::DefaultJoin),
-				context.GetFormatData().GetValueAsTextOfSpecifierOr("end", STDEnumerableUtility::DefaultEnd),
-				context.GetFormatData().GetValueAsNumberOfSpecifierOr("begin", 0),
-				context.GetFormatData().GetValueAsNumberOfSpecifierOr("size", std::numeric_limits<std::size_t>::max()));
+				context.GetFormatData().GetValueAsTextOfSpecifierOr("begin",	STDEnumerableUtility::DefaultBegin),
+				context.GetFormatData().GetValueAsTextOfSpecifierOr("join",		STDEnumerableUtility::DefaultJoin),
+				context.GetFormatData().GetValueAsTextOfSpecifierOr("end",		STDEnumerableUtility::DefaultEnd),
+				context.GetFormatData().GetValueAsNumberOfSpecifierOr("begin",	0),
+				context.GetFormatData().GetValueAsNumberOfSpecifierOr("size",	(std::numeric_limits<std::size_t>::max)()));
 
 			context.WriteType(enumerable);
 		}

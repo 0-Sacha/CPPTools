@@ -17,7 +17,16 @@ namespace CPPTools::Fmt {
 		, m_NoStride(0)
 		, m_ValuesIdx(0)
 	{
-		m_BufferOut.PushEndCharOnTheEnd();
+	}
+
+	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
+	BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>::BasicFormatContext(const bool bufferIsAutoResize, const std::basic_string_view<CharFormat> format, ContextArgs &&...args)
+		: m_BufferOut()
+		, m_FormatStr(format)
+		, m_ContextArgs(std::forward<ContextArgs>(args)...)
+		, m_NoStride(0)
+		, m_ValuesIdx(0)
+	{
 	}
 
 	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
@@ -32,7 +41,6 @@ namespace CPPTools::Fmt {
 		m_FormatData.Clone(parentContext.GetFormatData());
 		m_ColorMem = parentContext.GetColorMem();
 	}
-
 
 	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
 	template<typename ChildCharFormat, typename ...ChildContextArgs>

@@ -5,45 +5,82 @@
 namespace CPPTools::Fmt::Detail {
 
 	template <typename CharBuffer>
+	class FormatterMemoryBufferOutCopy;
+
+	template <typename CharBuffer>
 	class FormatterMemoryBufferOut {
 	public:
 		using CharBufferType = CharBuffer;
 
-	public:
+		static constexpr const std::size_t	DEFAULT_BEGIN_SIZE	= 512;
+		static constexpr const std::size_t	GROW_UP_BUFFER_SIZE = 2;
+		static constexpr const bool			DEBUG_RESIZE		= true;
+
+	private:
 		CharBuffer*			m_Buffer;
-		CharBuffer*			m_SubBuffer;
+		CharBuffer*			m_CurrentPos;
 		CharBuffer*			m_BufferEnd;	// Point one behind the end char
 		std::size_t			m_BufferSize;	// The real allocated size
 
+		bool				m_BufferAutoResize;
+		bool				m_FreeOnDestructor;
+
 	public:
-		inline CharBuffer*			GetBuffer()								{ return m_Buffer; }
-		inline const CharBuffer*	GetBuffer() const						{ return m_Buffer; }
-		inline CharBuffer*			GetSubBuffer()							{ return m_SubBuffer; }
-		inline const CharBuffer*	GetSubBuffer() const					{ return m_SubBuffer; }
-		inline CharBuffer*			GetBufferEnd() 							{ return m_BufferEnd; }
-		inline const CharBuffer*	GetBufferEnd() const					{ return m_BufferEnd; }
-		inline std::size_t			GetSize() const					{ return m_BufferSize; }
-		inline std::size_t			GetCurrentSize() const					{ return m_SubBuffer - m_Buffer; }
-		inline void					SetSubBuffer(CharBuffer* const pos)		{ m_SubBuffer = pos; }
+		inline CharBuffer*			GetBuffer()									{ return m_Buffer; }
+		inline const CharBuffer*	GetBuffer() const							{ return m_Buffer; }
+		inline CharBuffer*			GetBufferCurrentPos()						{ return m_CurrentPos; }
+		inline const CharBuffer*	GetBufferCurrentPos() const					{ return m_CurrentPos; }
+		inline CharBuffer*			GetBufferEnd() 								{ return m_BufferEnd; }
+		inline const CharBuffer*	GetBufferEnd() const						{ return m_BufferEnd; }
+		inline std::size_t			GetBufferSize() const						{ return m_BufferSize; }
+		inline std::size_t			GetBufferCurrentSize() const				{ return m_CurrentPos - m_Buffer; }
+		inline void					SetBufferCurrentPos(CharBuffer* const pos)	{ m_CurrentPos = pos; }
+
+		inline bool					BufferIsAutoResize()						{ return m_BufferAutoResize; }
+
+	private:
+		friend FormatterMemoryBufferOutCopy<CharBuffer>;
+		inline void					DoNotFreeOnDestructor()					{ m_FreeOnDestructor = false; }
 
 	public:
 		FormatterMemoryBufferOut(CharBuffer* const buffer, const std::size_t bufferSize)
 			: m_Buffer(buffer)
-			, m_SubBuffer(buffer)
+			, m_CurrentPos(buffer)
 			, m_BufferEnd(buffer + bufferSize)
-			, m_BufferSize(bufferSize) {}
+			, m_BufferSize(bufferSize)
+			, m_BufferAutoResize(false)
+			, m_FreeOnDestructor(false)
+		{
+			PushEndCharOnTheEnd();
+		}
 
+		FormatterMemoryBufferOut(const std::size_t beginSize = DEFAULT_BEGIN_SIZE)
+			: m_Buffer(new CharBuffer[beginSize])
+			, m_CurrentPos(m_Buffer)
+			, m_BufferEnd(m_Buffer + beginSize)
+			, m_BufferSize(beginSize)
+			, m_BufferAutoResize(true)
+			, m_FreeOnDestructor(true)
+		{
+			PushEndCharOnTheEnd();
+		}
+
+		~FormatterMemoryBufferOut() {
+			if (m_FreeOnDestructor)
+				delete[] m_Buffer;
+		}
 
 		template <typename ParentBuffer>
 		FormatterMemoryBufferOut(ParentBuffer& parentBuffer)
 			: m_Buffer(parentBuffer.GetBuffer())
-			, m_SubBuffer(parentBuffer.GetSubBuffer())
+			, m_CurrentPos(parentBuffer.GetBufferCurrentPos())
 			, m_BufferEnd(parentBuffer.GetBufferEnd())
-			, m_BufferSize(parentBuffer.GetSize()) {}
+			, m_BufferSize(parentBuffer.GetBufferSize())
+			, m_BufferAutoResize(parentBuffer.BufferIsAutoResize()) {}
 
 	public:
 		template <typename ChildBuffer>
-		inline void UpdateFromClidBuffer(ChildBuffer& childBuffer) { SetSubBuffer(childBuffer.GetSubBuffer()); }
+		inline void UpdateFromClidBuffer(ChildBuffer& childBuffer) { SetBufferCurrentPos(childBuffer.GetBufferCurrentPos()); }
 
 	public:
 		template<typename T> void BasicWriteInt(T i);
@@ -76,30 +113,59 @@ namespace CPPTools::Fmt::Detail {
 
 	public:
 		// Buffer
-		inline bool CanMoveForward() const								{ return m_SubBuffer < m_BufferEnd; }
-		inline bool CanMoveBackward() const								{ return m_SubBuffer > m_Buffer; }
-		inline bool CanMoveForward(const std::size_t count) const		{ return m_SubBuffer + count <= m_BufferEnd; }
-		inline bool CanMoveBackward(const std::size_t count) const		{ return m_SubBuffer + count >= m_Buffer; }
+		inline bool CanMoveForward()									{ if (m_CurrentPos < m_BufferEnd) return true; return CheckResize(); }
+		inline bool CanMoveBackward() const								{ return m_CurrentPos > m_Buffer; }
+		inline bool CanMoveForward(const std::size_t count) const		{ return m_CurrentPos + count <= m_BufferEnd; }
+		inline bool CanMoveBackward(const std::size_t count) const		{ return m_CurrentPos + count >= m_Buffer; }
 		inline bool IsNotOutOfBound() const								{ return !CanMoveForward() || !CanMoveBackward(); }
 
+		bool CheckResize() {
+			if (!m_BufferAutoResize)	return false;
+			return						Resize();
+		}
+
+		bool Resize() {
+			std::size_t step = m_CurrentPos - m_Buffer;
+
+			const CharBuffer* oldBuffer = m_Buffer;
+			const std::size_t oldSize = m_BufferSize;
+
+			m_BufferSize *= GROW_UP_BUFFER_SIZE;
+			m_Buffer = new CharBuffer[m_BufferSize];
+			if (m_Buffer == nullptr) return false;
+
+			m_CurrentPos = m_Buffer + step;
+			m_BufferEnd = m_Buffer + m_BufferSize;
+
+			std::memcpy(m_Buffer, oldBuffer, oldSize);
+
+			delete[] oldBuffer;
+
+			if constexpr (DEBUG_RESIZE)
+				std::cout << "Resize from " << oldSize << " to " << m_BufferSize << std::endl;
+
+			return true;
+		}
+
+
 		// Buffer base commands
-		inline void Forward()											{ if (CanMoveForward()) ++m_SubBuffer; }
-		inline void ForwardNoCheck()									{ ++m_SubBuffer; }
-		inline void Backward()											{ if (CanMoveBackward()) --m_SubBuffer; }
-		template<typename Int> inline void Forward(const Int size)		{ m_SubBuffer += size; if (!CanMoveForward()) m_SubBuffer = m_BufferEnd; }
-		template<typename Int> inline void Backward(const Int size)		{ m_SubBuffer -= size; if (!CanMoveBackward()) m_SubBuffer = m_Buffer; }
+		inline void Forward()											{ if (CanMoveForward()) ++m_CurrentPos; }
+		inline void ForwardNoCheck()									{ ++m_CurrentPos; }
+		inline void Backward()											{ if (CanMoveBackward()) --m_CurrentPos; }
+		template<typename Int> inline void Forward(const Int size)		{ m_CurrentPos += size; if (!CanMoveForward()) m_CurrentPos = m_BufferEnd; }
+		template<typename Int> inline void Backward(const Int size)		{ m_CurrentPos -= size; if (!CanMoveBackward()) m_CurrentPos = m_Buffer; }
 
-		inline CharBuffer Get() const									{ return *m_SubBuffer; }
-		inline CharBuffer GetAndForward()								{ return CanMoveForward() ? *m_SubBuffer++ : '\0'; }
-		inline CharBuffer GetAndForwardNoCheck()						{ return *m_SubBuffer++; }
-		inline CharBuffer GetAndBackward()								{ return CanMoveBackward() ? *m_SubBuffer-- : '\0'; }
-		inline CharBuffer GetNext() const								{ return CanMoveForward() ? *(m_SubBuffer + 1) : '\0'; }
+		inline CharBuffer Get() const									{ return *m_CurrentPos; }
+		inline CharBuffer GetAndForward()								{ return CanMoveForward() ? *m_CurrentPos++ : '\0'; }
+		inline CharBuffer GetAndForwardNoCheck()						{ return *m_CurrentPos++; }
+		inline CharBuffer GetAndBackward()								{ return CanMoveBackward() ? *m_CurrentPos-- : '\0'; }
+		inline CharBuffer GetNext() const								{ return CanMoveForward() ? *(m_CurrentPos + 1) : '\0'; }
 
-		inline void Set(const CharBuffer c)								{ *m_SubBuffer = c; }
-		inline void PushBack(const CharBuffer c)						{ if (CanMoveForward()) *m_SubBuffer++ = c; }
-		inline void PushReverse(const CharBuffer c)						{ if (CanMoveBackward()) *m_SubBuffer-- = c; }
-		inline void PushBackNoCheck(const CharBuffer c)					{ *m_SubBuffer++ = c; }
-		inline void PushReverseNoCheck(const CharBuffer c)				{ *m_SubBuffer-- = c; }
+		inline void Set(const CharBuffer c)								{ *m_CurrentPos = c; }
+		inline void PushBack(const CharBuffer c)						{ if (CanMoveForward()) *m_CurrentPos++ = c; }
+		inline void PushReverse(const CharBuffer c)						{ if (CanMoveBackward()) *m_CurrentPos-- = c; }
+		inline void PushBackNoCheck(const CharBuffer c)					{ *m_CurrentPos++ = c; }
+		inline void PushReverseNoCheck(const CharBuffer c)				{ *m_CurrentPos-- = c; }
 
 		// Buffer commands
 		inline void PushEndChar()										{ PushBack('\0'); }
@@ -117,5 +183,50 @@ namespace CPPTools::Fmt::Detail {
 		template<typename CharStr>						inline void WriteStringView(const std::basic_string_view<CharStr> str)	{ WriteCharPt(str.data(), str.size()); }
 	};
 
+
+	template <typename CharBuffer>
+	class FormatterMemoryBufferOutCopy {
+	public:
+		FormatterMemoryBufferOutCopy(FormatterMemoryBufferOut<CharBuffer>& bufferOut)
+			: m_Buffer(bufferOut.GetBuffer())
+			, m_Size(bufferOut.GetBufferCurrentSize())
+			, m_FreeOnDestructor(true)
+		{
+			bufferOut.DoNotFreeOnDestructor();
+		}
+
+		FormatterMemoryBufferOutCopy(FormatterMemoryBufferOutCopy<CharBuffer>& bufferOutCopy)
+			: m_Buffer(bufferOutCopy.GetBuffer())
+			, m_Size(bufferOutCopy.GetSize())
+			, m_FreeOnDestructor(true)
+		{
+			bufferOutCopy.DoNotFreeOnDestructor();
+		}
+
+		~FormatterMemoryBufferOutCopy() {
+			if (m_FreeOnDestructor)
+				delete[] m_Buffer;
+		}
+
+		operator std::basic_string_view<CharBuffer>() {
+			return std::basic_string_view<CharBuffer>(m_Buffer, m_Size);
+		}
+
+
+	public:
+
+		inline const CharBuffer*	GetBuffer() const		{ return m_Buffer; }
+		inline std::size_t			GetSize() const			{ return m_Size; }
+
+		inline void DoNotFreeOnDestructor() {
+			m_FreeOnDestructor = false;
+		}
+
+	private:
+		const CharBuffer* const m_Buffer;
+		const std::size_t		m_Size;
+
+		bool					m_FreeOnDestructor;
+	};
 }
 

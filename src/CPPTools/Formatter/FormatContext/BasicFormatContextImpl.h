@@ -11,14 +11,14 @@ namespace CPPTools::Fmt {
 	bool BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>::FormatReadParameter(T& i) {
 		if (!m_FormatStr.IsEqualTo('{'))	return FormatStr().ReadUInt(i);
 
-		const CharFormat* const mainSubFormat = m_FormatStr.GetSubFormat();
+		const CharFormat* const mainSubFormat = m_FormatStr.GetBufferCurrentPos();
 		FormatIdx formatIdx = FormatIdxNotFound;
 		if (GetFormatIdx(formatIdx)) {
 			m_FormatStr.Forward();
 			m_ContextArgs.GetFormatValueAt(i, formatIdx);
 			return true;
 		}
-		m_FormatStr.SetSubFormat(mainSubFormat);
+		m_FormatStr.SetBufferCurrentPos(mainSubFormat);
 		return false;
 	}
 
@@ -54,17 +54,17 @@ namespace CPPTools::Fmt {
 				} else if (m_FormatStr.IsEqualForward('0'))	{ m_FormatData.ShiftPrint = Detail::ShiftPrint::Zeros;
 
 				} else if (m_FormatStr.IsLowerCase()) {	// Custom Specifier / NameSpecifier
-					const char* namePos = m_FormatStr.GetSubFormat();
+					const char* namePos = m_FormatStr.GetBufferCurrentPos();
 					m_FormatStr.ParamGoTo(' ', '=');
-					StringViewFormat name(namePos, m_FormatStr.GetSubFormat() - namePos);
+					StringViewFormat name(namePos, m_FormatStr.GetBufferCurrentPos() - namePos);
 
 					m_FormatStr.ParamGoToForward('=');
 					m_FormatStr.IgnoreSpace();
 
 					if (m_FormatStr.IsEqualForward('\'')) {
-						const char* valuePos = m_FormatStr.GetSubFormat();
+						const char* valuePos = m_FormatStr.GetBufferCurrentPos();
 						m_FormatStr.ParamGoTo('\'');
-						std::size_t valueSize = m_FormatStr.GetSubFormat() - valuePos;
+						std::size_t valueSize = m_FormatStr.GetBufferCurrentPos() - valuePos;
 						m_FormatData.AddSpecifier(name, StringViewFormat(valuePos, valueSize));
 					} else if(m_FormatStr.IsADigit()) {
 						std::intmax_t value = 0;
@@ -80,7 +80,7 @@ namespace CPPTools::Fmt {
 
 	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
 	bool BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>::GetFormatIdx(FormatIdx& idx) {
-		const CharFormat* mainSubFormat = m_FormatStr.GetSubFormat();
+		const CharFormat* mainSubFormat = m_FormatStr.GetBufferCurrentPos();
 
 		// I : if there is no number specified : ':' or '}'
 		if (m_FormatStr.IsEqualTo(':') || m_FormatStr.IsEqualTo('}')) {
@@ -93,19 +93,19 @@ namespace CPPTools::Fmt {
 		if (m_FormatStr.ReadUInt(idx))
 			if (m_FormatStr.IsEqualTo(':') || m_FormatStr.IsEqualTo('}'))
 				if (idx < m_ContextArgs.Size())	return true;
-		m_FormatStr.SetSubFormat(mainSubFormat);
+		m_FormatStr.SetBufferCurrentPos(mainSubFormat);
 
 		// III : A name
 		m_ContextArgs.GetNamedArgsIdx(*this, idx, 0);
 		if (idx < m_ContextArgs.Size() /* || idx != FormatIdxNotFound */)
 			return true;
-		m_FormatStr.SetSubFormat(mainSubFormat);
+		m_FormatStr.SetBufferCurrentPos(mainSubFormat);
 
 		// VI : { which is a idx to a number
 		if (m_FormatStr.IsEqualForward('{'))
 			if (GetFormatIdx(idx))
 				if (idx < m_ContextArgs.Size())	return true;
-		m_FormatStr.SetSubFormat(mainSubFormat);
+		m_FormatStr.SetBufferCurrentPos(mainSubFormat);
 
 		return false;
 	}
@@ -166,187 +166,201 @@ namespace CPPTools::Fmt {
 		UpdateContextFromChild(child);
 	}
 
+
+
+
+
+
+
 	/////---------- Impl with as Format ----------//////
 
+	namespace Detail {
+		template<typename CharBuffer, typename CharFormat, typename ...Args>
+		Detail::FormatterMemoryBufferOutCopy<CharBuffer> FormatAndGetBufferOut(const std::basic_string_view<CharFormat> format, Args&& ...args) {
+			BasicFormatContext<CharFormat, CharBuffer, Args...> context(true, format, std::forward<Args>(args)...);
+			context.MainFormat();
+			context.BufferOut().PushEndChar();
+			return context.BufferOut();
+		}
+		template<typename CharBuffer, typename CharFormat, std::size_t BUFFER_SIZE, std::size_t FORMAT_SIZE, typename ...Args>
+		Detail::FormatterMemoryBufferOutCopy<CharBuffer> FormatAndGetBufferOut(CharFormat(&format)[FORMAT_SIZE], Args&& ...args) {
+			return FormatAndGetBufferOut<CharFormat, CharBuffer>(std::basic_string_view<CharFormat>(format), std::forward<Args>(args)...);
+		}
+	}
 
-	template<typename CharFormat = char, typename CharBuffer = CharFormat, std::size_t BUFFER_SIZE, typename ...Args>
+
+	template<typename CharBuffer, typename CharFormat, std::size_t BUFFER_SIZE, typename ...Args>
 	void FormatInChar(CharBuffer(&buffer)[BUFFER_SIZE], const std::basic_string_view<CharFormat> format, Args&& ...args) {
 		BasicFormatContext<CharFormat, CharBuffer, Args...> context(format, buffer, BUFFER_SIZE, std::forward<Args>(args)...);
 		context.MainFormat();
 		context.BufferOut().PushEndChar();
 	}
-	template<typename CharFormat = char, typename CharBuffer = CharFormat, std::size_t BUFFER_SIZE, std::size_t FORMAT_SIZE, typename ...Args>
+	template<typename CharBuffer, typename CharFormat, std::size_t BUFFER_SIZE, std::size_t FORMAT_SIZE, typename ...Args>
 	inline void FormatInChar(CharBuffer(&buffer)[BUFFER_SIZE], const CharFormat(&format)[FORMAT_SIZE], Args&& ...args) {
 		FormatInChar<CharFormat, CharBuffer>(buffer, std::basic_string_view<CharFormat>(format), std::forward<Args>(args)...);
 	}
 	
-	template<typename CharFormat = char, typename CharBuffer = CharFormat, typename ...Args>
+	template<typename CharBuffer, typename CharFormat, typename ...Args>
 	void FormatInChar(CharBuffer* const buffer, const std::size_t bufferSize, const std::basic_string_view<CharFormat> format, Args&& ...args) {
 		BasicFormatContext<CharFormat, CharBuffer, Args...> context(format, buffer, bufferSize, std::forward<Args>(args)...);
 		context.MainFormat();
 		context.BufferOut().PushEndChar();
 	}
-	template<typename CharFormat = char, typename CharBuffer = CharFormat, std::size_t FORMAT_SIZE, typename ...Args>
+	template<typename CharBuffer, typename CharFormat, std::size_t FORMAT_SIZE, typename ...Args>
 	void FormatInChar(CharBuffer* const buffer, const std::size_t bufferSize, const CharFormat(&format)[FORMAT_SIZE], Args&& ...args) {
 		FormatInChar<CharFormat, CharBuffer>(buffer, bufferSize, std::basic_string_view<CharFormat>(format), std::forward<Args>(args)...);
 	}
 	
-	template<std::size_t BUFFER_SIZE = 1024, typename CharFormat = char, typename CharBuffer = CharFormat, typename ...Args>
+
+	template<typename CharBuffer = char, typename CharFormat, typename ...Args>
 	void CFilePrint(FILE* stream, const std::basic_string_view<CharFormat> format, Args&& ...args) {
-		CharBuffer buffer[BUFFER_SIZE];
-		BasicFormatContext<CharFormat, CharBuffer, Args...> context(format, buffer, BUFFER_SIZE, std::forward<Args>(args)...);
+		BasicFormatContext<CharFormat, CharBuffer, Args...> context(true, format, std::forward<Args>(args)...);
 		context.MainFormat();
 	
-		std::fwrite(context.BufferOut().GetBuffer(), context.BufferOut().GetCurrentSize(), 1, stream);
+		std::fwrite(context.BufferOut().GetBuffer(), context.BufferOut().GetBufferCurrentSize(), 1, stream);
 		std::fflush(stream);
 	}
-	template<std::size_t BUFFER_SIZE = 1024, typename CharFormat = char, typename CharBuffer = CharFormat, std::size_t FORMAT_SIZE, typename ...Args>
+	template<typename CharBuffer = char, typename CharFormat, std::size_t FORMAT_SIZE, typename ...Args>
 	void CFilePrint(FILE* stream, const CharFormat(&format)[FORMAT_SIZE], Args&& ...args) {
-		CFilePrint<BUFFER_SIZE, CharFormat, CharBuffer>(stream, std::basic_string_view<CharFormat>(format), std::forward<Args>(args)...);
+		CFilePrint<CharFormat, CharBuffer>(stream, std::basic_string_view<CharFormat>(format), std::forward<Args>(args)...);
 	}
 	
-	template<std::size_t BUFFER_SIZE = 1024, typename CharFormat = char, typename CharBuffer = CharFormat, typename ...Args>
+	template<typename CharFormat = char, typename CharBuffer = CharFormat, typename ...Args>
 	void CFilePrintLn(FILE* stream, const std::basic_string_view<CharFormat> format, Args&& ...args) {
-		CharBuffer buffer[BUFFER_SIZE];
-		BasicFormatContext<CharFormat, CharBuffer, Args...> context(format, buffer, BUFFER_SIZE, std::forward<Args>(args)...);
+		BasicFormatContext<CharFormat, CharBuffer, Args...> context(true, format, std::forward<Args>(args)...);
 		context.MainFormat();
 		context.BufferOut().PushBack('\n');
 	
-		std::fwrite(context.BufferOut().GetBuffer(), context.BufferOut().GetCurrentSize(), 1, stream);
+		std::fwrite(context.BufferOut().GetBuffer(), context.BufferOut().GetBufferCurrentSize(), 1, stream);
 		std::fflush(stream);
 	}
-	template<std::size_t BUFFER_SIZE = 1024, typename CharFormat = char, typename CharBuffer = CharFormat, std::size_t FORMAT_SIZE, typename ...Args>
+	template<typename CharFormat = char, typename CharBuffer = CharFormat, std::size_t FORMAT_SIZE, typename ...Args>
 	void CFilePrintLn(FILE* stream, const CharFormat(&format)[FORMAT_SIZE], Args&& ...args) {
-		CFilePrintLn<BUFFER_SIZE, CharFormat, CharBuffer>(stream, std::basic_string_view<CharFormat>(format), std::forward<Args>(args)...);
+		CFilePrintLn<CharFormat, CharBuffer>(stream, std::basic_string_view<CharFormat>(format), std::forward<Args>(args)...);
 	}
 	
-	template<std::size_t BUFFER_SIZE = 1024, typename CharFormat = char, typename CharBuffer = CharFormat, typename ...Args>
+
+	template<typename CharBuffer, typename CharFormat, typename ...Args>
 	void FilePrint(std::basic_ostream<CharBuffer>& stream, const std::basic_string_view<CharFormat> format, Args&& ...args) {
-		CharBuffer buffer[BUFFER_SIZE];
-		BasicFormatContext<CharFormat, CharBuffer, Args...> context(format, buffer, BUFFER_SIZE, std::forward<Args>(args)...);
+		BasicFormatContext<CharFormat, CharBuffer, Args...> context(true, format, std::forward<Args>(args)...);
 		context.MainFormat();
 	
-		stream.write(context.BufferOut().GetBuffer(), context.BufferOut().GetCurrentSize());
+		stream.write(context.BufferOut().GetBuffer(), context.BufferOut().GetBufferCurrentSize());
 		stream.flush();
 	}
-	template<std::size_t BUFFER_SIZE = 1024, typename CharFormat = char, typename CharBuffer = CharFormat, std::size_t FORMAT_SIZE, typename ...Args>
+	template<typename CharBuffer, typename CharFormat, std::size_t FORMAT_SIZE, typename ...Args>
 	inline void FilePrint(std::basic_ostream<CharBuffer>& stream, const CharFormat(&format)[FORMAT_SIZE], Args&& ...args) {
-		FilePrint<BUFFER_SIZE, CharFormat, CharBuffer>(stream, std::basic_string_view<CharFormat>(format), std::forward<Args>(args)...);
+		FilePrint<CharFormat, CharBuffer>(stream, std::basic_string_view<CharFormat>(format), std::forward<Args>(args)...);
 	}
 	
-	template<std::size_t BUFFER_SIZE = 1024, typename CharFormat = char, typename CharBuffer = CharFormat, typename ...Args>
+	template<typename CharBuffer, typename CharFormat, typename ...Args>
 	void FilePrintLn(std::basic_ostream<CharBuffer>& stream, const std::basic_string_view<CharFormat> format, Args&& ...args) {
-		CharBuffer buffer[BUFFER_SIZE];
-		BasicFormatContext<CharFormat, CharBuffer, Args...> context(format, buffer, BUFFER_SIZE, std::forward<Args>(args)...);
+		BasicFormatContext<CharFormat, CharBuffer, Args...> context(true, format, std::forward<Args>(args)...);
 		context.MainFormat();
 		context.BufferOut().PushBack('\n');
 	
-		stream.write(context.BufferOut().GetBuffer(), context.BufferOut().GetCurrentSize());
+		stream.write(context.BufferOut().GetBuffer(), context.BufferOut().GetBufferCurrentSize());
 		stream.flush();
 	}
-	template<std::size_t BUFFER_SIZE = 1024, typename CharFormat = char, typename CharBuffer = CharFormat, std::size_t FORMAT_SIZE, typename ...Args>
+	template<typename CharBuffer, typename CharFormat, std::size_t FORMAT_SIZE, typename ...Args>
 	inline void FilePrintLn(std::basic_ostream<CharBuffer>& stream, const CharFormat(&format)[FORMAT_SIZE], Args&& ...args) {
-		FilePrintLn<BUFFER_SIZE, CharFormat, CharBuffer>(stream, std::basic_string_view<CharFormat>(format), std::forward<Args>(args)...);
+		FilePrintLn<CharFormat, CharBuffer>(stream, std::basic_string_view<CharFormat>(format), std::forward<Args>(args)...);
 	}
 	
-	template<std::size_t BUFFER_SIZE = 1024, typename CharFormat = char, typename CharBuffer = CharFormat, typename ...Args>
+
+	template<typename CharBuffer, typename CharFormat, typename ...Args>
 	void FormatInString(std::basic_string<CharBuffer>& str, const std::basic_string_view<CharFormat> format, Args&& ...args) {
-		CharBuffer buffer[BUFFER_SIZE];
-		BasicFormatContext<CharFormat, CharBuffer, Args...> context(format, buffer, BUFFER_SIZE, std::forward<Args>(args)...);
+		BasicFormatContext<CharFormat, CharBuffer, Args...> context(true, format, std::forward<Args>(args)...);
 		context.MainFormat();
 		context.BufferOut().PushEndChar();
 		str = context.BufferOut().GetBuffer();
 	}
-	template<std::size_t BUFFER_SIZE = 1024, typename CharFormat = char, typename CharBuffer = CharFormat, std::size_t FORMAT_SIZE, typename ...Args>
+	template<typename CharBuffer, typename CharFormat, std::size_t FORMAT_SIZE, typename ...Args>
 	inline void FormatInString(std::basic_string<CharBuffer>& str, const CharFormat(&format)[FORMAT_SIZE], Args&& ...args) {
-		FormatInString<BUFFER_SIZE, CharFormat, CharBuffer>(str, std::basic_string_view<CharFormat>(format), std::forward<Args>(args)...);
+		FormatInString<CharFormat, CharBuffer>(str, std::basic_string_view<CharFormat>(format), std::forward<Args>(args)...);
 	}
 	
-	template<std::size_t BUFFER_SIZE = 1024, typename CharFormat = char, typename CharBuffer = CharFormat, typename ...Args>
+	template<typename CharBuffer, typename CharFormat, typename ...Args>
 	inline std::basic_string<CharBuffer> FormatString(const std::basic_string_view<CharFormat> format, Args&& ...args) {
-		CharBuffer buffer[BUFFER_SIZE];
-		BasicFormatContext<CharFormat, CharBuffer, Args...> context(format, buffer, BUFFER_SIZE, std::forward<Args>(args)...);
+		BasicFormatContext<CharFormat, CharBuffer, Args...> context(true, format, std::forward<Args>(args)...);
 		context.MainFormat();
 		context.BufferOut().PushEndChar();
 		return context.BufferOut().GetBuffer();
 	}
-	template<std::size_t BUFFER_SIZE = 1024, typename CharFormat = char, typename CharBuffer = CharFormat, std::size_t FORMAT_SIZE, typename ...Args>
+	template<typename CharBuffer, typename CharFormat, std::size_t FORMAT_SIZE, typename ...Args>
 	inline std::basic_string<CharBuffer> FormatString(const CharFormat(&format)[FORMAT_SIZE], Args&& ...args) {
-		return FormatString<BUFFER_SIZE, CharFormat, CharBuffer>(std::basic_string_view<CharFormat>(format), std::forward<Args>(args)...);
+		return FormatString<CharFormat, CharBuffer>(std::basic_string_view<CharFormat>(format), std::forward<Args>(args)...);
 	}
 	
 	/////---------- NO-FORMAT Impl ----------//////
 	
-	template<typename CharBuffer = char, size_t BUFFER_SIZE, typename T>
+	template<typename CharBuffer, size_t BUFFER_SIZE, typename T>
 	void FormatInChar(CharBuffer(&buffer)[BUFFER_SIZE], T&& t) {
-		BasicFormatContext<char, CharBuffer> context(std::basic_string_view<char>(), buffer, BUFFER_SIZE);
-		FormatType<Detail::GetBaseType<T>, BasicFormatContext<char, CharBuffer>>::Write(t, context);
+		BasicFormatContext<char, CharBuffer> context(std::basic_string_view<char>(nullptr, 0), buffer, BUFFER_SIZE);
+		context.WriteType(t);
 		context.BufferOut().PushEndChar();
+	}
+	
+	template<typename CharBuffer, typename T>
+	void FormatInChar(CharBuffer* const buffer, const std::size_t bufferSize, T&& t) {
+		BasicFormatContext<char, CharBuffer> context(std::basic_string_view<char>(nullptr, 0), buffer, bufferSize);
+		context.WriteType(t);
+		context.BufferOut().PushEndChar();
+	}
+
+	
+	template<typename CharBuffer = char, typename T>
+	void CFilePrint(FILE* stream, T&& t) {
+		BasicFormatContext<char, CharBuffer> context(true, std::basic_string_view<char>(nullptr, 0));
+		context.WriteType(t);
+	
+		std::fwrite(context.BufferOut().GetBuffer(), context.BufferOut().GetBufferCurrentSize(), 1, stream);
+		std::fflush(stream);
 	}
 	
 	template<typename CharBuffer = char, typename T>
-	void FormatInChar(CharBuffer* const buffer, const std::size_t bufferSize, T&& t) {
-		BasicFormatContext<char, CharBuffer> context(std::basic_string_view<char>(), buffer, bufferSize);
-		FormatType<Detail::GetBaseType<T>, BasicFormatContext<char, CharBuffer>>::Write(t, context);
-		context.BufferOut().PushEndChar();
-	}
-	
-	template<std::size_t BUFFER_SIZE = 256, typename CharBuffer = char, typename T>
-	void CFilePrint(FILE* stream, T&& t) {
-		CharBuffer buffer[BUFFER_SIZE];
-		BasicFormatContext<char, CharBuffer> context(std::basic_string_view<char>(), buffer, BUFFER_SIZE);
-		FormatType<Detail::GetBaseType<T>, BasicFormatContext<char, CharBuffer>>::Write(t, context);
-	
-		std::fwrite(context.BufferOut().GetBuffer(), context.BufferOut().GetCurrentSize(), 1, stream);
-		std::fflush(stream);
-	}
-	
-	template<std::size_t BUFFER_SIZE = 256, typename CharBuffer = char, typename T>
 	void CFilePrintLn(FILE* stream, T&& t) {
-		CharBuffer buffer[BUFFER_SIZE];
-		BasicFormatContext<char, CharBuffer> context(std::basic_string_view<char>(), buffer, BUFFER_SIZE);
-		FormatType<Detail::GetBaseType<T>, BasicFormatContext<char, CharBuffer>>::Write(t, context);
+		BasicFormatContext<char, CharBuffer> context(true, std::basic_string_view<char>(nullptr, 0));
+		context.WriteType(t);
 		context.BufferOut().PushBack('\n');
 	
-		std::fwrite(context.BufferOut().GetBuffer(), context.BufferOut().GetCurrentSize(), 1, stream);
+		std::fwrite(context.BufferOut().GetBuffer(), context.BufferOut().GetBufferCurrentSize(), 1, stream);
 		std::fflush(stream);
 	}
 	
-	template<std::size_t BUFFER_SIZE = 256, typename CharBuffer = char, typename T>
+
+	template<typename CharBuffer, typename T>
 	void FilePrint(std::basic_ostream<CharBuffer>& stream, T&& t) {
-		CharBuffer buffer[BUFFER_SIZE];
-		BasicFormatContext<char, CharBuffer> context(std::basic_string_view<char>(), buffer, BUFFER_SIZE);
-		FormatType<Detail::GetBaseType<T>, BasicFormatContext<char, CharBuffer>>::Write(t, context);
+		BasicFormatContext<char, CharBuffer> context(true, std::basic_string_view<char>(nullptr, 0));
+		context.WriteType(t);
 	
-		stream.write(context.BufferOut().GetBuffer(), context.BufferOut().GetCurrentSize());
+		stream.write(context.BufferOut().GetBuffer(), context.BufferOut().GetBufferCurrentSize());
 		stream.flush();
 	}
 	
-	template<std::size_t BUFFER_SIZE = 256, typename CharBuffer = char, typename T>
+	template<typename CharBuffer, typename T>
 	void FilePrintLn(std::basic_ostream<CharBuffer>& stream, T&& t) {
-		CharBuffer buffer[BUFFER_SIZE];
-		BasicFormatContext<char, CharBuffer> context(std::basic_string_view<char>(), buffer, BUFFER_SIZE);
-		FormatType<Detail::GetBaseType<T>, BasicFormatContext<char, CharBuffer>>::Write(t, context);
+		BasicFormatContext<char, CharBuffer> context(true, std::basic_string_view<char>(nullptr, 0));
+		context.WriteType(t);
 		context.BufferOut().PushBack('\n');
 	
-		stream.write(context.BufferOut().GetBuffer(), context.BufferOut().GetCurrentSize());
+		stream.write(context.BufferOut().GetBuffer(), context.BufferOut().GetBufferCurrentSize());
 		stream.flush();
 	}
+
 	
-	template<std::size_t BUFFER_SIZE = 256, typename CharBuffer = char, typename T>
+	template<typename CharBuffer, typename T>
 	void FormatInString(std::basic_string<CharBuffer>& str, T&& t) {
-		CharBuffer buffer[BUFFER_SIZE];
-		BasicFormatContext<char, CharBuffer> context(std::basic_string_view<char>(), buffer, BUFFER_SIZE);
-		FormatType<Detail::GetBaseType<T>, BasicFormatContext<char, CharBuffer>>::Write(t, context);
+		BasicFormatContext<char, CharBuffer> context(true, std::basic_string_view<char>(nullptr, 0));
+		context.WriteType(t);
 		context.BufferOut().PushEndChar();
 		str = context.BufferOut().GetBuffer();
 	}
 	
-	template<std::size_t BUFFER_SIZE = 256, typename CharBuffer = char, typename T>
+	template<typename CharBuffer, typename T>
 	inline std::basic_string<CharBuffer> FormatString(T&& t) {
-		CharBuffer buffer[BUFFER_SIZE];
-		BasicFormatContext<char, CharBuffer> context(std::basic_string_view<char>(), buffer, BUFFER_SIZE);
-		FormatType<Detail::GetBaseType<T>, BasicFormatContext<char, CharBuffer>>::Write(t, context);
+		BasicFormatContext<char, CharBuffer> context(true, std::basic_string_view<char>(nullptr, 0));
+		context.WriteType(t);
 		context.BufferOut().PushEndChar();
 		return context.BufferOut().GetBuffer();
 	}

@@ -14,6 +14,9 @@ namespace CPPTools::Fmt::Detail {
     public:
         UnFormatContextArgsTuple() = default;
 
+	public:
+        static inline constexpr std::size_t Size() { return 0; }
+
     public:
         template <typename UnFormatContext>
         inline void ReadTypeFromIdx(UnFormatContext &context, FormatIdx idx) {}
@@ -42,8 +45,11 @@ namespace CPPTools::Fmt::Detail {
         using TypeWithoutRef = std::remove_reference_t<Type>;
 
     public:
-        UnFormatContextArgsTuple(TypeWithoutRef &t, Rest &&...rest) : UnFormatContextArgsTuple<Rest...>(std::forward<Rest>(rest)...), m_Value(t) {}
-        UnFormatContextArgsTuple(TypeWithoutRef &&t, Rest &&...rest) : UnFormatContextArgsTuple<Rest...>(std::forward<Rest>(rest)...), m_Value(t) {}
+        UnFormatContextArgsTuple(TypeWithoutRef &t, Rest &&...rest)     : UnFormatContextArgsTuple<Rest...>(std::forward<Rest>(rest)...), m_Value(t) {}
+        UnFormatContextArgsTuple(TypeWithoutRef &&t, Rest &&...rest)    : UnFormatContextArgsTuple<Rest...>(std::forward<Rest>(rest)...), m_Value(t) {}
+
+	public:
+		static inline constexpr std::size_t Size() { return sizeof...(Rest) + 1; }
 
     public:
         TypeWithoutRef &m_Value;

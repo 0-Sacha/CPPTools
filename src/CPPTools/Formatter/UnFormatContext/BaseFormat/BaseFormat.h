@@ -18,20 +18,20 @@ namespace CPPTools::Fmt {
 			const auto& data = context.GetFormatData();
 
 			if (!data.BaseValue) {
-				switch (context.BufferGet())
+				switch (context.BufferIn().Get())
 				{
 				case 'T':
 				case 't':
-					if (context.BufferNextIsSame("True"))	t = true;	return true;
+					if (context.BufferIn().NextIsSame("True"))	t = true;	return true;
 				case 'F':
 				case 'f':
-					if (context.BufferNextIsSame("False"))	t = false;	return true;
+					if (context.BufferIn().NextIsSame("False"))	t = false;	return true;
 				default:												return false;
 				}
 			}
 			else {
-				if (context.BufferIsEqualForward('0'))		{ t = false;	return true; }
-				else if (context.BufferIsEqualForward('1'))	{ t = true;		return true; }
+				if (context.BufferIn().IsEqualForward('0'))			{ t = false;	return true; }
+				else if (context.BufferIn().IsEqualForward('1'))	{ t = true;		return true; }
 				else										return false;
 			}
 			return false;
@@ -43,7 +43,7 @@ namespace CPPTools::Fmt {
 	template<typename T, typename UnUnFormatContext>
 	struct UnFormatType<T, UnUnFormatContext, Detail::ForwardIfVoid<Detail::ForwardIfTrue<T, std::is_integral_v<T>&& std::is_signed_v<T>>, Detail::IsChar<T> >> {
 		static bool Read(T& t, UnUnFormatContext& context) {
-			return context.BufferReadInt(t);
+			return context.BufferIn().ReadIntFormatData(t, context.GetFormatData());
 		}
 	};
 
@@ -51,7 +51,7 @@ namespace CPPTools::Fmt {
 	template<typename T, typename UnUnFormatContext>
 	struct UnFormatType<T, UnUnFormatContext, Detail::ForwardIfVoid<Detail::ForwardIfTrue<T, std::is_integral_v<T> && !std::is_signed_v<T>>, Detail::IsChar<T>>> {
 		static bool Read(T& t, UnUnFormatContext& context) {
-			return context.BufferReadUInt(t);
+			return context.BufferIn().ReadUIntFormatData(t, context.GetFormatData());
 		}
 	};
 
@@ -59,7 +59,7 @@ namespace CPPTools::Fmt {
 	template<typename T, typename UnUnFormatContext>
 	struct UnFormatType<T, UnUnFormatContext, Detail::ForwardIfTrue<T, std::is_floating_point_v<T>>> {
 		static bool Read(T& t, UnUnFormatContext& context) {
-			return context.BufferReadFloat(t);
+			return context.BufferIn().ReadFloatFormatData(t, context.GetFormatData());
 		}
 	};
 
@@ -69,7 +69,7 @@ namespace CPPTools::Fmt {
 	template<typename T, typename UnUnFormatContext>
 	struct UnFormatType<T, UnUnFormatContext, Detail::IsChar<T>> {
 		static bool Read(T& t, UnUnFormatContext& context) {
-			context.BufferGetAndForward(t);
+			context.BufferIn().GetAndForward(t);
 			return true;
 		}
 	};

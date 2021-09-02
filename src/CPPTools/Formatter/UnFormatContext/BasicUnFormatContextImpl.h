@@ -36,14 +36,14 @@ namespace CPPTools::Fmt {
 	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
 	template<typename T>
 	bool BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>::FormatReadParameter(T& i) {
-		const CharFormat* const mainSubFormat = m_FormatStr.GetSubFormat();
+		const CharFormat* const mainSubFormat = m_FormatStr.GetBufferCurrentPos();
 		FormatIdx formatIdx = FormatIdxNotFound;
 		if (GetFormatIdx(formatIdx)) {
 			m_FormatStr.Forward();
 			m_ContextArgs.GetFormatValueAt(i, formatIdx);
 			return true;
 		}
-		m_FormatStr.SetSubFormat(mainSubFormat);
+		m_FormatStr.SetBufferCurrentPos(mainSubFormat);
 		return false;
 	}
 
@@ -78,17 +78,17 @@ namespace CPPTools::Fmt {
 				} else if (m_FormatStr.IsEqualForward('0'))	{ m_FormatData.ShiftPrint = Detail::ShiftPrint::Zeros;
 
 				} else if (m_FormatStr.IsLowerCase()) {	// Custom specifier
-					const char* namePos = m_FormatStr.GetSubFormat();
+					const char* namePos = m_FormatStr.GetBufferCurrentPos();
 					FormatStr().ParamGoTo(' ', '=');
-					StringViewFormat name(namePos, m_FormatStr.GetSubFormat() - namePos);
+					StringViewFormat name(namePos, m_FormatStr.GetBufferCurrentPos() - namePos);
 
 					m_FormatStr.ParamGoToForward('=');
 					m_FormatStr.IgnoreSpace();
 
 					if (m_FormatStr.IsEqualForward('\'')) {
-						const char* valuePos = m_FormatStr.GetSubFormat();
+						const char* valuePos = m_FormatStr.GetBufferCurrentPos();
 						FormatStr().ParamGoTo('\'');
-						std::size_t valueSize = m_FormatStr.GetSubFormat() - valuePos;
+						std::size_t valueSize = m_FormatStr.GetBufferCurrentPos() - valuePos;
 						m_FormatData.AddSpecifier(name, StringViewFormat(valuePos, valueSize));
 					} else if(m_FormatStr.IsADigit()) {
 						std::intmax_t value = 0;
@@ -104,7 +104,7 @@ namespace CPPTools::Fmt {
 
 	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
 	bool BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>::GetFormatIdx(FormatIdx& idx) {
-		const CharFormat* mainSubFormat = m_FormatStr.GetSubFormat();
+		const CharFormat* mainSubFormat = m_FormatStr.GetBufferCurrentPos();
 
 		// I : if there is no number specified : ':' or '}'
 		if (m_FormatStr.IsEqualTo(':') || m_FormatStr.IsEqualTo('}')) {
@@ -117,19 +117,19 @@ namespace CPPTools::Fmt {
 		if (m_FormatStr.ReadUInt(idx))
 			if (m_FormatStr.IsEqualTo(':') || m_FormatStr.IsEqualTo('}'))
 				if (idx < m_ContextArgs.Size())	return true;
-		m_FormatStr.SetSubFormat(mainSubFormat);
+		m_FormatStr.SetBufferCurrentPos(mainSubFormat);
 
 		// III : A name
 		m_ContextArgs.GetNamedArgsIdx(*this, idx, 0);
 		if (idx < m_ContextArgs.Size() /* || idx != FormatIdxNotFound */)
 			return true;
-		m_FormatStr.SetSubFormat(mainSubFormat);
+		m_FormatStr.SetBufferCurrentPos(mainSubFormat);
 
 		// VI : { which is a idx to a number
 		if (m_FormatStr.IsEqualForward('{'))
 			if (GetFormatIdx(idx))
 				if (idx < m_ContextArgs.Size())	return true;
-		m_FormatStr.SetSubFormat(mainSubFormat);
+		m_FormatStr.SetBufferCurrentPos(mainSubFormat);
 
 		return false;
 	}
@@ -190,8 +190,8 @@ namespace CPPTools::Fmt {
 	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
 	UnFormatContextError BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>::MainUnFormat() {
 		UnFormatContextError error;
-		if (UnFormat())					error = UnFormatContextError((std::int16_t)m_FormatStr.GetSize(), (std::int16_t)m_BufferIn.GetSize());
-		else if (!m_BufferIn.End())		error = UnFormatContextError((std::int16_t)m_FormatStr.GetSize(), (std::int16_t)m_BufferIn.GetSize());
+		if (UnFormat())					error = UnFormatContextError((std::int16_t)m_FormatStr.GetBufferCurrentSize(), (std::int16_t)m_BufferIn.GetBufferSize());
+		else if (!m_BufferIn.End())		error = UnFormatContextError((std::int16_t)m_FormatStr.GetBufferCurrentSize(), (std::int16_t)m_BufferIn.GetBufferSize());
 		return error;
 	}
 

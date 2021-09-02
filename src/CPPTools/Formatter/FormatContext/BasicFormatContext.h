@@ -28,7 +28,8 @@ namespace CPPTools::Fmt {
 		using M_Type = BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>;
 
 	public:
-		BasicFormatContext(const std::basic_string_view<CharFormat> format, CharBuffer *const buffer, const std::size_t bufferSize, ContextArgs &&...args);
+		BasicFormatContext(const std::basic_string_view<CharFormat> format, CharBuffer* const buffer, const std::size_t bufferSize, ContextArgs &&...args);
+		BasicFormatContext(const bool bufferIsAutoResize, const std::basic_string_view<CharFormat> format, ContextArgs &&...args);
 
 		template<typename ParentCharFormat, typename ...ParentContextArgs>
 		BasicFormatContext(const std::basic_string_view<CharFormat> format, BasicFormatContext<ParentCharFormat, CharBuffer, ParentContextArgs...> &parentContext, ContextArgs &&...args);
@@ -65,7 +66,7 @@ namespace CPPTools::Fmt {
 
 		inline void AddNoStride(const std::size_t noStride)		{ m_NoStride += noStride; }
 		inline std::size_t GetNoStride() const					{ return m_NoStride; }
-		inline std::size_t GetStride() const					{ return m_BufferOut.GetCurrentSize() - m_NoStride; }
+		inline std::size_t GetStride() const					{ return m_BufferOut.GetBufferCurrentSize() - m_NoStride; }
 
 	public:
 		inline static FormatterHandler& GetAPI()				{ return FormatterHandler::GetInstance(); }

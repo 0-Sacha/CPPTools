@@ -225,13 +225,13 @@ namespace CPPTools::Fmt::Detail {
 		}
 
 		template <typename FormatContext>
-		void Write(FormatContext& context, const std::size_t stride = std::numeric_limits<std::size_t>::max()) const {
-			context.BufferWriteStringView(Str1);
+		void Write(FormatContext& context, const std::size_t stride = (std::numeric_limits<std::size_t>::max)()) const {
+			context.BufferOut().WriteStringView(Str1);
 			if(HasBeenSplited) {
-				context.BufferPushBack('\n');
-				stride == std::numeric_limits<std::size_t>::max() ? context.BufferAddSpaces(context.GetStride()) : context.BufferAddSpaces(stride);
+				context.BufferOut().PushBack('\n');
+				stride == (std::numeric_limits<std::size_t>::max)() ? context.BufferOut().AddSpaces(context.GetStride()) : context.BufferOut().AddSpaces(stride);
 			}
-			context.BufferWriteStringView(Str2);
+			context.BufferOut().WriteStringView(Str2);
 		}
 
 		inline static bool IsSplitNeeded(const std::basic_string_view<CharJoin> str) 	{ return std::find(str.cbegin(), str.cend(), '\n') != str.cend(); } 
