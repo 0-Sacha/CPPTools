@@ -28,7 +28,7 @@ namespace CPPTools::Fmt::Detail {
         inline void GetParameterData(UnFormatContext &context, FormatIdx idx) { context.GetFormatData() = UnFormatContext::FormatDataType(); }
 
         template <typename UnFormatContext>
-        inline void GetNamedArgsIdx(UnFormatContext& context, FormatIdx& idx, FormatIdx currentIdx) { idx = FormatIdxNotFound; }
+        inline void GetNamedArgsIdx(UnFormatContext& context, FormatIdx& idx, FormatIdx currentIdx) { idx = FORMAT_IDX_NOT_FOUND; }
 
         template <class ValueType>
         inline void GetFormatValueAt(ValueType& value, FormatIdx idx) {}

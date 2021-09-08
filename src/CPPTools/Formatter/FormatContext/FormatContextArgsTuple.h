@@ -32,7 +32,7 @@ namespace CPPTools::Fmt::Detail {
         inline void GetParameterData(FormatContext &context, FormatIdx idx)         { context.GetFormatData() = FormatContext::FormatDataType(); }
 
         template <typename FormatContext>
-        inline void GetNamedArgsIdx(FormatContext& context, FormatIdx& idx, FormatIdx currentIdx) { idx = FormatIdxNotFound; }
+        inline void GetNamedArgsIdx(FormatContext& context, FormatIdx& idx, FormatIdx currentIdx) { idx = FORMAT_IDX_NOT_FOUND; }
 
         template <class ValueType>
         inline void GetFormatValueAt(ValueType& value, FormatIdx idx)               {}

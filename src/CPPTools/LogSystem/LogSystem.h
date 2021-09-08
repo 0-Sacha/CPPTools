@@ -31,8 +31,8 @@ namespace CPPTools {
 		~LogSystem() = default;
 
 	public:
-		static LogSystem& GetCoreInstance()				{ static LogSystem instance(CPPTOOLS_BASE_LOGGER_NAME "-Client", LogSeverity::Trace); return instance; }
-		static LogSystem& GetClientInstance()			{ static LogSystem instance(CPPTOOLS_BASE_LOGGER_NAME "-Core", LogSeverity::Trace); return instance; }
+		static LogSystem& GetCoreInstance()				{ static LogSystem instance(CPPTOOLS_BASE_LOGGER_NAME "-Core", LogSeverity::Trace); return instance; }
+		static LogSystem& GetClientInstance()			{ static LogSystem instance(CPPTOOLS_BASE_LOGGER_NAME "-Client", LogSeverity::Trace); return instance; }
 
 	public:
 		void SetSeverity(LogSeverity severityMin)		{ m_SeverityMin = severityMin; }

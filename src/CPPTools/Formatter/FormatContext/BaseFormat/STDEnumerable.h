@@ -2,15 +2,13 @@
 
 #include "FormatType.h"
 
-// TODO : - Add check for '\n' to get stride
-// 		  - Constructor
 
 namespace CPPTools::Fmt {
 
 	class STDEnumerableUtility {
 	public:
-		static constexpr std::string_view DefaultBegin	= "{ ";
 		static constexpr std::string_view DefaultJoin	= ", ";
+		static constexpr std::string_view DefaultBegin	= "{ ";
 		static constexpr std::string_view DefaultEnd	= " }";
 	};
 
@@ -19,17 +17,17 @@ namespace CPPTools::Fmt {
 	public:
 
 		inline STDEnumerable(const T& value,
-			const std::basic_string_view<CharBegin> strBegin = "{ ",
 			const std::basic_string_view<CharJoin> strJoin = ", ",
+			const std::basic_string_view<CharBegin> strBegin = "{ ",
 			const std::basic_string_view<CharEnd> strEnd = " }",
-			const std::size_t beginIdx = 0,
-			const std::size_t size = (std::numeric_limits<std::size_t>::max)())
+			const Detail::FormatDataType beginIdx = 0,
+			const Detail::FormatDataType size = FORMAT_DATA_NOT_SPECIFIED)
 			: m_Value(value)
-			, m_StrBegin(strBegin)
 			, m_JoinSplited(strJoin)
+			, m_StrBegin(strBegin)
 			, m_StrEnd(strEnd)
 			, m_BeginIdx(beginIdx)
-			, m_Size(size == (std::numeric_limits<std::size_t>::max)() ? value.size() - beginIdx : size)
+			, m_Size(size == FORMAT_DATA_NOT_SPECIFIED ? value.size() - beginIdx : size)
 		{
 		}
 
@@ -40,8 +38,8 @@ namespace CPPTools::Fmt {
 		inline std::basic_string_view<CharBegin>	GetStrBegin() const	{ return m_StrBegin; }
 		inline std::basic_string_view<CharEnd>		GetStrEnd() const	{ return m_StrEnd; }
 
-		inline std::size_t GetBeginIdx() const	{ return m_BeginIdx; }
-		inline std::size_t GetSize() const		{ return m_Size; }
+		inline Detail::FormatDataType GetBeginIdx() const	{ return m_BeginIdx; }
+		inline Detail::FormatDataType GetSize() const		{ return m_Size; }
 
 	private:
 		const T& m_Value;
@@ -51,8 +49,8 @@ namespace CPPTools::Fmt {
 		std::basic_string_view<CharBegin> m_StrBegin;
 		std::basic_string_view<CharEnd>	m_StrEnd;
 
-		std::size_t m_BeginIdx;
-		std::size_t m_Size;
+		Detail::FormatDataType m_BeginIdx;
+		Detail::FormatDataType m_Size;
 	};
 
 	template <typename T, typename CharBegin, typename CharJoin, typename CharEnd, typename FormatContext>
@@ -81,11 +79,11 @@ namespace CPPTools::Fmt {
 	struct FormatType<ForwardAsSTDEnumerable<T>, FormatContext> {
 		static void Write(const T& container, FormatContext& context) {
 			STDEnumerable<T> enumerable(container,
-				context.GetFormatData().GetValueAsTextOfSpecifierOr("begin",	STDEnumerableUtility::DefaultBegin),
 				context.GetFormatData().GetValueAsTextOfSpecifierOr("join",		STDEnumerableUtility::DefaultJoin),
+				context.GetFormatData().GetValueAsTextOfSpecifierOr("begin",	STDEnumerableUtility::DefaultBegin),
 				context.GetFormatData().GetValueAsTextOfSpecifierOr("end",		STDEnumerableUtility::DefaultEnd),
 				context.GetFormatData().GetValueAsNumberOfSpecifierOr("begin",	0),
-				context.GetFormatData().GetValueAsNumberOfSpecifierOr("size",	(std::numeric_limits<std::size_t>::max)()));
+				context.GetFormatData().GetValueAsNumberOfSpecifierOr("size",	FORMAT_DATA_NOT_SPECIFIED));
 
 			context.WriteType(enumerable);
 		}

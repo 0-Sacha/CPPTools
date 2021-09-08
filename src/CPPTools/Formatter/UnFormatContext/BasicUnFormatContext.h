@@ -99,15 +99,15 @@ namespace CPPTools::Fmt {
 
 	public:
 		// Other Type from UnFormatType
-		template<typename Type>							inline bool ReadType(Type& type) { return UnFormatType<Detail::GetBaseType<Type>, BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>>::Read(type, *this); }
+		template<typename Type>	inline bool ReadType(Type& type)	{ return UnFormatType<Detail::GetBaseType<Type>, BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>>::Read(type, *this); }
 
 	public:
-		inline bool FormatIsEndOfParameter()											{ return m_FormatStr.IsEqualTo('}'); }
-		inline void FormatGoToEndOfParameter()											{ while (m_FormatStr.IsNotEqualTo('}') && m_FormatStr.CanMoveForward()) m_FormatStr.ForwardNoCheck(); }
-		inline void FormatGoOutOfParameter()											{ while (m_FormatStr.IsNotEqualTo('}') && m_FormatStr.CanMoveForward()) m_FormatStr.ForwardNoCheck(); m_FormatStr.Forward(); }
+		inline bool FormatIsEndOfParameter()						{ return m_FormatStr.IsEqualTo('}'); }
+		inline void FormatGoToEndOfParameter()						{ while (m_FormatStr.IsNotEqualTo('}') && m_FormatStr.CanMoveForward()) m_FormatStr.ForwardNoCheck(); }
+		inline void FormatGoOutOfParameter()						{ while (m_FormatStr.IsNotEqualTo('}') && m_FormatStr.CanMoveForward()) m_FormatStr.ForwardNoCheck(); m_FormatStr.Forward(); }
 
-		inline bool Check()																{ return m_BufferIn.IsEqualTo(m_FormatStr.Get()); }
-		inline bool CheckAndNext()														{ if (m_BufferIn.IsEqualTo(m_FormatStr.Get())) { m_BufferIn.Forward(); m_FormatStr.Forward(); return true; } return false; }
+		inline bool Check()											{ return m_BufferIn.IsEqualTo(m_FormatStr.Get()); }
+		inline bool CheckAndNext()									{ if (m_BufferIn.IsEqualTo(m_FormatStr.Get())) { m_BufferIn.Forward(); m_FormatStr.Forward(); return true; } return false; }
 
 		template<typename ...CharToTest>
 		inline bool CheckUntilNextParameter(const CharToTest ...ele) {

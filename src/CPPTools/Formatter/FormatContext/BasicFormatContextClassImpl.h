@@ -53,7 +53,7 @@ namespace CPPTools::Fmt {
 	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
 	void BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>::CheckEndStr() {
 		if (m_ColorMem.IsSetColor)
-			FormatType<Detail::ResetAnsiColor, BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>>::Write(Detail::RESET_ANSI_COLOR, *this);
+			WriteType(Detail::RESET_ANSI_COLOR);
 	}
 
 	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
@@ -101,21 +101,22 @@ namespace CPPTools::Fmt {
 				m_FormatStr.IgnoreSpace();
 				color.Bg = (Detail::AnsiColorBG)GetColorBG();
 			}
-			FormatType<Detail::AnsiColor, BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>>::Write(color, *this);
+			WriteType(color);
 		}
-		else	FormatType<Detail::ResetAnsiColor, BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>>::Write(Detail::RESET_ANSI_COLOR, *this);
+		else
+			WriteType(Detail::RESET_ANSI_COLOR);
 	}
 
 	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
 	void BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>::TimerValuePrint() {
 		std::chrono::nanoseconds ns = std::chrono::high_resolution_clock::now() - GetAPI().GetTimeShift();
-		FormatType<std::chrono::nanoseconds, BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>>::Write(ns, *this);
+		WriteType(ns);
 	}
 
 	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
 	void BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>::DateValuePrint() {
 		std::chrono::nanoseconds ns = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()) + GetAPI().GetHoursShift();
-		FormatType<std::chrono::nanoseconds, BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>>::Write(ns, *this);
+		WriteType(ns);
 	}
 
 	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
@@ -138,42 +139,42 @@ namespace CPPTools::Fmt {
 			if(m_ColorMem.FgType == Detail::AnsiColorFGType::AnsiColor) {
 
 				if (m_ColorMem.BgType == Detail::AnsiColorBGType::AnsiColor)
-					FormatType<Detail::AnsiColor, BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>>::Write(m_ColorMem.Color, *this);
+					WriteType(m_ColorMem.Color);
 				else if (m_ColorMem.BgType == Detail::AnsiColorBGType::AnsiColor24b) {
-					FormatType<Detail::AnsiColorFG, BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>>::Write(m_ColorMem.Color.Fg, *this);
-					FormatType<Detail::AnsiColor24bBG, BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>>::Write(m_ColorMem.Color24bits.Bg, *this);
+					WriteType(m_ColorMem.Color.Fg);
+					WriteType(m_ColorMem.Color24bits.Bg);
 				} else {
-					FormatType<Detail::AnsiColorFG, BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>>::Write(m_ColorMem.Color.Fg, *this);
-					FormatType<Detail::AnsiColorBG, BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>>::Write(Detail::AnsiColorBG::Default, *this);
+					WriteType(m_ColorMem.Color.Fg);
+					WriteType(Detail::AnsiColorBG::Default);
 				}
 
 			} else if (m_ColorMem.FgType == Detail::AnsiColorFGType::AnsiColor24b) {
 
 				if (m_ColorMem.BgType == Detail::AnsiColorBGType::AnsiColor) {
-					FormatType<Detail::AnsiColor24bFG, BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>>::Write(m_ColorMem.Color24bits.Fg, *this);
-					FormatType<Detail::AnsiColorBG, BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>>::Write(m_ColorMem.Color.Bg, *this);
+					WriteType(m_ColorMem.Color24bits.Fg);
+					WriteType(m_ColorMem.Color.Bg);
 				}
 				else if (m_ColorMem.BgType == Detail::AnsiColorBGType::AnsiColor24b)
-					FormatType<Detail::AnsiColor24b, BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>>::Write(m_ColorMem.Color24bits, *this);
+					WriteType(m_ColorMem.Color24bits);
 				else {
-					FormatType<Detail::AnsiColor24bFG, BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>>::Write(m_ColorMem.Color24bits.Fg, *this);
-					FormatType<Detail::AnsiColorBG, BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>>::Write(Detail::AnsiColorBG::Default, *this);
+					WriteType(m_ColorMem.Color24bits.Fg);
+					WriteType(Detail::AnsiColorBG::Default);
 				}
 
 			} else {
 
 				if (m_ColorMem.BgType == Detail::AnsiColorBGType::AnsiColor) {
-					FormatType<Detail::AnsiColorFG, BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>>::Write(Detail::AnsiColorFG::Default, *this);
-					FormatType<Detail::AnsiColorBG, BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>>::Write(m_ColorMem.Color.Bg, *this);
+					WriteType(Detail::AnsiColorFG::Default);
+					WriteType(m_ColorMem.Color.Bg);
 				} else if (m_ColorMem.BgType == Detail::AnsiColorBGType::AnsiColor24b) {
-					FormatType<Detail::AnsiColorFG, BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>>::Write(Detail::AnsiColorFG::Default, *this);
-					FormatType<Detail::AnsiColor24bBG, BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>>::Write(m_ColorMem.Color24bits.Bg, *this);
+					WriteType(Detail::AnsiColorFG::Default);
+					WriteType(m_ColorMem.Color24bits.Bg);
 				} else {
-					FormatType<Detail::ResetAnsiColor, BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>>::Write(Detail::RESET_ANSI_COLOR, *this);
+					WriteType(Detail::RESET_ANSI_COLOR);
 				}
 
 			}
 		} else
-			FormatType<Detail::ResetAnsiColor, BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>>::Write(Detail::RESET_ANSI_COLOR, *this);
+			WriteType(Detail::RESET_ANSI_COLOR);
 	}
 }

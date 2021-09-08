@@ -59,9 +59,9 @@ namespace CPPTools::Fmt::Detail {
 		inline bool IsEqualForward(const CharBuffer c)				{ if (IsEqualTo(c)) { Forward(); return true; } return false; }
 		inline bool IsNotEqualForward(const CharBuffer c)			{ if (IsNotEqualTo(c)) { Forward(); return true; } return false; }
 		template<typename ...CharToTest> inline bool IsEqualTo(const CharBuffer c, const CharToTest ...ele) const		{ return IsEqualTo(c) || IsEqualTo(ele...); }
-		template<typename ...CharToTest> inline bool IsEqualForward(const CharToTest ...ele) const						{ if (IsEqualTo(ele...)) { Forward(); return true; } return false; }
+		template<typename ...CharToTest> inline bool IsEqualForward(const CharToTest ...ele)							{ if (IsEqualTo(ele...)) { Forward(); return true; } return false; }
 		template<typename ...CharToTest> inline bool IsNotEqualTo(const CharBuffer c, const CharToTest ...ele) const	{ return IsNotEqualTo(c) && IsNotEqualTo(ele...); }
-		template<typename ...CharToTest> inline bool IsNotEqualForward(const CharToTest ...ele) const					{ if (IsNotEqualTo(ele...)) { Forward(); return true; } return false; }
+		template<typename ...CharToTest> inline bool IsNotEqualForward(const CharToTest ...ele)							{ if (IsNotEqualTo(ele...)) { Forward(); return true; } return false; }
 
 		// Format Next check
 		inline bool NextIsEqualTo(const CharBuffer c) const			{ return GetNext() == c; }

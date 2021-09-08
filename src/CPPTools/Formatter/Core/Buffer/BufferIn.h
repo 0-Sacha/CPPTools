@@ -15,8 +15,9 @@ namespace CPPTools::Fmt::Detail {
 			: BasicFormatterMemoryBufferIn<CharBuffer>(format) {}
 
 	public:
+		// TODO
 		template <typename ChildBuffer>
-		inline void UpdateFromClidBuffer(ChildBuffer& childBuffer) { SetSubBuffer(childBuffer.GetSubBuffer()); }
+		inline void UpdateFromChlidBuffer(ChildBuffer& childBuffer) { SetBufferCurrentPos(childBuffer.GetBufferCurrentPos()); }
 
 	public:
 		template<typename T> bool BasicReadInt(T& i);

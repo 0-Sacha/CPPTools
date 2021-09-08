@@ -12,7 +12,7 @@ namespace CPPTools::Fmt {
 		if (!m_FormatStr.IsEqualTo('{'))	return FormatStr().ReadUInt(i);
 
 		const CharFormat* const mainSubFormat = m_FormatStr.GetBufferCurrentPos();
-		FormatIdx formatIdx = FormatIdxNotFound;
+		FormatIdx formatIdx = FORMAT_IDX_NOT_FOUND;
 		if (GetFormatIdx(formatIdx)) {
 			m_FormatStr.Forward();
 			m_ContextArgs.GetFormatValueAt(i, formatIdx);
@@ -69,6 +69,13 @@ namespace CPPTools::Fmt {
 					} else if(m_FormatStr.IsADigit()) {
 						std::intmax_t value = 0;
 						m_FormatStr.ReadInt(value);
+						m_FormatData.AddSpecifier(name, value);
+					} else if(m_FormatStr.IsEqualForward('{')) {
+						std::intmax_t value = 0;
+						FormatIdx idx = 0;
+						bool get = GetFormatIdx(idx);
+						m_FormatStr.IsEqualForward('}');
+						m_ContextArgs.GetFormatValueAt(value, idx);
 						m_FormatData.AddSpecifier(name, value);
 					}
 				}

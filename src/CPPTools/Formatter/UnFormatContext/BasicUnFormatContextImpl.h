@@ -37,7 +37,7 @@ namespace CPPTools::Fmt {
 	template<typename T>
 	bool BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>::FormatReadParameter(T& i) {
 		const CharFormat* const mainSubFormat = m_FormatStr.GetBufferCurrentPos();
-		FormatIdx formatIdx = FormatIdxNotFound;
+		FormatIdx formatIdx = FORMAT_IDX_NOT_FOUND;
 		if (GetFormatIdx(formatIdx)) {
 			m_FormatStr.Forward();
 			m_ContextArgs.GetFormatValueAt(i, formatIdx);
@@ -79,7 +79,7 @@ namespace CPPTools::Fmt {
 
 				} else if (m_FormatStr.IsLowerCase()) {	// Custom specifier
 					const char* namePos = m_FormatStr.GetBufferCurrentPos();
-					FormatStr().ParamGoTo(' ', '=');
+					m_FormatStr.ParamGoTo(' ', '=');
 					StringViewFormat name(namePos, m_FormatStr.GetBufferCurrentPos() - namePos);
 
 					m_FormatStr.ParamGoToForward('=');
@@ -87,17 +87,24 @@ namespace CPPTools::Fmt {
 
 					if (m_FormatStr.IsEqualForward('\'')) {
 						const char* valuePos = m_FormatStr.GetBufferCurrentPos();
-						FormatStr().ParamGoTo('\'');
+						m_FormatStr.ParamGoTo('\'');
 						std::size_t valueSize = m_FormatStr.GetBufferCurrentPos() - valuePos;
 						m_FormatData.AddSpecifier(name, StringViewFormat(valuePos, valueSize));
 					} else if(m_FormatStr.IsADigit()) {
 						std::intmax_t value = 0;
 						m_FormatStr.ReadInt(value);
 						m_FormatData.AddSpecifier(name, value);
+					} else if (m_FormatStr.IsEqualForward('{')) {
+						std::intmax_t value = 0;
+						FormatIdx idx = 0;
+						bool get = GetFormatIdx(idx);
+						m_FormatStr.IsEqualForward('}');
+						m_ContextArgs.GetFormatValueAt(value, idx);
+						m_FormatData.AddSpecifier(name, value);
 					}
 				}
 
-				FormatStr().ParamGoTo(',');
+				m_FormatStr.ParamGoTo(',');
 			}
 		}
 	}

@@ -27,8 +27,8 @@ namespace CPPTools::Fmt::TupleDetail {
 	template<typename T, typename FormatContext, typename ...Args>
 	static void TupleFormatRec(FormatContext& context, const T& t, Args&& ...args) {
 		context.WriteType(t);
-		context.BufferPushBack(',');
-		context.BufferPushBack(' ');
+		context.BufferOut().PushBack(',');
+		context.BufferOut().PushBack(' ');
 		TupleFormatRec(context, args...);
 	}
 
@@ -40,9 +40,9 @@ namespace CPPTools::Fmt {
 	struct FormatType<std::tuple<T...>, FormatContext>
 	{
 		static void Write(const std::tuple<T...>& t, FormatContext& context) {
-			context.BufferPushBack('<');
+			context.BufferOut().PushBack('<');
 			std::apply([&context](auto&&... args) { TupleDetail::TupleFormatRec(context, args...); }, t);
-			context.BufferPushBack('>');
+			context.BufferOut().PushBack('>');
 		}
 	};
 
@@ -52,11 +52,11 @@ namespace CPPTools::Fmt {
 	struct FormatType<std::pair<T1, T2>, FormatContext>
 	{
 		static void Write(const std::pair<T1, T2>& t, FormatContext& context) {
-			context.BufferPushBack('<');
+			context.BufferOut().PushBack('<');
 			context.WriteType(t.first);
-			context.BufferPushBack(':');
+			context.BufferOut().PushBack(':');
 			context.WriteType(t.second);
-			context.BufferPushBack('>');
+			context.BufferOut().PushBack('>');
 		}
 	};
 }

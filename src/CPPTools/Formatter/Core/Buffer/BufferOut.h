@@ -76,7 +76,8 @@ namespace CPPTools::Fmt::Detail {
 			, m_CurrentPos(parentBuffer.GetBufferCurrentPos())
 			, m_BufferEnd(parentBuffer.GetBufferEnd())
 			, m_BufferSize(parentBuffer.GetBufferSize())
-			, m_BufferAutoResize(parentBuffer.BufferIsAutoResize()) {}
+			, m_BufferAutoResize(parentBuffer.BufferIsAutoResize())
+			, m_FreeOnDestructor(false) {}
 
 	public:
 		template <typename ChildBuffer>

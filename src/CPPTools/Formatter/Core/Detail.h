@@ -6,12 +6,14 @@
 #include "GetBaseType.h"
 
 namespace CPPTools::Fmt::Detail {
-	using FormatDataType = std::int16_t;
+	using FormatDataType	= std::int16_t;
+	static inline constexpr FormatDataType FORMAT_DATA_NOT_SPECIFIED = (std::numeric_limits<FormatDataType>::max)();
 } // namespace CPPTools::Fmt::Detail
 
 //ToRemove
 namespace CPPTools::Fmt {
 	using FormatDataType = Detail::FormatDataType;
+	static inline constexpr FormatDataType FORMAT_DATA_NOT_SPECIFIED = Detail::FORMAT_DATA_NOT_SPECIFIED;
 } // namespace CPPTools::Fmt
 
 namespace CPPTools::Fmt::Detail {
@@ -45,8 +47,9 @@ namespace CPPTools::Fmt::Detail {
 
 namespace CPPTools::Fmt {
 
+	// Type for dealing with index
 	using FormatIdx = int;
-	static const FormatIdx FormatIdxNotFound = -1;
+	static const FormatIdx FORMAT_IDX_NOT_FOUND = -1;
 
 	template <typename CharFormat>
 	struct FormatSpecifier {
@@ -63,15 +66,18 @@ namespace CPPTools::Fmt {
 			, ValueAsNumber(0)
 			, ValueIsText(true) {}
 
-		FormatSpecifier(const std::basic_string_view<CharFormat> name, const std::size_t value)
+		FormatSpecifier(const std::basic_string_view<CharFormat> name, const Detail::FormatDataType value)
 			: Name(name)
 			, ValueAsText(nullptr, 0)
 			, ValueAsNumber(value)
 			, ValueIsText(false) {}
 
+		static inline constexpr Detail::FormatDataType ValueAsNumberNotSpecified()				{ return Detail::FORMAT_DATA_NOT_SPECIFIED; }
+		static inline constexpr std::basic_string_view<CharFormat> ValueAsTextNotSpecified()	{ return std::basic_string_view<CharFormat>(""); }
+
 		std::basic_string_view<CharFormat>	Name;
 		std::basic_string_view<CharFormat>	ValueAsText;
-		std::intmax_t						ValueAsNumber;
+		Detail::FormatDataType				ValueAsNumber;
 		bool ValueIsText;
 	};
 
@@ -178,16 +184,16 @@ namespace CPPTools::Fmt {
 		bool HasChangeColor;
 
 	public:
-		static inline constexpr std::int8_t NotFound() { return (std::numeric_limits<std::int8_t>::max)(); }
+		static inline constexpr std::uint8_t NotFound() { return (std::numeric_limits<std::uint8_t>::max)(); }
 
-		std::basic_string_view<CharFormat> GetValueAsTextOfSpecifierOr(const std::basic_string_view<CharFormat> str, const std::basic_string_view<CharFormat> defaultValue = "") const {
+		std::basic_string_view<CharFormat> GetValueAsTextOfSpecifierOr(const std::basic_string_view<CharFormat> str, const std::basic_string_view<CharFormat> defaultValue = FormatSpecifier<CharFormat>::ValueAsNumberNotSpecified()) const {
 			for (auto i = 0; i < SpecifierCount; ++i)
 				if (Specifier[i].ValueIsText == true && Specifier[i].Name == str)
 					return Specifier[i].ValueAsText;
 			return defaultValue;
 		}
 
-		std::size_t GetValueAsNumberOfSpecifierOr(const std::basic_string_view<CharFormat> str, const std::size_t defaultValue = 0) const {
+		std::intmax_t GetValueAsNumberOfSpecifierOr(const std::basic_string_view<CharFormat> str, const Detail::FormatDataType defaultValue = FormatSpecifier<CharFormat>::ValueAsTextNotSpecified()) const {
 			for (std::uint8_t i = 0; i < SpecifierCount; ++i)
 				if (Specifier[i].ValueIsText == false && Specifier[i].Name == str)
 					return Specifier[i].ValueAsNumber;
@@ -196,7 +202,7 @@ namespace CPPTools::Fmt {
 
 		void AddSpecifier(const FormatSpecifier<CharFormat> specifier)														{ if (SpecifierCount < Specifier.size()) Specifier[SpecifierCount++] = specifier; }
 		void AddSpecifier(const std::basic_string_view<CharFormat> name, const std::basic_string_view<CharFormat> value)	{ AddSpecifier(FormatSpecifier<CharFormat>(name, value)); }
-		void AddSpecifier(const std::basic_string_view<CharFormat> name, const std::size_t value)							{ AddSpecifier(FormatSpecifier<CharFormat>(name, value)); }
+		void AddSpecifier(const std::basic_string_view<CharFormat> name, const Detail::FormatDataType value)				{ AddSpecifier(FormatSpecifier<CharFormat>(name, value)); }
 
 	};
 } // CPPTools::Fmt
@@ -215,7 +221,7 @@ namespace CPPTools::Fmt::Detail {
 		FormatSpecifierJoinSpliter(const std::basic_string_view<CharJoin> str) : HasBeenSplited(false) {
 			if(IsSplitNeeded(str)) {
 				HasBeenSplited = true;
-				std::size_t indexOfNewLine = std::distance(str.cbegin(), std::find(str.cbegin(), str.cend(), '\n'));
+				auto indexOfNewLine = std::distance(str.cbegin(), std::find(str.cbegin(), str.cend(), '\n'));
 				Str1 = std::basic_string_view<CharJoin>(str.data(), indexOfNewLine);
 				Str2 = std::basic_string_view<CharJoin>(str.data() + indexOfNewLine + 1, str.size() - indexOfNewLine - 1);
 			} else {
