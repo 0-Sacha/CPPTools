@@ -8,7 +8,7 @@ namespace CPPTools::Fmt {
 	template<typename CharFormat, typename CharBuffer, typename ...Args>
 	class BasicFormatContext;
 
-	template<typename T, typename FormatContext = BasicFormatContext<char, char>, typename IsEnable = T>
+	template<typename T, typename FormatContext = BasicFormatContext<char, char>>
 	struct FormatType {
 		template<class K = T>
 		static inline void Write(const K& t, FormatContext& context) {

@@ -13,20 +13,17 @@ namespace CPPTools::Fmt::Detail {
 		if (formatData.HasSpec) {
 			switch (formatData.IntPrint) {
 			case ValueIntPrint::Int:
-				if (formatData.ShiftType == ShiftType::Nothing)	{ return BasicReadInt(i); }
-				else											{ return BasicReadInt(i, formatData.ShiftType, formatData.ShiftValue, formatData.ShiftPrint); }
+				if (formatData.ShiftType == ShiftType::Nothing) return FastReadInt(i);
+				else											return BasicReadInt(i, formatData.ShiftType, formatData.ShiftValue, formatData.ShiftPrint);
 			case ValueIntPrint::Bin:
-				if (formatData.ShiftType == ShiftType::Nothing)	{ return BasicReadIntAsBin(i, formatData.Precision); }
-				else											{ return BasicReadIntAsBin(i, formatData.Precision, formatData.ShiftType, formatData.ShiftValue, formatData.ShiftPrint); }
+				return BasicReadIntAsBin(i, formatData.DigitSize, formatData.ShiftType, formatData.ShiftValue, formatData.ShiftPrint, formatData.TrueValue);
 			case ValueIntPrint::Hex:
-				if (formatData.ShiftType == ShiftType::Nothing)	{ return BasicReadIntAsHex(i, formatData.Precision); }
-				else											{ return BasicReadIntAsHex(i, formatData.Precision, formatData.ShiftType, formatData.ShiftValue, formatData.ShiftPrint); }
+				return BasicReadIntAsHex(i, formatData.DigitSize, formatData.ShiftType, formatData.ShiftValue, formatData.ShiftPrint, formatData.TrueValue, formatData.PrintStyle);
 			case ValueIntPrint::Oct:
-				if (formatData.ShiftType == ShiftType::Nothing)	{ return BasicReadIntAsOct(i, formatData.Precision); }
-				else											{ return BasicReadIntAsOct(i, formatData.Precision, formatData.ShiftType, formatData.ShiftValue, formatData.ShiftPrint); }
+				return BasicReadIntAsOct(i, formatData.DigitSize, formatData.ShiftType, formatData.ShiftValue, formatData.ShiftPrint, formatData.TrueValue);
 			}
 		}
-		return BasicReadInt(i);
+		return FastReadInt(i);
 	}
 
 	//------------------ Buffer Read UInt ------------------//
@@ -36,20 +33,17 @@ namespace CPPTools::Fmt::Detail {
 		if (formatData.HasSpec) {
 			switch (formatData.IntPrint) {
 			case ValueIntPrint::Int:
-				if (formatData.ShiftType == ShiftType::Nothing)	{ return BasicReadUInt(i); }
-				else											{ return BasicReadUInt(i, formatData.ShiftType, formatData.ShiftValue, formatData.ShiftPrint); }
+				if (formatData.ShiftType == ShiftType::Nothing) return FastReadUInt(i);
+				else											return BasicReadUInt(i, formatData.ShiftType, formatData.ShiftValue, formatData.ShiftPrint);
 			case ValueIntPrint::Bin:
-				if (formatData.ShiftType == ShiftType::Nothing)	{ return BasicReadUIntAsBin(i, formatData.Precision); }
-				else											{ return BasicReadUIntAsBin(i, formatData.Precision, formatData.ShiftType, formatData.ShiftValue, formatData.ShiftPrint); }
+				return BasicReadIntAsBin(i, formatData.DigitSize, formatData.ShiftType, formatData.ShiftValue, formatData.ShiftPrint, formatData.TrueValue);
 			case ValueIntPrint::Hex:
-				if (formatData.ShiftType == ShiftType::Nothing)	{ return BasicReadUIntAsHex(i, formatData.Precision); }
-				else											{ return BasicReadUIntAsHex(i, formatData.Precision, formatData.ShiftType, formatData.ShiftValue, formatData.ShiftPrint); }
+				return BasicReadIntAsHex(i, formatData.DigitSize, formatData.ShiftType, formatData.ShiftValue, formatData.ShiftPrint, formatData.TrueValue, formatData.PrintStyle);
 			case ValueIntPrint::Oct:
-				if (formatData.ShiftType == ShiftType::Nothing)	{ return BasicReadUIntAsOct(i, formatData.Precision); }
-				else											{ return BasicReadUIntAsOct(i, formatData.Precision, formatData.ShiftType, formatData.ShiftValue, formatData.ShiftPrint); }
+				return BasicReadIntAsOct(i, formatData.DigitSize, formatData.ShiftType, formatData.ShiftValue, formatData.ShiftPrint, formatData.TrueValue);
 			}
 		}
-		return BasicReadUInt(i);
+		return FastReadUInt(i);
 	}
 
 	//------------------ Buffer Read Float ------------------//
@@ -57,10 +51,10 @@ namespace CPPTools::Fmt::Detail {
 	template<typename T, typename FormatDataCharType>
 	bool FormatterMemoryBufferIn<CharBuffer>::ReadFloatFormatData(T& i, const FormatData<FormatDataCharType>& formatData) {
 		if (formatData.HasSpec) {
-			if (formatData.ShiftType == ShiftType::Nothing)	{ return BasicReadFloat(i, formatData.FloatPrecision); }
-			else											{ return BasicReadFloat(i, formatData.FloatPrecision, formatData.ShiftType, formatData.ShiftValue, formatData.ShiftPrint); }
+			if (formatData.ShiftType == ShiftType::Nothing)	return FastReadFloat(i, formatData.FloatPrecision);
+			else											return BasicReadFloat(i, formatData.FloatPrecision, formatData.ShiftType, formatData.ShiftValue, formatData.ShiftPrint);
 		}
-		return BasicReadFloat(i, formatData.FloatPrecision);
+		return FastReadFloat(i, formatData.FloatPrecision);
 	}
 
 }

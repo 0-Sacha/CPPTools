@@ -45,14 +45,14 @@ ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64 -g
 ALL_CXXFLAGS += $(CXXFLAGS) $(ALL_CPPFLAGS) -m64 -g -std=c++17
 ALL_LDFLAGS += $(LDFLAGS) -L/usr/lib64 -m64
 
-else ifeq ($(config),debug_win32)
-TARGETDIR = ../bin/windows-gmake2/Debug-/CPPTools
+else ifeq ($(config),debug_x86)
+TARGETDIR = ../bin/windows-gmake2/Debug-x86/CPPTools
 TARGET = $(TARGETDIR)/CPPTools.lib
-OBJDIR = ../bin-int/windows-gmake2/Debug-/CPPTools
-DEFINES += -DBASE_TARGET_DEBUG -DBASE_COMPILER_GCC
-ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -g
-ALL_CXXFLAGS += $(CXXFLAGS) $(ALL_CPPFLAGS) -g -std=c++17
-ALL_LDFLAGS += $(LDFLAGS)
+OBJDIR = ../bin-int/windows-gmake2/Debug-x86/CPPTools
+DEFINES += -DBASE_ARCHITECTURE_X86 -DBASE_TARGET_DEBUG -DBASE_COMPILER_GCC
+ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m32 -g
+ALL_CXXFLAGS += $(CXXFLAGS) $(ALL_CPPFLAGS) -m32 -g -std=c++17
+ALL_LDFLAGS += $(LDFLAGS) -L/usr/lib32 -m32
 
 else ifeq ($(config),release_x64)
 TARGETDIR = ../bin/windows-gmake2/Release-x86_64/CPPTools
@@ -63,14 +63,14 @@ ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64 -O2
 ALL_CXXFLAGS += $(CXXFLAGS) $(ALL_CPPFLAGS) -m64 -O2 -std=c++17
 ALL_LDFLAGS += $(LDFLAGS) -L/usr/lib64 -m64 -s
 
-else ifeq ($(config),release_win32)
-TARGETDIR = ../bin/windows-gmake2/Release-/CPPTools
+else ifeq ($(config),release_x86)
+TARGETDIR = ../bin/windows-gmake2/Release-x86/CPPTools
 TARGET = $(TARGETDIR)/CPPTools.lib
-OBJDIR = ../bin-int/windows-gmake2/Release-/CPPTools
-DEFINES += -DBASE_TARGET_RELEASE -DBASE_COMPILER_GCC
-ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -O2
-ALL_CXXFLAGS += $(CXXFLAGS) $(ALL_CPPFLAGS) -O2 -std=c++17
-ALL_LDFLAGS += $(LDFLAGS) -s
+OBJDIR = ../bin-int/windows-gmake2/Release-x86/CPPTools
+DEFINES += -DBASE_ARCHITECTURE_X86 -DBASE_TARGET_RELEASE -DBASE_COMPILER_GCC
+ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m32 -O2
+ALL_CXXFLAGS += $(CXXFLAGS) $(ALL_CPPFLAGS) -m32 -O2 -std=c++17
+ALL_LDFLAGS += $(LDFLAGS) -L/usr/lib32 -m32 -s
 
 endif
 

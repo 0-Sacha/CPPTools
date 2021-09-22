@@ -57,6 +57,19 @@ namespace CPPTools {
 		inline void LogError(const std::string_view format, Args&& ...args) const;
 		template<typename ...Args>
 		inline void LogFatal(const std::string_view format, Args&& ...args) const;
+		// Same but for char[]
+		template<std::size_t SIZE, typename ...Args>
+		inline void Log(LogSeverity severity, const char (&format)[SIZE], Args&& ...args) const	{ Log(severity, std::string_view(format), std::forward<Args>(args)...); }
+		template<std::size_t SIZE, typename ...Args>
+		inline void LogTrace(const char (&format)[SIZE], Args&& ...args) const					{ LogTrace(std::string_view(format), std::forward<Args>(args)...); }
+		template<std::size_t SIZE, typename ...Args>
+		inline void LogInfo(const char (&format)[SIZE], Args&& ...args) const					{ LogInfo(std::string_view(format), std::forward<Args>(args)...); }
+		template<std::size_t SIZE, typename ...Args>
+		inline void LogWarn(const char (&format)[SIZE], Args&& ...args) const					{ LogWarn(std::string_view(format), std::forward<Args>(args)...); }
+		template<std::size_t SIZE, typename ...Args>
+		inline void LogError(const char (&format)[SIZE], Args&& ...args) const					{ LogError(std::string_view(format), std::forward<Args>(args)...); }
+		template<std::size_t SIZE, typename ...Args>
+		inline void LogFatal(const char (&format)[SIZE], Args&& ...args) const					{ LogFatal(std::string_view(format), std::forward<Args>(args)...); }
 
 		/////---------- NO-FORMAT Logger Severity ----------/////
 		template<typename T>
@@ -80,6 +93,13 @@ namespace CPPTools {
 		inline void LogOk(const std::string_view format, Args&& ...args) const;
 		template<typename ...Args>
 		inline void LogFail(const std::string_view format, Args&& ...args) const;
+		// Same but for char[]
+		template<std::size_t SIZE, typename ...Args>
+		inline void Log(LogStatus status, const std::string_view format, Args&& ...args) const	{ Log(std::string_view(format), std::forward<Args>(args)...); }
+		template<std::size_t SIZE, typename ...Args>
+		inline void LogOk(const std::string_view format, Args&& ...args) const					{ LogOk(std::string_view(format), std::forward<Args>(args)...); }
+		template<std::size_t SIZE, typename ...Args>
+		inline void LogFail(const std::string_view format, Args&& ...args) const				{ LogFail(std::string_view(format), std::forward<Args>(args)...); }
 
 		/////---------- NO-FORMAT Logger Status ----------/////
 		template<typename T>
@@ -92,6 +112,9 @@ namespace CPPTools {
 	public:
 		template<typename ...Args>
 		inline void LogBasic(const std::string_view format, Args&& ...args) const;
+		template<std::size_t SIZE, typename ...Args>
+		inline void LogBasic(const char(&format)[SIZE], Args&& ...args) const		{ LogBasic(std::string_view(format), std::forward<Args>(args)...); }
+
 		template<typename T>
 		inline void LogBasic(T&& t) const;
 
@@ -113,19 +136,19 @@ namespace CPPTools::Fmt {
 			switch (t)
 			{
 			case LogSystem::LogSeverity::Trace:
-				FormatType<Detail::AnsiColorFG, FormatContext>::Write(Detail::AnsiColorFG::BrightBlack, context);
+				FormatType<Detail::AnsiTextColorFG, FormatContext>::Write(Detail::AnsiTextColorFG::BrightBlack, context);
 				break;
 			case LogSystem::LogSeverity::Info:
-				FormatType<Detail::AnsiColorFG, FormatContext>::Write(Detail::AnsiColorFG::Green, context);
+				FormatType<Detail::AnsiTextColorFG, FormatContext>::Write(Detail::AnsiTextColorFG::Green, context);
 				break;
 			case LogSystem::LogSeverity::Warn:
-				FormatType<Detail::AnsiColorFG, FormatContext>::Write(Detail::AnsiColorFG::Yellow, context);
+				FormatType<Detail::AnsiTextColorFG, FormatContext>::Write(Detail::AnsiTextColorFG::Yellow, context);
 				break;
 			case LogSystem::LogSeverity::Error:
-				FormatType<Detail::AnsiColorFG, FormatContext>::Write(Detail::AnsiColorFG::Red, context);
+				FormatType<Detail::AnsiTextColorFG, FormatContext>::Write(Detail::AnsiTextColorFG::Red, context);
 				break;
 			case LogSystem::LogSeverity::Fatal:
-				FormatType<Detail::AnsiColorFG, FormatContext>::Write(Detail::AnsiColorFG::BrightMagenta, context);
+				FormatType<Detail::AnsiTextColorFG, FormatContext>::Write(Detail::AnsiTextColorFG::BrightMagenta, context);
 				break;
 			}
 		}
@@ -144,7 +167,7 @@ namespace CPPTools::Fmt {
 
 namespace CPPTools {
 
-	/////---------- Logger Severity with array as format ----------/////
+	/////---------- Logger Severity with format ----------/////
 	template<typename ...Args>
 	void LogSystem::Log(LogSeverity severity, const std::string_view format, Args&& ...args) const {
 		if (severity >= m_SeverityMin) {
@@ -214,7 +237,7 @@ namespace CPPTools {
 
 namespace CPPTools {
 
-	/////---------- Logger Status with array as format ----------/////
+	/////---------- Logger Status with format ----------/////
 	template<typename ...Args>
 	void LogSystem::Log(LogStatus status, const std::string_view format, Args&& ...args) const {
 		auto formatBuffer = Fmt::Detail::FormatAndGetBufferOut<char, char>(m_FmtBuffer, FORMAT_SV("name", m_Name), FORMAT_SV("data", format));

@@ -27,7 +27,7 @@ namespace CPPTools::Fmt {
 	template<typename FormatContext>
 	struct FormatType<bool, FormatContext> {
 		static void Write(const bool t, FormatContext& context) {
-			if (!context.GetFormatData().BaseValue) {
+			if (!context.GetFormatData().TrueValue) {
 				if (t == true)	context.Print("True");
 				else			context.Print("False");
 			} else {
@@ -37,39 +37,31 @@ namespace CPPTools::Fmt {
 		}
 	};
 
-	// Int
+	// Int basic
 	template<typename T, typename FormatContext>
-	struct FormatType<T, FormatContext, Detail::ForwardIfVoid<Detail::ForwardIfTrue<T, std::is_integral_v<T> && std::is_signed_v<T>>, Detail::IsChar<T> >> {
-		static void Write(const T t, FormatContext& context) {
+	struct FormatType<Detail::ForwardAsInt<T>, FormatContext> {
+		static inline void Write(const T t, FormatContext& context) {
 			context.BufferOut().WriteIntFormatData(t, context.GetFormatData());
 		}
 	};
 
-	// UInt
+	// UInt basic
 	template<typename T, typename FormatContext>
-	struct FormatType<T, FormatContext, Detail::ForwardIfVoid<Detail::ForwardIfTrue<T, std::is_integral_v<T> && !std::is_signed_v<T>>, Detail::IsChar<T>>> {
-		static void Write(const T t, FormatContext& context) {
+	struct FormatType<Detail::ForwardAsUInt<T>, FormatContext> {
+		static inline void Write(const T t, FormatContext& context) {
 			context.BufferOut().WriteUIntFormatData(t, context.GetFormatData());
 		}
 	};
 
-	// Float
+	// Float basic
 	template<typename T, typename FormatContext>
-	struct FormatType<T, FormatContext, Detail::ForwardIfTrue<T, std::is_floating_point_v<T>>> {
+	struct FormatType<Detail::ForwardAsFloat<T>, FormatContext> {
 		static void Write(const T t, FormatContext& context) {
 			context.BufferOut().WriteFloatFormatData(t, context.GetFormatData());
 		}
 	};
 
-
-
 	// Char type
-	namespace Detail {
-		template<typename CharType> struct ForwardAsChar {};
-		template<typename CharType, std::size_t SIZE> struct ForwardAsCharArray {};
-		template<typename CharType> struct ForwardAsCharPt {};
-	}
-
 	template<typename T, typename FormatContext>
 	struct FormatType<Detail::ForwardAsChar<T>, FormatContext> {
 		inline static void Write(const T t, FormatContext& context) {
@@ -79,15 +71,15 @@ namespace CPPTools::Fmt {
 
 	template<typename T, std::size_t SIZE, typename FormatContext>
 	struct FormatType<Detail::ForwardAsCharArray<T, SIZE>, FormatContext> {
-		static void Write(const T (&t)[SIZE], FormatContext& context) {
+		static void Write(const T(&t)[SIZE], FormatContext& context) {
 			auto& data = context.GetFormatData();
-			
-			std::size_t begin	= context.GetFormatData().GetValueAsNumberOfSpecifierOr("begin", 0);
-			std::size_t size	= context.GetFormatData().GetValueAsNumberOfSpecifierOr("size", SIZE - begin);
 
-			if (data.BaseValue)	context.BufferOut().PushBack('\'');
+			auto begin = context.GetFormatData().GetSpecifierAsNumber("begin", 0);
+			auto size = context.GetFormatData().GetSpecifierAsNumber("size", SIZE - begin);
+
+			if (data.TrueValue)	context.BufferOut().PushBack('\"');
 			context.BufferOut().WriteCharPt(t + begin, size);
-			if (data.BaseValue)	context.BufferOut().PushBack('\'');
+			if (data.TrueValue)	context.BufferOut().PushBack('\"');
 		}
 	};
 
@@ -96,36 +88,169 @@ namespace CPPTools::Fmt {
 		static void Write(const T* t, FormatContext& context) {
 			auto& data = context.GetFormatData();
 
-			if (data.BaseValue)										context.BufferOut().PushBack('\'');
-	
-			std::size_t begin	= context.GetFormatData().GetValueAsNumberOfSpecifierOr("begin", 0);
-			std::size_t size	= context.GetFormatData().GetValueAsNumberOfSpecifierOr("size", (std::numeric_limits<std::size_t>::max)());
+			if (data.TrueValue)										context.BufferOut().PushBack('\"');
 
-			if (size != (std::numeric_limits<std::size_t>::max)())	context.PrintCharPt(t + begin, size);
-			else													context.PrintCharPt(t + begin);
-	
-			if (data.BaseValue)										context.BufferOut().PushBack('\'');
+			auto begin = context.GetFormatData().GetSpecifierAsNumber("begin", 0);
+			auto size = context.GetFormatData().GetSpecifierAsNumber("size", Detail::FORMAT_DATA_NOT_SPECIFIED);
+
+			if (size != Detail::FORMAT_DATA_NOT_SPECIFIED)	context.PrintCharPt(t + begin, size);
+			else											context.PrintCharPt(t + begin);
+
+			if (data.TrueValue)										context.BufferOut().PushBack('\"');
 		}
 	};
 
 
+	// Int basic
+	template<typename FormatContext>
+	struct FormatType<std::int8_t, FormatContext> {
+		static inline void Write(const std::int8_t t, FormatContext& context) {
+			FormatType<Detail::ForwardAsInt<std::int8_t>, FormatContext>::Write(t, context);
+		}
+	};
+	template<typename FormatContext>
+	struct FormatType<std::int16_t, FormatContext> {
+		static inline void Write(const std::int16_t t, FormatContext& context) {
+			FormatType<Detail::ForwardAsInt<std::int16_t>, FormatContext>::Write(t, context);
+		}
+	};
+	template<typename FormatContext>
+	struct FormatType<std::int32_t, FormatContext> {
+		static inline void Write(const std::int32_t t, FormatContext& context) {
+			FormatType<Detail::ForwardAsInt<std::int32_t>, FormatContext>::Write(t, context);
+		}
+	};
+	template<typename FormatContext>
+	struct FormatType<std::int64_t, FormatContext> {
+		static inline void Write(const std::int64_t t, FormatContext& context) {
+			FormatType<Detail::ForwardAsInt<std::int64_t>, FormatContext>::Write(t, context);
+		}
+	};
+
+
+	// UInt basic
+	template<typename FormatContext>
+	struct FormatType<std::uint8_t, FormatContext> {
+		static inline void Write(const std::uint8_t t, FormatContext& context) {
+			FormatType<Detail::ForwardAsUInt<std::uint8_t>, FormatContext>::Write(t, context);
+		}
+	};
+	template<typename FormatContext>
+	struct FormatType<std::uint16_t, FormatContext> {
+		static inline void Write(const std::uint16_t t, FormatContext& context) {
+			FormatType<Detail::ForwardAsUInt<std::uint16_t>, FormatContext>::Write(t, context);
+		}
+	};
+	template<typename FormatContext>
+	struct FormatType<std::uint32_t, FormatContext> {
+		static inline void Write(const std::uint32_t t, FormatContext& context) {
+			FormatType<Detail::ForwardAsUInt<std::uint32_t>, FormatContext>::Write(t, context);
+		}
+	};
+	template<typename FormatContext>
+	struct FormatType<std::uint64_t, FormatContext> {
+		static inline void Write(const std::uint64_t t, FormatContext& context) {
+			FormatType<Detail::ForwardAsUInt<std::uint64_t>, FormatContext>::Write(t, context);
+		}
+	};
+
+
+	// Float basic
+
+	template<typename FormatContext>
+	struct FormatType<float, FormatContext> {
+		static inline void Write(const float t, FormatContext& context) {
+			FormatType<Detail::ForwardAsFloat<float>, FormatContext>::Write(t, context);
+		}
+	};
+	template<typename FormatContext>
+	struct FormatType<double, FormatContext> {
+		static inline void Write(const double t, FormatContext& context) {
+			FormatType<Detail::ForwardAsFloat<double>, FormatContext>::Write(t, context);
+		}
+	};
+	template<typename FormatContext>
+	struct FormatType<long double, FormatContext> {
+		static inline void Write(const long double t, FormatContext& context) {
+			FormatType<Detail::ForwardAsFloat<long double>, FormatContext>::Write(t, context);
+		}
+	};
+
+
+
 	
-	template<typename T, typename FormatContext>
-	struct FormatType<T, FormatContext, Detail::IsChar<T>> {
-		inline static void Write(const T t, FormatContext& context) {
-			FormatType<Detail::ForwardAsChar<T>, FormatContext>::Write(t, context);
+	template<typename FormatContext>
+	struct FormatType<char, FormatContext> {
+		inline static void Write(const char t, FormatContext& context) {
+			FormatType<Detail::ForwardAsChar<char>, FormatContext>::Write(t, context);
 		}
 	};
-	template<std::size_t SIZE, typename T, typename FormatContext>
-	struct FormatType<T [SIZE], FormatContext, Detail::IsCharArray<T, SIZE>> {
-		static void Write(const T (&t)[SIZE], FormatContext& context) {
-			FormatType<Detail::ForwardAsCharArray<T, SIZE>, FormatContext>::Write(t, context);
+	template<typename FormatContext>
+	struct FormatType<wchar_t, FormatContext> {
+		inline static void Write(const wchar_t t, FormatContext& context) {
+			FormatType<Detail::ForwardAsChar<wchar_t>, FormatContext>::Write(t, context);
 		}
 	};
-	template<typename T, typename FormatContext>
-	struct FormatType<T*, FormatContext, Detail::IsCharPt<T>> {
-		static void Write(const T* const t, FormatContext& context) {
-			FormatType<Detail::ForwardAsCharPt<T>, FormatContext>::Write(t, context);
+	template<typename FormatContext>
+	struct FormatType<char16_t, FormatContext> {
+		inline static void Write(const char16_t t, FormatContext& context) {
+			FormatType<Detail::ForwardAsChar<char16_t>, FormatContext>::Write(t, context);
+		}
+	};
+	template<typename FormatContext>
+	struct FormatType<char32_t, FormatContext> {
+		inline static void Write(const char32_t t, FormatContext& context) {
+			FormatType<Detail::ForwardAsChar<char32_t>, FormatContext>::Write(t, context);
+		}
+	};
+
+	template<std::size_t SIZE, typename FormatContext>
+	struct FormatType<char [SIZE], FormatContext> {
+		static void Write(const char (&t)[SIZE], FormatContext& context) {
+			FormatType<Detail::ForwardAsCharArray<char, SIZE>, FormatContext>::Write(t, context);
+		}
+	};
+	template<std::size_t SIZE, typename FormatContext>
+	struct FormatType<wchar_t[SIZE], FormatContext> {
+		static void Write(const wchar_t(&t)[SIZE], FormatContext& context) {
+			FormatType<Detail::ForwardAsCharArray<wchar_t, SIZE>, FormatContext>::Write(t, context);
+		}
+	};
+	template<std::size_t SIZE, typename FormatContext>
+	struct FormatType<char16_t[SIZE], FormatContext> {
+		static void Write(const char16_t(&t)[SIZE], FormatContext& context) {
+			FormatType<Detail::ForwardAsCharArray<char16_t, SIZE>, FormatContext>::Write(t, context);
+		}
+	};
+	template<std::size_t SIZE, typename FormatContext>
+	struct FormatType<char32_t[SIZE], FormatContext> {
+		static void Write(const char32_t(&t)[SIZE], FormatContext& context) {
+			FormatType<Detail::ForwardAsCharArray<char32_t, SIZE>, FormatContext>::Write(t, context);
+		}
+	};
+
+	template<typename FormatContext>
+	struct FormatType<char*, FormatContext> {
+		static void Write(const char* const t, FormatContext& context) {
+			FormatType<Detail::ForwardAsCharPt<char>, FormatContext>::Write(t, context);
+		}
+	};
+	template<typename FormatContext>
+	struct FormatType<wchar_t*, FormatContext> {
+		static void Write(const wchar_t* const t, FormatContext& context) {
+			FormatType<Detail::ForwardAsCharPt<wchar_t>, FormatContext>::Write(t, context);
+		}
+	};
+	template<typename FormatContext>
+	struct FormatType<char16_t*, FormatContext> {
+		static void Write(const char16_t* const t, FormatContext& context) {
+			FormatType<Detail::ForwardAsCharPt<char16_t>, FormatContext>::Write(t, context);
+		}
+	};
+	template<typename FormatContext>
+	struct FormatType<char32_t*, FormatContext> {
+		static void Write(const char32_t* const t, FormatContext& context) {
+			FormatType<Detail::ForwardAsCharPt<char32_t>, FormatContext>::Write(t, context);
 		}
 	};
 
@@ -134,11 +259,41 @@ namespace CPPTools::Fmt {
 	//------------------ Pointer/Array of Type ------------------//
 
 	template<typename T, typename FormatContext>
-	struct FormatType<T*, FormatContext, Detail::ForwardIfVoid<T*, Detail::IsCharPt<T>>>
+	struct FormatType<T*, FormatContext>
 	{
 		static void Write(const T* const t, FormatContext& context) {
-			if(t == nullptr)	context.LittleFormat("{}", (void*)t);
-			else				context.LittleFormat("{} -> {:{}}", (void*)t, *t, context.ForwardFormatData());
+
+			if (t == nullptr) {
+				context.LittleFormat("{}", (void*)t); return;
+			}
+
+			auto size = context.GetFormatData().GetSpecifierAsNumber("size", Detail::FORMAT_DATA_NOT_SPECIFIED);
+
+			if(size == Detail::FORMAT_DATA_NOT_SPECIFIED) {
+				context.LittleFormat("{} -> {:{}}", (void*)t, *t, context.ForwardFormatData());
+				return;
+			}
+
+
+			context.BufferOut().WriteStringView(context.GetFormatData().GetSpecifierAsText("begin", STDEnumerableUtility::DefaultBegin));
+
+			std::size_t stride = context.GetStride();
+
+			Detail::FormatSpecifierJoinSpliter join(context.GetFormatData().GetSpecifierAsText("join", STDEnumerableUtility::DefaultJoin));
+
+			auto beginValue = context.GetFormatData().GetSpecifierAsNumber("begin", 0);
+
+			bool first = true;
+			const T* begin	= t + beginValue;
+			const T* end	= begin + size;
+
+			while (begin < end) {
+				if (first)	first = false;
+				else		join.Write(context, stride);
+				context.WriteType(*begin++);
+			}
+
+			context.BufferOut().WriteStringView(context.GetFormatData().GetSpecifierAsText("end", STDEnumerableUtility::DefaultEnd));
 		}
 	};
 
@@ -147,33 +302,33 @@ namespace CPPTools::Fmt {
 	{
 		static void Write(const void* const t, FormatContext& context) {
 			if (t == nullptr)	context.LittleFormat("nullptr");
-			else				context.LittleFormat("0x{:x}", (std::size_t)t);
+			else				context.LittleFormat("{:X,=,U}", (std::size_t)t);
 		}
 	};
 
 	template<std::size_t SIZE, typename T, typename FormatContext>
-	struct FormatType<T[SIZE], FormatContext, Detail::ForwardIfVoid<T[SIZE], Detail::IsCharArray<T, SIZE>>>
+	struct FormatType<T[SIZE], FormatContext>
 	{
 		static void Write(T const (&t)[SIZE], FormatContext& context) {
 
-			context.BufferOut().WriteStringView(context.GetFormatData().GetValueAsTextOfSpecifierOr("begin", STDEnumerableUtility::DefaultBegin));
+			context.BufferOut().WriteStringView(context.GetFormatData().GetSpecifierAsText("begin", STDEnumerableUtility::DefaultBegin));
 
 			std::size_t stride = context.GetStride();
 
-			Detail::FormatSpecifierJoinSpliter join(context.GetFormatData().GetValueAsTextOfSpecifierOr("join", STDEnumerableUtility::DefaultJoin));
+			Detail::FormatSpecifierJoinSpliter join(context.GetFormatData().GetSpecifierAsText("join", STDEnumerableUtility::DefaultJoin));
 
 			bool first = true;
-			std::size_t beginValue = context.GetFormatData().GetValueAsNumberOfSpecifierOr("begin", 0);
-			const T* begin 	= &t[beginValue];
-			const T* end  	= &begin[context.GetFormatData().GetValueAsNumberOfSpecifierOr("size", SIZE - beginValue)];
+			std::size_t beginValue = context.GetFormatData().GetSpecifierAsNumber("begin", 0);
+			const T* begin 	= t + beginValue;
+			const T* end  	= begin + context.GetFormatData().GetSpecifierAsNumber("size", SIZE - beginValue);
 
 			while(begin < end) {
 				if (first)	first = false;
-				else		{ join.Write(context, stride); }
+				else		join.Write(context, stride);
 				context.WriteType(*begin++);
 			}
 
-			context.BufferOut().WriteStringView(context.GetFormatData().GetValueAsTextOfSpecifierOr("end", STDEnumerableUtility::DefaultEnd));
+			context.BufferOut().WriteStringView(context.GetFormatData().GetSpecifierAsText("end", STDEnumerableUtility::DefaultEnd));
 		}
 	};
 }

@@ -54,9 +54,15 @@ namespace CPPTools::Fmt {
 
 		Detail::UnFormatContextArgsTuple<ContextArgs...>	m_ContextArgs;
 
+		// Stride (mostly for container and new line format-style)
+		std::size_t 			m_NoStride;
+
 		FormatIdx				m_ValuesIdx;
 		FormatDataType			m_FormatData;
-		Detail::AnsiColorMem	m_ColorMem;
+		Detail::AnsiTextCurrentColor	m_AnsiTextCurrentColor;
+		Detail::AnsiTextCurrentStyle	m_AnsiTextCurrentStyle;
+		Detail::AnsiTextCurrentFront	m_AnsiTextCurrentFront;
+		Detail::AnsiFormatterChange		m_AnsiFormatterChange;
 
 	public:
 		inline Detail::FormatterMemoryBufferIn<CharBuffer>&			BufferIn()			{ return m_BufferIn; }
@@ -64,12 +70,24 @@ namespace CPPTools::Fmt {
 		inline Detail::FormatterMemoryFormat<CharFormat>&			FormatStr()			{ return m_FormatStr; }
 		inline const Detail::FormatterMemoryFormat<CharFormat>&		FormatStr() const	{ return m_FormatStr; }
 
-		inline Detail::AnsiColorMem& GetColorMem()				{ return m_ColorMem; }
-		inline const Detail::AnsiColorMem& GetColorMem() const	{ return m_ColorMem; }
+		inline Detail::AnsiTextCurrentColor&		GetAnsiTextCurrentColor()		{ return m_AnsiTextCurrentColor; }
+		inline const Detail::AnsiTextCurrentColor&	GetAnsiTextCurrentColor() const	{ return m_AnsiTextCurrentColor; }
+		inline Detail::AnsiTextCurrentStyle&		GetAnsiTextCurrentStyle()		{ return m_AnsiTextCurrentStyle; }
+		inline const Detail::AnsiTextCurrentStyle&	GetAnsiTextCurrentStyle() const { return m_AnsiTextCurrentStyle; }
+		inline Detail::AnsiTextCurrentFront&		GetAnsiTextCurrentFront()		{ return m_AnsiTextCurrentFront; }
+		inline const Detail::AnsiTextCurrentFront&	GetAnsiTextCurrentFront() const	{ return m_AnsiTextCurrentFront; }
+
+		inline Detail::AnsiFormatterChange&			GetAnsiFormatterChange()		{ return m_AnsiFormatterChange; }
+		inline const Detail::AnsiFormatterChange&	GetAnsiFormatterChange() const	{ return m_AnsiFormatterChange; }
 
 		inline FormatDataType&			GetFormatData()				{ return m_FormatData; }
 		inline const FormatDataType&	GetFormatData() const		{ return m_FormatData; }
 		inline FormatDataType			ForwardFormatData() const	{ return m_FormatData; }
+
+		inline void AddNoStride(const std::size_t noStride)		{ m_NoStride += noStride; }
+		inline std::size_t GetNoStride() const					{ return m_NoStride; }
+		inline std::size_t GetStride() const					{ return m_BufferIn.GetBufferCurrentSize() - m_NoStride; }
+		inline std::size_t StrideGetBufferCurrentSize() const	{ return m_BufferIn.GetBufferCurrentSize(); }
 
 		static inline std::int16_t NoError()				{ return -1; }
 
@@ -80,9 +98,11 @@ namespace CPPTools::Fmt {
 		void ParameterData();
 
 	private:
-		static void GetColorValue();
-		static void GetTimerPrinted();
-		static void GetDatePrinted();
+		static void ReadAnsiTextColorParameter();
+		static void ReadAnsiTextStyleParameter();
+		static void ReadAnsiTextFrontParameter();
+		static void ReadTimerParameter();
+		static void ReadDateParameter();
 		void IgnoreParameter();
 
 	public:
@@ -99,7 +119,15 @@ namespace CPPTools::Fmt {
 
 	public:
 		// Other Type from UnFormatType
-		template<typename Type>	inline bool ReadType(Type& type)	{ return UnFormatType<Detail::GetBaseType<Type>, BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>>::Read(type, *this); }
+		template<typename Type>
+		inline bool ReadType(Type& type)						{ return UnFormatType<Detail::GetBaseType<Type>, BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>>::Read(type, *this); }
+		template<typename Type, typename ...Rest>
+		inline bool ReadType(Type& type, Rest&& ...rest)		{ if (ReadType(type)) { return ReadType(rest...); } return false; }
+
+		template<typename Type>
+		inline bool BasicReadType(Type& type)					{ return m_BufferIn.BasicReadType(type); }
+		template<typename Type, typename ...Rest>
+		inline bool BasicReadType(Type& type, Rest& ...rest)	{ if (m_BufferIn.BasicReadType(type)) { return BasicReadType(std::forward<Rest>(rest)...); } return false; }
 
 	public:
 		inline bool FormatIsEndOfParameter()						{ return m_FormatStr.IsEqualTo('}'); }

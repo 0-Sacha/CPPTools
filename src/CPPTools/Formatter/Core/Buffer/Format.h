@@ -6,6 +6,9 @@ namespace CPPTools::Fmt::Detail {
 	template <typename CharFormat>
 	class FormatterMemoryFormat : public BasicFormatterMemoryBufferIn<CharFormat> {
 
+	private:
+		using Base = BasicFormatterMemoryBufferIn<CharFormat>;
+
 	public:
 		using CharFormatType = CharFormat;
 

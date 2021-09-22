@@ -32,28 +32,37 @@ namespace CPPTools::Fmt {
 				m_FormatStr.Forward();
 				m_FormatStr.IgnoreSpace();
 
-				if (m_FormatStr.IsEqualForward('{')) {		// Forward specifier
-					FormatIdx dataIdx;
-					GetFormatIdx(dataIdx);
-					m_ContextArgs.GetParameterDataFromIdx(*this, dataIdx);
-					m_FormatStr.Forward();
+				if(m_FormatStr.IsUpperCase()) {
+					
+						 if (m_FormatStr.IsEqualForward('C')) { m_AnsiFormatterChange.HasMadeChange = true; m_FormatData.AnsiTextColorChange.HasChangeColor = true; m_AnsiTextCurrentColor = Detail::AnsiTextCurrentColor();	ReadAnsiTextColorParameter(); }
+					else if (m_FormatStr.IsEqualForward('S')) { m_AnsiFormatterChange.HasMadeChange = true; m_FormatData.AnsiTextStyleChange.HasChangeStyle = true; m_AnsiTextCurrentStyle = Detail::AnsiTextCurrentStyle();	ReadAnsiTextStyleParameter(); }
+					else if (m_FormatStr.IsEqualForward('F')) { m_AnsiFormatterChange.HasMadeChange = true; m_FormatData.AnsiTextFrontChange.HasChangeFront = true; m_AnsiTextCurrentFront = Detail::AnsiTextCurrentFront();	ReadAnsiTextFrontParameter(); }
 
-				} else if (m_FormatStr.IsEqualForward('C'))	{ m_FormatData.HasChangeColor = true; m_ColorMem = Detail::AnsiColorMem(); ColorValuePrint();
+					else if (m_FormatStr.IsEqualForward('B')) { m_FormatData.IntPrint = Detail::ValueIntPrint::Bin;	FormatReadParameter(m_FormatData.DigitSize); }
+					else if (m_FormatStr.IsEqualForward('X')) { m_FormatData.IntPrint = Detail::ValueIntPrint::Hex;	FormatReadParameter(m_FormatData.DigitSize); }
+					else if (m_FormatStr.IsEqualForward('O')) { m_FormatData.IntPrint = Detail::ValueIntPrint::Oct;	FormatReadParameter(m_FormatData.DigitSize); }
+					else if (m_FormatStr.IsEqualForward('D')) { m_FormatData.IntPrint = Detail::ValueIntPrint::Int;	FormatReadParameter(m_FormatData.DigitSize); }
 
-				} else if (m_FormatStr.IsEqualForward('='))	{ m_FormatData.BaseValue = true;
+					else if (m_FormatStr.IsEqualForward('L')) { m_FormatData.PrintStyle = Detail::PrintStyle::LowerCase; }
+					else if (m_FormatStr.IsEqualForward('U')) { m_FormatData.PrintStyle = Detail::PrintStyle::UpperCase; }
 
-				} else if (m_FormatStr.IsEqualForward('B'))	{ m_FormatData.IntPrint = Detail::ValueIntPrint::Bin;	FormatReadParameter(m_FormatData.Precision);
-				} else if (m_FormatStr.IsEqualForward('X'))	{ m_FormatData.IntPrint = Detail::ValueIntPrint::Hex;	FormatReadParameter(m_FormatData.Precision);
-				} else if (m_FormatStr.IsEqualForward('O'))	{ m_FormatData.IntPrint = Detail::ValueIntPrint::Oct;	FormatReadParameter(m_FormatData.Precision);
-				} else if (m_FormatStr.IsEqualForward('D'))	{ m_FormatData.IntPrint = Detail::ValueIntPrint::Int;	FormatReadParameter(m_FormatData.Precision);
-				} else if (m_FormatStr.IsEqualForward('.'))	{ FormatReadParameter(m_FormatData.FloatPrecision);
+				} else if(!m_FormatStr.IsLowerCase()) {
+					if (m_FormatStr.IsEqualForward('{')) {		// Forward specifier
+						FormatIdx dataIdx;
+						GetFormatIdx(dataIdx);
+						m_ContextArgs.GetParameterDataFromIdx(*this, dataIdx);
+						m_FormatStr.Forward();
+					}
+					
+					else if (m_FormatStr.IsEqualForward('=')) { m_FormatData.TrueValue = true; }
 
-				} else if (m_FormatStr.IsEqualForward('>'))	{ m_FormatData.ShiftType = Detail::ShiftType::Right;	FormatReadParameter(m_FormatData.ShiftValue);
-				} else if (m_FormatStr.IsEqualForward('<'))	{ m_FormatData.ShiftType = Detail::ShiftType::Left;		FormatReadParameter(m_FormatData.ShiftValue);
-				} else if (m_FormatStr.IsEqualForward('^'))	{ m_FormatData.ShiftType = Detail::ShiftType::Center;	FormatReadParameter(m_FormatData.ShiftValue);
-				} else if (m_FormatStr.IsEqualForward('0'))	{ m_FormatData.ShiftPrint = Detail::ShiftPrint::Zeros;
+					else if (m_FormatStr.IsEqualForward('.')) { FormatReadParameter(m_FormatData.FloatPrecision); }
 
-				} else if (m_FormatStr.IsLowerCase()) {	// Custom Specifier / NameSpecifier
+					else if (m_FormatStr.IsEqualForward('>')) { m_FormatData.ShiftType = Detail::ShiftType::Right;	FormatReadParameter(m_FormatData.ShiftValue); }
+					else if (m_FormatStr.IsEqualForward('<')) { m_FormatData.ShiftType = Detail::ShiftType::Left;	FormatReadParameter(m_FormatData.ShiftValue); }
+					else if (m_FormatStr.IsEqualForward('^')) { m_FormatData.ShiftType = Detail::ShiftType::Center;	FormatReadParameter(m_FormatData.ShiftValue); }
+					else if (m_FormatStr.IsEqualForward('0')) { m_FormatData.ShiftPrint = Detail::ShiftPrint::Zeros;											  }
+				} else {
 					const char* namePos = m_FormatStr.GetBufferCurrentPos();
 					m_FormatStr.ParamGoTo(' ', '=');
 					StringViewFormat name(namePos, m_FormatStr.GetBufferCurrentPos() - namePos);
@@ -66,12 +75,14 @@ namespace CPPTools::Fmt {
 						m_FormatStr.ParamGoTo('\'');
 						std::size_t valueSize = m_FormatStr.GetBufferCurrentPos() - valuePos;
 						m_FormatData.AddSpecifier(name, StringViewFormat(valuePos, valueSize));
-					} else if(m_FormatStr.IsADigit()) {
-						std::intmax_t value = 0;
+					}
+					else if (m_FormatStr.IsADigit()) {
+						Detail::FormatDataType value = 0;
 						m_FormatStr.ReadInt(value);
 						m_FormatData.AddSpecifier(name, value);
-					} else if(m_FormatStr.IsEqualForward('{')) {
-						std::intmax_t value = 0;
+					}
+					else if (m_FormatStr.IsEqualForward('{')) {
+						Detail::FormatDataType value = 0;
 						FormatIdx idx = 0;
 						bool get = GetFormatIdx(idx);
 						m_FormatStr.IsEqualForward('}');
@@ -122,9 +133,11 @@ namespace CPPTools::Fmt {
 		m_FormatStr.Forward();				// Skip {
 
 		if (m_FormatStr.IsUpperCase()) {
-			if		(m_FormatStr.IsEqualTo('C') && m_FormatStr.NextIsEqualForward(':', '}'))		ColorValuePrint();
-			else if (m_FormatStr.IsEqualTo('T') && m_FormatStr.NextIsEqualForward(':', '}'))		TimerValuePrint();
-			else if (m_FormatStr.IsEqualTo('D') && m_FormatStr.NextIsEqualForward(':', '}'))		DateValuePrint();
+			if (m_FormatStr.IsEqualTo('C') && m_FormatStr.NextIsEqualForward(':', '}'))				{ m_AnsiFormatterChange.HasMadeChange = true; ReadAnsiTextColorParameter(); }
+			else if (m_FormatStr.IsEqualTo('T') && m_FormatStr.NextIsEqualForward(':', '}'))		{ m_AnsiFormatterChange.HasMadeChange = true; ReadTimerParameter();		    }
+			else if (m_FormatStr.IsEqualTo('D') && m_FormatStr.NextIsEqualForward(':', '}'))		{ m_AnsiFormatterChange.HasMadeChange = true; ReadDateParameter();		    }
+			else if (m_FormatStr.IsEqualTo('S') && m_FormatStr.NextIsEqualForward(':', '}'))		{ m_AnsiFormatterChange.HasMadeChange = true; ReadAnsiTextStyleParameter(); }
+			else if (m_FormatStr.IsEqualTo('F') && m_FormatStr.NextIsEqualForward(':', '}'))		{ m_AnsiFormatterChange.HasMadeChange = true; ReadAnsiTextFrontParameter(); }
 		} else {
 			FormatIdx formatIdx;
 			if (!GetFormatIdx(formatIdx))	return false;
@@ -133,13 +146,18 @@ namespace CPPTools::Fmt {
 				data.Clone(m_FormatData);
 				m_FormatData = FormatDataType();
 
-				Detail::AnsiColorMem colorMem(m_ColorMem);
+				Detail::AnsiTextCurrentColor ansiTextColor(m_AnsiTextCurrentColor);
+				Detail::AnsiTextCurrentStyle ansiTextStyle(m_AnsiTextCurrentStyle);
+				Detail::AnsiTextCurrentFront ansiTextFront(m_AnsiTextCurrentFront);
 
 				if (!m_FormatData.IsInit)		ParameterData();
 
 				m_ContextArgs.FormatTypeFromIdx(*this, formatIdx);
-
-				if (m_FormatData.HasChangeColor) { m_ColorMem = colorMem; ReloadColor(); }
+				
+				if (m_FormatData.AnsiTextColorChange.HasChangeColor) { m_AnsiTextCurrentColor = ansiTextColor;	ReloadColor(m_AnsiTextCurrentColor, m_FormatData.AnsiTextColorChange); }
+				if (m_FormatData.AnsiTextStyleChange.HasChangeStyle) { m_AnsiTextCurrentStyle = ansiTextStyle;	ReloadStyle(m_AnsiTextCurrentStyle, m_FormatData.AnsiTextStyleChange); }
+				if (m_FormatData.AnsiTextFrontChange.HasChangeFront) { m_AnsiTextCurrentFront = ansiTextFront;	ReloadFront(m_AnsiTextCurrentFront, m_FormatData.AnsiTextFrontChange); }
+				
 				m_FormatData.Clone(data);
 			}
 		}
@@ -287,19 +305,19 @@ namespace CPPTools::Fmt {
 		FormatInString<CharFormat, CharBuffer>(str, std::basic_string_view<CharFormat>(format), std::forward<Args>(args)...);
 	}
 	
-	template<typename CharBuffer, typename CharFormat, typename ...Args>
+	template<typename CharBuffer = char, typename CharFormat, typename ...Args>
 	inline std::basic_string<CharBuffer> FormatString(const std::basic_string_view<CharFormat> format, Args&& ...args) {
 		BasicFormatContext<CharFormat, CharBuffer, Args...> context(true, format, std::forward<Args>(args)...);
 		context.MainFormat();
 		context.BufferOut().PushEndChar();
 		return context.BufferOut().GetBuffer();
 	}
-	template<typename CharBuffer, typename CharFormat, std::size_t FORMAT_SIZE, typename ...Args>
+	template<typename CharBuffer = char, typename CharFormat, std::size_t FORMAT_SIZE, typename ...Args>
 	inline std::basic_string<CharBuffer> FormatString(const CharFormat(&format)[FORMAT_SIZE], Args&& ...args) {
 		return FormatString<CharFormat, CharBuffer>(std::basic_string_view<CharFormat>(format), std::forward<Args>(args)...);
 	}
 	
-	/////---------- NO-FORMAT Impl ----------//////
+	/////---------- NO-FORMAT Impl except for string which are formatted for avoid {} ----------//////
 	
 	template<typename CharBuffer, size_t BUFFER_SIZE, typename T>
 	void FormatInChar(CharBuffer(&buffer)[BUFFER_SIZE], T&& t) {
@@ -364,7 +382,7 @@ namespace CPPTools::Fmt {
 		str = context.BufferOut().GetBuffer();
 	}
 	
-	template<typename CharBuffer, typename T>
+	template<typename CharBuffer = char, typename T>
 	inline std::basic_string<CharBuffer> FormatString(T&& t) {
 		BasicFormatContext<char, CharBuffer> context(true, std::basic_string_view<char>(nullptr, 0));
 		context.WriteType(t);

@@ -3,7 +3,8 @@
 #include "BasicUnFormatContext.h"
 
 #include "BaseFormat/BaseFormat.h"
-#include "BaseFormat/ColorFormat.h"
+#include "BaseFormat/BaseAnsiTextColor.h"
+#include "BaseFormat/BaseAnsiTextStyle.h"
 #include "BaseFormat/Chrono.h"
 #include "BaseFormat/BaseSTDLib.h"
 
@@ -14,6 +15,7 @@ namespace CPPTools::Fmt {
 		: m_BufferIn(buffer)
 		, m_FormatStr(format)
 		, m_ContextArgs(std::forward<ContextArgs>(args)...)
+		, m_NoStride(0)
 		, m_ValuesIdx(0)
 	{
 	}
@@ -24,6 +26,7 @@ namespace CPPTools::Fmt {
 		: m_BufferIn(parentContext.BufferIn())
 		, m_FormatStr(format)
 		, m_ContextArgs(std::forward<ContextArgs>(args)...)
+		, m_NoStride(0)
 		, m_ValuesIdx(0)
 	{
 		m_FormatData.Clone(parentContext.GetFormatData());
@@ -32,22 +35,32 @@ namespace CPPTools::Fmt {
 	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
 	template<typename ChildCharFormat, typename ...ChildContextArgs>
 	inline void BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>::UpdateContextFromChild(BasicFormatContext<ChildCharFormat, CharBuffer, ChildContextArgs...>& childContext) {
-		m_BufferIn.UpdateFromClidBuffer(childContext.BufferIn());
+		m_BufferIn.UpdateFromChildBuffer(childContext.BufferIn());
 	}
 
 
 	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
-	void BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>::GetColorValue() {
+	void BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>::ReadAnsiTextColorParameter() {
 
 	}
 
 	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
-	void BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>::GetTimerPrinted() {
+	void BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>::ReadAnsiTextStyleParameter() {
 
 	}
 
 	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
-	void BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>::GetDatePrinted() {
+	void BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>::ReadAnsiTextFrontParameter() {
+
+	}
+
+	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
+	void BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>::ReadTimerParameter() {
+
+	}
+
+	template<typename CharFormat, typename CharBuffer, typename ...ContextArgs>
+	void BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>::ReadDateParameter() {
 
 	}
 
@@ -55,8 +68,7 @@ namespace CPPTools::Fmt {
 	void BasicUnFormatContext<CharFormat, CharBuffer, ContextArgs...>::IgnoreParameter() {
 		if(m_BufferIn.IsEqualForward(':')) {
 
-		}
-		else
+		} else
 			m_BufferIn.IgnoreSpace();
 	}
 

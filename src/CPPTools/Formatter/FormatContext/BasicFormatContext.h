@@ -47,9 +47,12 @@ namespace CPPTools::Fmt {
 		std::size_t 			m_NoStride;
 
 		// For handling color / format data and idx (for not specified parameter)
-		FormatIdx				m_ValuesIdx;
-		FormatDataType			m_FormatData;
-		Detail::AnsiColorMem	m_ColorMem;
+		FormatIdx						m_ValuesIdx;
+		FormatDataType					m_FormatData;
+		Detail::AnsiTextCurrentColor	m_AnsiTextCurrentColor;
+		Detail::AnsiTextCurrentStyle	m_AnsiTextCurrentStyle;
+		Detail::AnsiTextCurrentFront	m_AnsiTextCurrentFront;
+		Detail::AnsiFormatterChange		m_AnsiFormatterChange;
 
 	public:
 		inline Detail::FormatterMemoryBufferOut<CharBuffer>&			BufferOut()			{ return m_BufferOut; }
@@ -57,8 +60,15 @@ namespace CPPTools::Fmt {
 		inline Detail::FormatterMemoryFormat<CharFormat>&				FormatStr()			{ return m_FormatStr; }
 		inline const Detail::FormatterMemoryFormat<CharFormat>&			FormatStr() const	{ return m_FormatStr; }
 
-		inline Detail::AnsiColorMem&		GetColorMem()			{ return m_ColorMem; }
-		inline const Detail::AnsiColorMem&	GetColorMem() const		{ return m_ColorMem; }
+		inline Detail::AnsiTextCurrentColor&		GetAnsiTextCurrentColor()		{ return m_AnsiTextCurrentColor; }
+		inline const Detail::AnsiTextCurrentColor&	GetAnsiTextCurrentColor() const	{ return m_AnsiTextCurrentColor; }
+		inline Detail::AnsiTextCurrentStyle&		GetAnsiTextCurrentStyle()		{ return m_AnsiTextCurrentStyle; }
+		inline const Detail::AnsiTextCurrentStyle&	GetAnsiTextCurrentStyle() const	{ return m_AnsiTextCurrentStyle; }
+		inline Detail::AnsiTextCurrentFront&		GetAnsiTextCurrentFront()		{ return m_AnsiTextCurrentFront; }
+		inline const Detail::AnsiTextCurrentFront&	GetAnsiTextCurrentFront() const { return m_AnsiTextCurrentFront; }
+
+		inline Detail::AnsiFormatterChange&			GetAnsiFormatterChange()		{ return m_AnsiFormatterChange; }
+		inline const Detail::AnsiFormatterChange&	GetAnsiFormatterChange() const	{ return m_AnsiFormatterChange; }
 
 		inline FormatData<CharFormat>&			GetFormatData()				{ return m_FormatData; }
 		inline const FormatData<CharFormat>&	GetFormatData() const		{ return m_FormatData; }
@@ -67,6 +77,7 @@ namespace CPPTools::Fmt {
 		inline void AddNoStride(const std::size_t noStride)		{ m_NoStride += noStride; }
 		inline std::size_t GetNoStride() const					{ return m_NoStride; }
 		inline std::size_t GetStride() const					{ return m_BufferOut.GetBufferCurrentSize() - m_NoStride; }
+		inline std::size_t StrideGetBufferCurrentSize() const	{ return m_BufferOut.GetBufferCurrentSize(); }
 
 	public:
 		inline static FormatterHandler& GetAPI()				{ return FormatterHandler::GetInstance(); }
@@ -87,16 +98,28 @@ namespace CPPTools::Fmt {
 
 	private:
 		template<typename CharList, std::size_t SIZE>
-		std::size_t GetWordFromList(const std::basic_string_view<CharList> (&formatTypes)[SIZE]);
+		std::uint8_t GetWordFromList(const std::basic_string_view<CharList> (&formatTypes)[SIZE]);
 
 		void CheckEndStr();
-		void ColorValuePrint();
+
+		void ReadAnsiTextColorParameter();
 		std::uint8_t GetColorCode();
 		std::uint8_t GetColorFG();
 		std::uint8_t GetColorBG();
-		void TimerValuePrint();
-		void DateValuePrint();
-		void ReloadColor();
+
+		void ReadTimerParameter();
+		void ReadDateParameter();
+		
+		void ReadAnsiTextStyleParameter();
+		void WriteStyleParameter();
+
+		void ReadAnsiTextFrontParameter();
+		std::uint8_t GetFrontCode();
+
+	public:
+		void ReloadColor(const Detail::AnsiTextCurrentColor& targetColor, const Detail::AnsiTextColorChange& changeColor);
+		void ReloadStyle(const Detail::AnsiTextCurrentStyle& targetStyle, const Detail::AnsiTextStyleChange& changeStyle);
+		void ReloadFront(const Detail::AnsiTextCurrentFront& targetFront, const Detail::AnsiTextFrontChange& changeFront);
 
 	public:
 		// Unsigned-Integer Only
@@ -104,7 +127,18 @@ namespace CPPTools::Fmt {
 
 	public:
 		// Type formating from FormatType<>
-		template<typename Type>							inline void WriteType(Type&& type) { FormatType<Detail::GetBaseType<Type>, BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>>::Write(type, *this); }
+		template<typename Type>
+		inline void WriteType(Type&& type)							{ FormatType<Detail::GetBaseType<Type>, BasicFormatContext<CharFormat, CharBuffer, ContextArgs...>>::Write(type, *this); }
+		template<typename Type, typename ...Rest>
+		inline void WriteType(Type&& type, const Rest&& ...rest)	{ WriteType(type); WriteType(std::forward<Rest>(rest)...); }
+
+		// only support basic type that are considered as basic by the BufferOut class
+		template<typename Type>
+		inline void BasicWriteType(Type&& type)						{ m_BufferOut.BasicWriteType(type); }
+		template<typename Type, typename ...Rest>
+		inline void BasicWriteType(Type&& type, Rest&& ...rest)		{ m_BufferOut.BasicWriteType(type); BasicWriteType(std::forward<Rest>(rest)...); }
+
+
 
 		template<typename CharStr>						inline void PrintCharPt(const CharStr* str)						{ m_BufferOut.WriteCharPt(str); }
 		template<typename CharStr>						inline void PrintCharPt(const CharStr* str, std::size_t size)	{ m_BufferOut.WriteCharPt(str, size); }

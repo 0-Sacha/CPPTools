@@ -4,238 +4,204 @@
 
 namespace CPPTools::Fmt::Detail {
 
-	//---------------------------------------------//
-	//-------------------- Int --------------------//
-	//---------------------------------------------//
-
 	template<typename CharBuffer>
 	template<typename T>
-	void FormatterMemoryBufferOut<CharBuffer>::BasicWriteInt(T i) {
+	void FormatterMemoryBufferOut<CharBuffer>::FastWriteInt(T i) {
 		if (i == 0) { PushBack('0'); return; }
 		if (i < 0)	{ PushBack('-'); i = -i; }
 
-		T i_ = i;
-		int nb = 0;
-		while (i_ > 0)		{ i_ /= 10; ++nb; }
-		Forward(nb - 1);
-		while (i > 0)		{ PushReverse(i % 10 + '0'); i /= 10; }
-		Forward(nb + 1);
+		FormatDataType nbDigit = GetNumberOfDigitDec(i);
+		Forward(nbDigit - 1);
+		while (i > 0) { PushReverseNoCheck(i % 10 + '0'); i /= 10; }
+		Forward(nbDigit + 1);
 	}
+
+	template<typename CharBuffer>
+	template<typename T>
+	void FormatterMemoryBufferOut<CharBuffer>::FastWriteUInt(T i) {
+		if (i == 0) { PushBack('0'); return; }
+
+		FormatDataType nbDigit = GetNumberOfDigitDec(i);
+		Forward(nbDigit - 1);
+		while (i > 0) { PushReverseNoCheck(i % 10 + '0'); i /= 10; }
+		Forward(nbDigit + 1);
+	}
+
+	template<typename CharBuffer>
+	template<typename T>
+	void FormatterMemoryBufferOut<CharBuffer>::FastWriteFloat(T i, FormatDataType nbDecimal) {
+		FastWriteInt<typename Detail::ValuesDetail::FloatDetail<T>::IntType>(static_cast<typename Detail::ValuesDetail::FloatDetail<T>::IntType>(i));
+		PushBack('.');
+		if (i < 0)	i = -i;
+		i = i - (typename Detail::ValuesDetail::FloatDetail<T>::IntType)i;
+		while (nbDecimal-- != 0) {
+			char intPart = static_cast<char>(i *= 10);
+			PushBack(intPart + '0');
+			i -= intPart;
+		}
+	}
+
+	//---------------------------------------------//
+	//---------------------------------------------//
+	//---------------------------------------------//
 
 	template<typename CharBuffer>
 	template<typename T>
 	void FormatterMemoryBufferOut<CharBuffer>::BasicWriteInt(T i, ShiftType st, FormatDataType shift, ShiftPrint sp) {
-		T i_ = i < 0 ? -i : i;
-		int nb = 0;
 
-		while (i_ > 0)			{ i_ /= 10; ++nb; --shift; }
-		if (i == 0)				--shift;
-		if (i < 0)				--shift;
-		
-		if (st == Detail::ShiftType::Right) {
-			if (sp == Detail::ShiftPrint::Space)		{ while (shift-- > 0) PushBack(' '); }
-			else if (sp == Detail::ShiftPrint::Zeros)	{ while (shift-- > 0) PushBack('0'); }
+		FormatDataType nbDigit = GetNumberOfDigitDec(i);
+
+		shift -= nbDigit;
+		if (i < 0) --shift;
+
+		if(sp == ShiftPrint::Space)		PrintShiftBegin(st, ShiftPrint::Space, shift);
+		if (i < 0) { PushBack('-'); i = -i; }
+		if (sp == ShiftPrint::Zeros)	PrintShiftRight(st, ShiftPrint::Zeros, shift);
+
+		if (i == 0)		PushBack('0');
+		else {
+			Forward(nbDigit - 1);
+			while (i > 0) { PushReverseNoCheck(i % 10 + '0'); i /= 10; }
+			Forward(nbDigit + 1);
 		}
 
-		if (i == 0) {
-			--shift; PushBack('0');
-			if (st == Detail::ShiftType::Left)	while (shift-- > 0) PushBack(' ');
-			return;
-		}
-
-		if (i < 0)		{ PushBack('-'); i = -i; }
-		Forward(nb - 1);
-		while (i > 0)	{ PushReverse(i % 10 + '0'); i /= 10; }
-		Forward(nb + 1);
-
-		if (st == Detail::ShiftType::Left)		while (shift-- > 0) PushBack(' ');
+		PrintShiftEnd(st, ShiftPrint::Space, shift);
 	}
 
-
-	//-------------------- Int Bin --------------------//
-
-	template<typename CharBuffer>
-	template<typename T>
-	void FormatterMemoryBufferOut<CharBuffer>::BasicWriteIntAsBin(T i, FormatDataType def) {
-		if (def < 3)	def = sizeof(T) * 8;
-
-		if (i < 0)		PushBack('1');
-		else			PushBack('0');
-
-		std::uint64_t mask = (std::uint64_t)1 << (def - 2);
-		while (mask != 0) {
-			if (i & mask)	PushBack('1');
-			else			PushBack('0');
-			mask = mask >> 1;
-		}
-	}
-
-	template<typename CharBuffer>
-	template<typename T>
-	void FormatterMemoryBufferOut<CharBuffer>::BasicWriteIntAsBin(T i, FormatDataType def, ShiftType st, FormatDataType shift, ShiftPrint sp) {
-		if (def < 3)	def = sizeof(T) * 8;
-		std::uint64_t mask = (std::uint64_t)1 << (def - 2);
-		shift -= def;
-
-		if (st == Detail::ShiftType::Right)		while (shift-- > 0) PushBack(' ');
-
-		if (i < 0)	PushBack('1');
-		else		PushBack('0');
-
-		while (mask != 0) {
-			if (i & mask)	PushBack('1');
-			else			PushBack('0');
-			mask = mask >> 1;
-		}
-		if (st == Detail::ShiftType::Left)		while (shift-- > 0)		PushBack(' ');
-	}
-
-
-	//-------------------- Int Hex --------------------//
-
-	template<typename CharBuffer>
-	template<typename T>
-	void FormatterMemoryBufferOut<CharBuffer>::BasicWriteIntAsHex(T i, FormatDataType def) {
-		// static char arr[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
-	}
-
-	template<typename CharBuffer>
-	template<typename T>
-	void FormatterMemoryBufferOut<CharBuffer>::BasicWriteIntAsHex(T i, FormatDataType def, ShiftType st, FormatDataType shift, ShiftPrint sp) {
-		// static char arr[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
-	}
-
-
-	//-------------------- Oct --------------------//
-
-	template<typename CharBuffer>
-	template<typename T>
-	void FormatterMemoryBufferOut<CharBuffer>::BasicWriteIntAsOct(T i, FormatDataType def) {}
-
-	template<typename CharBuffer>
-	template<typename T>
-	void FormatterMemoryBufferOut<CharBuffer>::BasicWriteIntAsOct(T i, FormatDataType def, ShiftType st, FormatDataType shift, ShiftPrint sp) {}
-
-
-
-
-	//----------------------------------------------//
-	//-------------------- UInt --------------------//
-	//----------------------------------------------//
-	template<typename CharBuffer>
-	template<typename T>
-	void FormatterMemoryBufferOut<CharBuffer>::BasicWriteUInt(T i) {
-		if (i == 0) { PushBack('0'); return; }
-
-		T i_ = i;
-		int nb = 0;
-		while (i_ > 0)			{ i_ /= 10; ++nb; }
-		Forward(nb - 1);
-		while (i > 0)			{ PushReverse(i % 10 + '0'); i /= 10; }
-		Forward(nb + 1);
-	}
 
 	template<typename CharBuffer>
 	template<typename T>
 	void FormatterMemoryBufferOut<CharBuffer>::BasicWriteUInt(T i, ShiftType st, FormatDataType shift, ShiftPrint sp) {
-		T i_ = i;
-		std::int8_t nb = 0;
-		while (i_ > 0)	{ i_ /= 10; ++nb; --shift; }
-		if (i == 0)		--shift;
+		FormatDataType nbDigit = GetNumberOfDigitDec(i);
+		shift -= nbDigit;
 
-		if (st == Detail::ShiftType::Right) {
-			if (sp == Detail::ShiftPrint::Space)		{ while (shift-- > 0) PushBack(' '); }
-			else if (sp == Detail::ShiftPrint::Zeros)	{ while (shift-- > 0) PushBack('0'); }
+		PrintShiftBegin(st, sp, shift);
+
+		if (i == 0)		PushBack('0');
+		else {
+			Forward(nbDigit - 1);
+			while (i > 0) { PushReverseNoCheck(i % 10 + '0'); i /= 10; }
+			Forward(nbDigit + 1);
 		}
 
-		if (i == 0) {
+		PrintShiftEnd(st, ShiftPrint::Space, shift);
+	}
+
+	template<typename CharBuffer>
+	template<typename T>
+	void FormatterMemoryBufferOut<CharBuffer>::BasicWriteFloat(T i, FormatDataType nbDecimal, ShiftType st, FormatDataType shift, ShiftPrint sp) {
+
+		typename Detail::ValuesDetail::FloatDetail<T>::IntType iInt = static_cast<typename Detail::ValuesDetail::FloatDetail<T>::IntType>(i);
+
+		FormatDataType nbDigit = GetNumberOfDigitDec(iInt);
+
+		shift -= nbDigit + nbDecimal + 1;
+		if (iInt < 0) --shift;
+
+		if (sp == ShiftPrint::Space)	PrintShiftBegin(st, ShiftPrint::Space, shift);
+		if (iInt < 0) { PushBack('-'); iInt = -iInt; }
+		if (sp == ShiftPrint::Zeros)	PrintShiftRight(st, ShiftPrint::Zeros, shift);
+
+		if (iInt == 0)		PushBack('0');
+		else {
+			Forward(nbDigit - 1);
+			while (iInt > 0) { PushReverseNoCheck(iInt % 10 + '0'); iInt /= 10; }
+			Forward(nbDigit + 1);
+		}
+
+		PushBack('.');
+		if (i < 0)	i = -i;
+		i = i - (typename Detail::ValuesDetail::FloatDetail<T>::IntType)i;
+		while (nbDecimal-- != 0) {
+			const char intPart = static_cast<const char>(i *= 10);
+			PushBack(intPart + '0');
+			i -= intPart;
+		}
+		
+		PrintShiftEnd(st, ShiftPrint::Space, shift);
+	}
+
+
+	//---------------------------------------------//
+	//---------------------------------------------//
+	//---------------------------------------------//
+
+	template<typename CharBuffer>
+	template<typename T>
+	void FormatterMemoryBufferOut<CharBuffer>::BasicWriteIntAsBin(T i, FormatDataType digitSize, ShiftType st, FormatDataType shift, ShiftPrint sp, bool trueValue) {
+		// Compute shift and "TureValue" print
+		if (digitSize == Detail::DIGIT_SIZE_NOT_SPECIFIED) digitSize = sizeof(T) * 8;
+		shift -= digitSize;
+		if (trueValue) shift -= 2;
+
+		if (sp == ShiftPrint::Space) PrintShiftBegin(st, sp, shift);
+		if (trueValue) {
 			PushBack('0');
-			if (st == Detail::ShiftType::Left)		while (shift-- > 0) PushBack(' ');
-			return;
+			PushBack('b');
 		}
+		if (sp == ShiftPrint::Zeros) PrintShiftBegin(st, sp, shift);
 
-		Forward(nb - 1);
-		while (i > 0) { PushReverse(i % 10 + '0'); i /= 10; }
-		Forward(nb + 1);
-
-		if (st == Detail::ShiftType::Left)
-			while (shift-- > 0) PushBack(' ');
-	}
-
-
-	//-------------------- UInt Bin --------------------//
-
-	template<typename CharBuffer>
-	template<typename T>
-	void FormatterMemoryBufferOut<CharBuffer>::BasicWriteUIntAsBin(T i, FormatDataType def) {
-		if (def < 2)	def = sizeof(T) * 8;
-		std::size_t mask = (std::size_t)1 << (def - 1);
-		while (mask != 0) {
-			if (i & mask)	PushBack('1');
-			else			PushBack('0');
-			mask = mask >> 1;
+		// Print value
+		Forward(digitSize - 1);
+		FormatDataType k = digitSize + 1;
+		while (--k != 0) {
+			if (i & 1)	PushReverseNoCheck('1');
+			else		PushReverseNoCheck('0');
+			i = i >> 1;
 		}
+		Forward(digitSize + 1);
+
+		PrintShiftEnd(st, ShiftPrint::Space, shift);
 	}
 
 	template<typename CharBuffer>
 	template<typename T>
-	void FormatterMemoryBufferOut<CharBuffer>::BasicWriteUIntAsBin(T i, FormatDataType def, ShiftType st, FormatDataType shift, ShiftPrint sp) {
-		if (def < 2)	def = sizeof(T) * 8;
-		std::uint64_t mask = (std::uint64_t)1 << (def - 1);
-		shift -= def;
+	void FormatterMemoryBufferOut<CharBuffer>::BasicWriteIntAsHex(T i, FormatDataType digitSize, ShiftType st, FormatDataType shift, ShiftPrint sp, bool trueValue, Detail::PrintStyle valueDes) {
+		// Compute shift and "TureValue" print
+		if (digitSize == Detail::DIGIT_SIZE_NOT_SPECIFIED) digitSize = sizeof(T) * 2;
+		shift -= digitSize;
+		if (trueValue) shift -= 2;
 
-		if (st == Detail::ShiftType::Right)		while (shift-- > 0) PushBack(' ');
-
-		if (i < 0)	PushBack('1');
-		else		PushBack('0');
-
-		while (mask != 0) {
-			if (i & mask)	PushBack('1');
-			else			PushBack('0');
-			mask = mask >> 1;
+		if (sp == ShiftPrint::Space) PrintShiftBegin(st, sp, shift);
+		if (trueValue) {
+			PushBack('0');
+			PushBack('x');
 		}
-		if (st == Detail::ShiftType::Left)
-			while (shift-- > 0)			PushBack(' ');
-	}
+		if (sp == ShiftPrint::Zeros) PrintShiftBegin(st, sp, shift);
 
+		// Print value
+		Forward(digitSize - 1);
+		FormatDataType k = digitSize + 1;
+		if(valueDes == PrintStyle::LowerCase)
+			while (--k != 0) { PushReverseNoCheck(LOWER_HEX[i & 0b1111]); i = i >> 4; }
+		else
+			while (--k != 0) { PushReverseNoCheck(UPPER_HEX[i & 0b1111]); i = i >> 4; }
+		Forward(digitSize + 1);
 
-	//-------------------- UInt Hex --------------------//
-	template<typename CharBuffer>
-	template<typename T>
-	void FormatterMemoryBufferOut<CharBuffer>::BasicWriteUIntAsHex(T i, FormatDataType def) {
-		static char arr[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
-
-		std::size_t mask = (std::size_t)0b1111;
-
-		if (def == 0) {
-			T i_ = i;
-			while (i_ != 0) { i_ -= i_ & mask; mask = mask << 4; def++; }
-			mask = mask >> 4;
-		}
-		else { mask = mask << (def - 1) * 4; }
-
-		--def;
-		while (mask != 0) {
-			std::size_t k = ((std::size_t)i & mask) >> (def--) * 4;
-			PushBack(arr[k]);
-			mask = mask >> 4;
-		}
+		PrintShiftEnd(st, ShiftPrint::Space, shift);
 	}
 
 	template<typename CharBuffer>
 	template<typename T>
-	void FormatterMemoryBufferOut<CharBuffer>::BasicWriteUIntAsHex(T i, FormatDataType def, ShiftType st, FormatDataType shift, ShiftPrint sp) {
-		// static char arr[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+	void FormatterMemoryBufferOut<CharBuffer>::BasicWriteIntAsOct(T i, FormatDataType digitSize, ShiftType st, FormatDataType shift, ShiftPrint sp, bool trueValue) {
+		// Compute shift and "TureValue" print
+		if (digitSize == Detail::DIGIT_SIZE_NOT_SPECIFIED) digitSize = static_cast<FormatDataType>(std::ceil(static_cast<float>(sizeof(T) * 8) / 3));
+		shift -= digitSize;
+		if (trueValue) shift -= 2;
+
+		if (sp == ShiftPrint::Space) PrintShiftBegin(st, sp, shift);
+		if (trueValue) {
+			PushBack('0');
+			PushBack('o');
+		}
+		if (sp == ShiftPrint::Zeros) PrintShiftBegin(st, sp, shift);
+
+		// Print value
+		Forward(digitSize - 1);
+		FormatDataType k = digitSize + 1;
+		while (--k != 0) { PushReverseNoCheck((i & 0b111) + '0'); i = i >> 3; }
+		Forward(digitSize + 1);
+
+		PrintShiftEnd(st, ShiftPrint::Space, shift);
 	}
-
-
-
-	//-------------------- UInt Oct --------------------//
-	template<typename CharBuffer>
-	template<typename T>
-	void FormatterMemoryBufferOut<CharBuffer>::BasicWriteUIntAsOct(T i, FormatDataType def) {}
-
-	template<typename CharBuffer>
-	template<typename T>
-	void FormatterMemoryBufferOut<CharBuffer>::BasicWriteUIntAsOct(T i, FormatDataType def, ShiftType st, FormatDataType shift, ShiftPrint sp) {}
 }

@@ -2,12 +2,33 @@
 
 #include "CPPTools/Core/Core.h"
 
-#include "BaseColor.h"
+#include "BaseAnsiTextColor.h"
+#include "BaseAnsiTextStyle.h"
+#include "BaseAnsiTextFront.h"
 #include "GetBaseType.h"
+
+#include "NumberDetail.h"
+
+// TODO :
+//
+//		End writing all writer and reader	
+// 
+//		REGEX		
+//			{I:REGEX}
+//			{:regex=REGEX} (string / char array)
+//			{}
+//
+//		PackSave (foreshadowing for constexpr)
+//
+//
+
 
 namespace CPPTools::Fmt::Detail {
 	using FormatDataType	= std::int16_t;
-	static inline constexpr FormatDataType FORMAT_DATA_NOT_SPECIFIED = (std::numeric_limits<FormatDataType>::max)();
+	static inline constexpr FormatDataType FORMAT_DATA_NOT_SPECIFIED	= (std::numeric_limits<FormatDataType>::max)();
+	static inline constexpr FormatDataType SHIFT_NOT_SPECIFIED			= 0;
+	static inline constexpr FormatDataType DIGIT_SIZE_NOT_SPECIFIED			= FORMAT_DATA_NOT_SPECIFIED;
+	static inline constexpr FormatDataType FLOAT_PRECISION_NOT_SPECIFIED	= 2;
 } // namespace CPPTools::Fmt::Detail
 
 //ToRemove
@@ -18,31 +39,43 @@ namespace CPPTools::Fmt {
 
 namespace CPPTools::Fmt::Detail {
 
-	enum class ValueType : FormatDataType {
-		Param,
-		Color,
-		Time,
-		Fail = 255
-	};
+	template<typename T> struct ForwardAsInt;
+	template<typename T> struct ForwardAsUInt;
+	template<typename T> struct ForwardAsFloat;
+	template<typename CharType> struct ForwardAsChar {};
+	template<typename CharType, std::size_t SIZE> struct ForwardAsCharArray {};
+	template<typename CharType> struct ForwardAsCharPt {};
 
 	enum class ValueIntPrint : FormatDataType {
 		Int,
 		Bin,
 		Hex,
-		Oct
+		Oct,
+		Default = Int
 	};
 
 	enum class ShiftType : FormatDataType {
 		Nothing,
 		Right,
 		Left,
-		Center
+		Center,
+		Default = Nothing
 	};
 
 	enum class ShiftPrint : FormatDataType {
 		Space,
-		Zeros
+		Zeros,
+		Default = Space
 	};
+
+	enum class PrintStyle : FormatDataType {
+		UpperCase,
+		LowerCase,
+		Nothing,
+		Default = UpperCase
+	};
+
+
 } // CPPTools::Fmt::Detail
 
 namespace CPPTools::Fmt {
@@ -72,8 +105,8 @@ namespace CPPTools::Fmt {
 			, ValueAsNumber(value)
 			, ValueIsText(false) {}
 
-		static inline constexpr Detail::FormatDataType ValueAsNumberNotSpecified()				{ return Detail::FORMAT_DATA_NOT_SPECIFIED; }
-		static inline constexpr std::basic_string_view<CharFormat> ValueAsTextNotSpecified()	{ return std::basic_string_view<CharFormat>(""); }
+		static inline constexpr Detail::FormatDataType SpecifierAsNumberNotSpecified()				{ return Detail::FORMAT_DATA_NOT_SPECIFIED; }
+		static inline constexpr std::basic_string_view<CharFormat> SpecifierAsTextNotSpecified()	{ return std::basic_string_view<CharFormat>(""); }
 
 		std::basic_string_view<CharFormat>	Name;
 		std::basic_string_view<CharFormat>	ValueAsText;
@@ -88,30 +121,37 @@ namespace CPPTools::Fmt {
 			: IsInit(false)
 			, HasSpec(false)
 
-			, BaseValue(false)
+			, TrueValue(false)
 
-			, IntPrint(::CPPTools::Fmt::Detail::ValueIntPrint::Int)
-			, Precision(0)
-			, FloatPrecision(3)
+			, IntPrint(::CPPTools::Fmt::Detail::ValueIntPrint::Default)
+			, DigitSize(Detail::DIGIT_SIZE_NOT_SPECIFIED)
+			, FloatPrecision(Detail::FLOAT_PRECISION_NOT_SPECIFIED)
 
-			, ShiftPrint(::CPPTools::Fmt::Detail::ShiftPrint::Space)
-			, ShiftType(::CPPTools::Fmt::Detail::ShiftType::Nothing)
-			, ShiftValue(0)
+			, PrintStyle(Detail::PrintStyle::Default)
+
+			, ShiftPrint(::CPPTools::Fmt::Detail::ShiftPrint::Default)
+			, ShiftType(::CPPTools::Fmt::Detail::ShiftType::Default)
+			, ShiftValue(Detail::SHIFT_NOT_SPECIFIED)
 
 			, SpecifierCount(0)
 
-			, HasChangeColor(false)
+			, AnsiTextColorChange()
+			, AnsiTextStyleChange()
+			, AnsiTextFrontChange()
 		{}
 
-		explicit FormatData(const FormatData& other)
+		template <typename CharFormatOther>
+		explicit FormatData(const FormatData<CharFormatOther>& other)
 			: IsInit(other.IsInit)
 			, HasSpec(other.HasSpec)
 
-			, BaseValue(other.BaseValue)
+			, TrueValue(other.TrueValue)
 
 			, IntPrint(other.IntPrint)
-			, Precision(other.Precision)
+			, DigitSize(other.DigitSize)
 			, FloatPrecision(other.FloatPrecision)
+
+			, PrintStyle(other.PrintStyle)
 
 			, ShiftPrint(other.ShiftPrint)
 			, ShiftType(other.ShiftType)
@@ -120,29 +160,35 @@ namespace CPPTools::Fmt {
 			, SpecifierCount(other.SpecifierCount)
 			, Specifier(other.Specifier)
 
-			, HasChangeColor(false)
+			, AnsiTextColorChange()
+			, AnsiTextStyleChange()
+			, AnsiTextFrontChange()
 		{}
 
 		explicit FormatData(bool hasSpec
 
 			, bool baseValue = false
 
-			, Detail::ValueIntPrint intPrint = Detail::ValueIntPrint::Int
-			, Detail::FormatDataType precision = 0
-			, Detail::FormatDataType floatPrecision = 3
+			, Detail::ValueIntPrint intPrint		= Detail::ValueIntPrint::Default
+			, Detail::FormatDataType digitSize		= Detail::DIGIT_SIZE_NOT_SPECIFIED
+			, Detail::FormatDataType floatPrecision = Detail::FLOAT_PRECISION_NOT_SPECIFIED
 
-			, Detail::ShiftPrint shiftPrint = Detail::ShiftPrint::Space
-			, Detail::ShiftType shiftType = Detail::ShiftType::Nothing
-			, Detail::FormatDataType shiftValue = 0)
+			, Detail::PrintStyle printStyle			= Detail::PrintStyle::Default 
+
+			, Detail::ShiftPrint shiftPrint		= Detail::ShiftPrint::Default
+			, Detail::ShiftType shiftType		= Detail::ShiftType::Default
+			, Detail::FormatDataType shiftValue = Detail::SHIFT_NOT_SPECIFIED)
 
 			: IsInit(true)
 			, HasSpec(hasSpec)
 
-			, BaseValue(baseValue)
+			, TrueValue(baseValue)
 
 			, IntPrint(intPrint)
-			, Precision(precision)
+			, DigitSize(digitSize)
 			, FloatPrecision(floatPrecision)
+
+			, PrintStyle(printStyle)
 
 			, ShiftPrint(shiftPrint)
 			, ShiftType(shiftType)
@@ -150,13 +196,17 @@ namespace CPPTools::Fmt {
 
 			, SpecifierCount(0)
 
-			, HasChangeColor(false)
+			, AnsiTextColorChange()
+			, AnsiTextStyleChange()
+			, AnsiTextFrontChange()
 		{}
 
 
 		FormatData& operator=(const FormatData& other) {
 			std::memcpy(this, &other, sizeof(FormatData));
-			HasChangeColor = false;
+			AnsiTextColorChange = Detail::AnsiTextColorChange();
+			AnsiTextStyleChange = Detail::AnsiTextStyleChange();
+			AnsiTextFrontChange = Detail::AnsiTextFrontChange();
 			return *this;
 		}
 
@@ -167,33 +217,36 @@ namespace CPPTools::Fmt {
 		bool IsInit;
 		bool HasSpec;
 
-		bool BaseValue;							// = 
+		bool TrueValue;							// = 
 
-		Detail::ValueIntPrint IntPrint; 		// B - X - O - D
-		Detail::FormatDataType Precision;		// B - X - O - D
+		Detail::ValueIntPrint IntPrint; 		// B  - X  - O  - D
+		Detail::FormatDataType DigitSize;		// B? - X? - O? - D?
 		Detail::FormatDataType FloatPrecision;	// .
 
-		Detail::ShiftPrint ShiftPrint;			// < - > - ^
+		Detail::PrintStyle PrintStyle;			// U  - L
+
+		Detail::ShiftPrint ShiftPrint;			// <  - >  - ^
+		Detail::FormatDataType ShiftValue;		// <? - >? - ^?
 		Detail::ShiftType ShiftType; 			// 0
-		Detail::FormatDataType ShiftValue;		// < - > - ^
 
 		std::uint8_t SpecifierCount;
 		std::array<FormatSpecifier<CharFormat>, 10> Specifier;
 
-	public:
-		bool HasChangeColor;
+		Detail::AnsiTextColorChange AnsiTextColorChange;
+		Detail::AnsiTextStyleChange AnsiTextStyleChange;
+		Detail::AnsiTextFrontChange AnsiTextFrontChange;
 
 	public:
 		static inline constexpr std::uint8_t NotFound() { return (std::numeric_limits<std::uint8_t>::max)(); }
 
-		std::basic_string_view<CharFormat> GetValueAsTextOfSpecifierOr(const std::basic_string_view<CharFormat> str, const std::basic_string_view<CharFormat> defaultValue = FormatSpecifier<CharFormat>::ValueAsNumberNotSpecified()) const {
+		std::basic_string_view<CharFormat> GetSpecifierAsText(const std::basic_string_view<CharFormat> str, const std::basic_string_view<CharFormat> defaultValue = FormatSpecifier<CharFormat>::SpecifierAsTextNotSpecified()) const {
 			for (auto i = 0; i < SpecifierCount; ++i)
 				if (Specifier[i].ValueIsText == true && Specifier[i].Name == str)
 					return Specifier[i].ValueAsText;
 			return defaultValue;
 		}
 
-		std::intmax_t GetValueAsNumberOfSpecifierOr(const std::basic_string_view<CharFormat> str, const Detail::FormatDataType defaultValue = FormatSpecifier<CharFormat>::ValueAsTextNotSpecified()) const {
+		Detail::FormatDataType GetSpecifierAsNumber(const std::basic_string_view<CharFormat> str, const Detail::FormatDataType defaultValue = FormatSpecifier<CharFormat>::SpecifierAsNumberNotSpecified()) const {
 			for (std::uint8_t i = 0; i < SpecifierCount; ++i)
 				if (Specifier[i].ValueIsText == false && Specifier[i].Name == str)
 					return Specifier[i].ValueAsNumber;
@@ -241,6 +294,27 @@ namespace CPPTools::Fmt::Detail {
 		}
 
 		inline static bool IsSplitNeeded(const std::basic_string_view<CharJoin> str) 	{ return std::find(str.cbegin(), str.cend(), '\n') != str.cend(); } 
+	};
+
+
+	template <typename FormatContext>
+	struct NoStrideFunction {
+		inline NoStrideFunction(FormatContext& context)
+			: Context(context)
+			, SizeBuffer(Context.StrideGetBufferCurrentSize()) {}
+
+		~NoStrideFunction() {
+			Context.AddNoStride(Context.StrideGetBufferCurrentSize() - SizeBuffer);
+		}
+
+		FormatContext&	Context;
+		std::size_t		SizeBuffer;
+	};
+
+
+	struct AnsiFormatterChange {
+	public:
+		bool HasMadeChange = false;
 	};
 
 } // CPPTools::Fmt::Detail

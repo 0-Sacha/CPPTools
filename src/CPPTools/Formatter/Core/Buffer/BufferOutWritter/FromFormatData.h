@@ -11,20 +11,17 @@ namespace CPPTools::Fmt::Detail {
 		if (formatData.HasSpec) {
 			switch (formatData.IntPrint) {
 			case ValueIntPrint::Int:
-				if (formatData.ShiftType == ShiftType::Nothing) { BasicWriteInt(i); return; }
-				else											{ BasicWriteInt(i, formatData.ShiftType, formatData.ShiftValue, formatData.ShiftPrint); return; }
+				if (formatData.ShiftType == ShiftType::Nothing) return FastWriteInt(i);
+				else											return BasicWriteInt(i, formatData.ShiftType, formatData.ShiftValue, formatData.ShiftPrint);
 			case ValueIntPrint::Bin:
-				if (formatData.ShiftType == ShiftType::Nothing) { BasicWriteIntAsBin(i, formatData.Precision); return; }
-				else											{ BasicWriteIntAsBin(i, formatData.Precision, formatData.ShiftType, formatData.ShiftValue, formatData.ShiftPrint); return; }
+				return BasicWriteIntAsBin(i, formatData.DigitSize, formatData.ShiftType, formatData.ShiftValue, formatData.ShiftPrint, formatData.TrueValue);
 			case ValueIntPrint::Hex:
-				if (formatData.ShiftType == ShiftType::Nothing) { BasicWriteIntAsHex(i, formatData.Precision); return; }
-				else											{ BasicWriteIntAsHex(i, formatData.Precision, formatData.ShiftType, formatData.ShiftValue, formatData.ShiftPrint); return; }
+				return BasicWriteIntAsHex(i, formatData.DigitSize, formatData.ShiftType, formatData.ShiftValue, formatData.ShiftPrint, formatData.TrueValue, formatData.PrintStyle);
 			case ValueIntPrint::Oct:
-				if (formatData.ShiftType == ShiftType::Nothing) { BasicWriteIntAsOct(i, formatData.Precision); return; }
-				else											{ BasicWriteIntAsOct(i, formatData.Precision, formatData.ShiftType, formatData.ShiftValue, formatData.ShiftPrint); return; }
+				return BasicWriteIntAsOct(i, formatData.DigitSize, formatData.ShiftType, formatData.ShiftValue, formatData.ShiftPrint, formatData.TrueValue);
 			}
 		}
-		BasicWriteInt(i);
+		return FastWriteInt(i);
 	}
 
 	template<typename CharBuffer>
@@ -33,29 +30,26 @@ namespace CPPTools::Fmt::Detail {
 		if (formatData.HasSpec) {
 			switch (formatData.IntPrint) {
 			case ValueIntPrint::Int:
-				if (formatData.ShiftType == ShiftType::Nothing)	{ BasicWriteUInt(i); return; }
-				else											{ BasicWriteUInt(i, formatData.ShiftType, formatData.ShiftValue, formatData.ShiftPrint); return; }
+				if (formatData.ShiftType == ShiftType::Nothing) return FastWriteUInt(i);
+				else											return BasicWriteUInt(i, formatData.ShiftType, formatData.ShiftValue, formatData.ShiftPrint);
 			case ValueIntPrint::Bin:
-				if (formatData.ShiftType == ShiftType::Nothing)	{ BasicWriteUIntAsBin(i, formatData.Precision); return; }
-				else											{ BasicWriteUIntAsBin(i, formatData.Precision, formatData.ShiftType, formatData.ShiftValue, formatData.ShiftPrint); return; }
+				return BasicWriteIntAsBin(i, formatData.DigitSize, formatData.ShiftType, formatData.ShiftValue, formatData.ShiftPrint, formatData.TrueValue);
 			case ValueIntPrint::Hex:
-				if (formatData.ShiftType == ShiftType::Nothing)	{ BasicWriteUIntAsHex(i, formatData.Precision); return; }
-				else											{ BasicWriteUIntAsHex(i, formatData.Precision, formatData.ShiftType, formatData.ShiftValue, formatData.ShiftPrint); return; }
+				return BasicWriteIntAsHex(i, formatData.DigitSize, formatData.ShiftType, formatData.ShiftValue, formatData.ShiftPrint, formatData.TrueValue, formatData.PrintStyle);
 			case ValueIntPrint::Oct:
-				if (formatData.ShiftType == ShiftType::Nothing)	{ BasicWriteUIntAsOct(i, formatData.Precision); return; }
-				else											{ BasicWriteUIntAsOct(i, formatData.Precision, formatData.ShiftType, formatData.ShiftValue, formatData.ShiftPrint); return; }
+				return BasicWriteIntAsOct(i, formatData.DigitSize, formatData.ShiftType, formatData.ShiftValue, formatData.ShiftPrint, formatData.TrueValue);
 			}
 		}
-		BasicWriteUInt(i);
+		return FastWriteUInt(i);
 	}
 
 	template<typename CharBuffer>
 	template<typename T, typename FormatDataCharType>
 	void FormatterMemoryBufferOut<CharBuffer>::WriteFloatFormatData(T i, const FormatData<FormatDataCharType>& formatData) {
 		if (formatData.HasSpec) {
-			if (formatData.ShiftType == ShiftType::Nothing)	{ BasicWriteFloat(i, formatData.FloatPrecision); return; }
-			else											{ BasicWriteFloat(i, formatData.FloatPrecision, formatData.ShiftType, formatData.ShiftValue, formatData.ShiftPrint); return; }
-		}
-		BasicWriteFloat(i, formatData.FloatPrecision);
+			if (formatData.ShiftType == ShiftType::Nothing)	return FastWriteFloat(i, formatData.FloatPrecision);
+			else											return BasicWriteFloat(i, formatData.FloatPrecision, formatData.ShiftType, formatData.ShiftValue, formatData.ShiftPrint);
+		} else
+			return FastWriteFloat(i, formatData.FloatPrecision);
 	}
 }
