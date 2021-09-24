@@ -1,0 +1,25 @@
+
+#include <iostream>
+
+#include "Profiling/Profiling.h"
+
+void Function1(){
+	__PROFILER_DEFAULT_FUNC_AUTO();
+	for(int i = 0; i < 100; ++i)
+		std::cout << "Test" << "\n";
+}
+
+void Function2() {
+	__PROFILER_DEFAULT_FUNC_AUTO();
+	for (int i = 0; i < 100; ++i)
+		std::cout << "Test" << std::endl;
+}
+
+
+int main()
+{
+	__PROFILER_DEFAULT_FUNC_AUTO();
+
+	Function1();
+	Function2();
+}

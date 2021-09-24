@@ -1,35 +1,22 @@
 
-ProjectPublicIncludes["CPPTools"] = {
-	"%{Project.CPPTools}/src/"
-}
 
-project "CPPTools"
-	kind "StaticLib"
-	language "C++"
-	cppdialect "C++17"
-	staticruntime "on"
+workspace "CPPTools"
+	platforms { "x64", "Win32" }
 
-	pchheader "CPPToolspch.h"
-	pchsource "src/CPPToolspch.cpp"
-
-	targetdir 	("%{wks.location}/bin/" .. outputdir .. "/%{prj.name}")
-	objdir 		("%{wks.location}/bin-int/" .. outputdir .. "/%{prj.name}")
-
-	files {
-		"src/**.h",
-		"src/**.hpp",
-		"src/**.cpp"
+	configurations {
+		"Debug",
+		"Release"
 	}
 
-	IncludeProject("CPPTools")
+	startproject "Sandbox"
 
-	filter "system:windows"
-		systemversion "latest"
+	flags "MultiProcessorCompile"
 
-	filter "configurations:Debug"
-		runtime "Debug"
-		symbols "On"
 
-	filter "configurations:Release"
-		runtime "Release"
-		optimize "On"
+include "Helper.lua"
+
+-- Include directories relative to WKS
+Project["CPPTools"] = "%{wks.location}/CPPTools/"
+
+include "CPPTools"
+include "Sandbox"
