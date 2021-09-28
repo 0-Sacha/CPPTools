@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Integer.h"
-#include "Float.h"
 
 namespace CPPTools::Fmt::Detail {
 
