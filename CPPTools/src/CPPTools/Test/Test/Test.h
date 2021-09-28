@@ -24,7 +24,7 @@
 											else					CPPTOOLS_TEST_FAIL("TEST ERROR   : {C:red}{} return {} instead of {}", #fn, res, resExpected); \
 											}
 
-#define CPPTOOLS_TEST_FNFMT(fn, resExpected, ...)	{\
+#define CPPTOOLS_TEST_FN_F(fn, resExpected, ...)	{\
 													CPPTOOLS_TEST_INFO(__VA_ARGS__);\
 													auto res = fn;\
 													if (res == resExpected)	CPPTOOLS_TEST_OK("TEST OK      : {C:green}{} return {}", #fn, res); \
@@ -58,7 +58,7 @@
 												else					CPPTOOLS_TEST_FAIL("TEST ERROR   : {C:red}{} return {} instead of {} -> function : {function:C:+black} ; file : {file:C:+black} ; line : {line:C:+black}", #fn, res, resExpected, FORMAT_SV("function", __FUNCSIG__), FORMAT_SV("file", __FILE__), FORMAT_SV("line", __LINE__)); \
 												}
 
-#define CPPTOOLS_TEST_FNFMT_FILE(fn, resExpected, ...)	{\
+#define CPPTOOLS_TEST_FN_F_FILE(fn, resExpected, ...)	{\
 														CPPTOOLS_TEST_INFO(__VA_ARGS__);\
 														auto res = fn;\
 														if (res == resExpected)	CPPTOOLS_TEST_OK("TEST OK      : {C:green}{} return {} -> function : {function:C:+black} ; file : {file:C:+black} ; line : {line:C:+black}", #fn, res, FORMAT_SV("function", __FUNCSIG__), FORMAT_SV("file", __FILE__), FORMAT_SV("line", __LINE__)); \
@@ -72,11 +72,3 @@
 
 // Check if false at compile time
 #define CPPTOOLS_TEST_STATIC_ASSERT(x) static_assert(x, "ASSERT ERROR : " #x)
-
-
-
-
-
-
-
-

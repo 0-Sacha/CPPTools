@@ -17,6 +17,8 @@ namespace CPPTools::Fmt {
 			context.GetFormatData().AnsiTextColorChange.HasSetFg		= true;
 			context.GetAnsiTextCurrentColor().FgType = Detail::AnsiTextColorDataType::AnsiTextColor;
 			context.GetAnsiTextCurrentColor().Color.Fg = t;
+
+			context.GetAnsiFormatterChange().HasMadeChange = true;
 		}
 	};
 
@@ -31,6 +33,8 @@ namespace CPPTools::Fmt {
 			context.GetFormatData().AnsiTextColorChange.HasSetBg = true;
 			context.GetAnsiTextCurrentColor().BgType = Detail::AnsiTextColorDataType::AnsiTextColor;
 			context.GetAnsiTextCurrentColor().Color.Bg = t;
+
+			context.GetAnsiFormatterChange().HasMadeChange = true;
 		}
 	};
 
@@ -48,6 +52,8 @@ namespace CPPTools::Fmt {
 			context.GetAnsiTextCurrentColor().FgType = Detail::AnsiTextColorDataType::AnsiTextColor;
 			context.GetAnsiTextCurrentColor().BgType = Detail::AnsiTextColorDataType::AnsiTextColor;
 			context.GetAnsiTextCurrentColor().Color = t;
+
+			context.GetAnsiFormatterChange().HasMadeChange = true;
 		}
 	};
 
@@ -62,6 +68,8 @@ namespace CPPTools::Fmt {
 			context.GetFormatData().AnsiTextColorChange.HasSetFg = true;
 			context.GetAnsiTextCurrentColor().FgType = Detail::AnsiTextColorDataType::AnsiTextColor24b;
 			context.GetAnsiTextCurrentColor().Color24bits.Fg = t;
+
+			context.GetAnsiFormatterChange().HasMadeChange = true;
 		}
 	};
 
@@ -76,6 +84,8 @@ namespace CPPTools::Fmt {
 			context.GetFormatData().AnsiTextColorChange.HasSetBg = true;
 			context.GetAnsiTextCurrentColor().BgType = Detail::AnsiTextColorDataType::AnsiTextColor24b;
 			context.GetAnsiTextCurrentColor().Color24bits.Bg = t;
+
+			context.GetAnsiFormatterChange().HasMadeChange = true;
 		}
 	};
 
@@ -92,6 +102,8 @@ namespace CPPTools::Fmt {
 			context.GetAnsiTextCurrentColor().FgType = Detail::AnsiTextColorDataType::AnsiTextColor24b;
 			context.GetAnsiTextCurrentColor().BgType = Detail::AnsiTextColorDataType::AnsiTextColor24b;
 			context.GetAnsiTextCurrentColor().Color24bits = t;
+
+			context.GetAnsiFormatterChange().HasMadeChange = true;
 		}
 	};
 
@@ -107,6 +119,8 @@ namespace CPPTools::Fmt {
 			context.GetFormatData().AnsiTextColorChange.HasSetFg = true;
 			context.GetAnsiTextCurrentColor().FgType = Detail::AnsiTextColorDataType::AnsiTextNColor;
 			context.GetAnsiTextCurrentColor().ColorN.Fg = t;
+
+			context.GetAnsiFormatterChange().HasMadeChange = true;
 		}
 	};
 
@@ -121,6 +135,8 @@ namespace CPPTools::Fmt {
 			context.GetFormatData().AnsiTextColorChange.HasSetBg = true;
 			context.GetAnsiTextCurrentColor().BgType = Detail::AnsiTextColorDataType::AnsiTextNColor;
 			context.GetAnsiTextCurrentColor().ColorN.Bg = t;
+
+			context.GetAnsiFormatterChange().HasMadeChange = true;
 		}
 	};
 
@@ -137,6 +153,8 @@ namespace CPPTools::Fmt {
 			context.GetAnsiTextCurrentColor().FgType = Detail::AnsiTextColorDataType::AnsiTextNColor;
 			context.GetAnsiTextCurrentColor().BgType = Detail::AnsiTextColorDataType::AnsiTextNColor;
 			context.GetAnsiTextCurrentColor().ColorN = t;
+
+			context.GetAnsiFormatterChange().HasMadeChange = true;
 		}
 	};
 

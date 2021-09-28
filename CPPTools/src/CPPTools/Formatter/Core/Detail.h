@@ -9,19 +9,6 @@
 
 #include "NumberDetail.h"
 
-// TODO :
-//
-//		End writing all writer and reader	
-// 
-//		REGEX		
-//			{I:REGEX}
-//			{:regex=REGEX} (string / char array)
-//			{}
-//
-//		PackSave (foreshadowing for constexpr)
-//
-//
-
 
 namespace CPPTools::Fmt::Detail {
 	using FormatDataType	= std::int16_t;

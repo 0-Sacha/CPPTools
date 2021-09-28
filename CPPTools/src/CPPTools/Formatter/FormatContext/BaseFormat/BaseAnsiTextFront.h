@@ -13,6 +13,8 @@ namespace CPPTools::Fmt {
 			Detail::NoStrideFunction nostride(context);
 
 			context.BasicWriteType('\033', '[', t.FrontId, 'm');
+
+			context.GetAnsiFormatterChange().HasMadeChange = true;
 		}
 	};
 

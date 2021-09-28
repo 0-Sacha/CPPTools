@@ -1,0 +1,11 @@
+
+
+#include "toto.c"
+
+BEGIN(toto)
+
+T_FN(toto(""), 0)
+T_FN(toto("i"), 1)
+T_FN(toto("pomme"), 5)
+
+END(toto)

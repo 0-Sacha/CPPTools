@@ -12,6 +12,8 @@ namespace CPPTools::Fmt {
 		static void Write(const Detail::ResetAnsiAllParameters t, FormatContext& context) {
 			context.BasicWriteType('\033', '[', 'm');
 			context.AddNoStride(3);
+
+			context.GetAnsiFormatterChange().HasMadeChange = true;
 		}
 	};
 
@@ -19,6 +21,7 @@ namespace CPPTools::Fmt {
 	struct FormatType<Detail::ResetAnsiStyle, FormatContext>
 	{
 		static void Write(const Detail::ResetAnsiStyle t, FormatContext& context) {
+			context.GetAnsiFormatterChange().HasMadeChange = true;
 		}
 	};
 
@@ -31,6 +34,8 @@ namespace CPPTools::Fmt {
 			Detail::NoStrideFunction nostride(context);
 
 			context.BasicWriteType('\033', '[', static_cast<std::uint8_t>(t), 'm');
+
+			context.GetAnsiFormatterChange().HasMadeChange = true;
 		}
 	};
 
@@ -44,6 +49,8 @@ namespace CPPTools::Fmt {
 
 			context.GetFormatData().AnsiTextStyleChange.HasSetIntensity = true;
 			context.GetAnsiTextCurrentStyle().Intensity					= t;
+
+			context.GetAnsiFormatterChange().HasMadeChange = true;
 		}
 	};
 
@@ -57,6 +64,8 @@ namespace CPPTools::Fmt {
 
 			context.GetFormatData().AnsiTextStyleChange.HasSetItalic	= true;
 			context.GetAnsiTextCurrentStyle().Italic					= t;
+
+			context.GetAnsiFormatterChange().HasMadeChange = true;
 		}
 	};
 
@@ -70,6 +79,8 @@ namespace CPPTools::Fmt {
 
 			context.GetFormatData().AnsiTextStyleChange.HasSetUnderline		= true;
 			context.GetAnsiTextCurrentStyle().Underline						= t;
+
+			context.GetAnsiFormatterChange().HasMadeChange = true;
 		}
 	};
 
@@ -81,6 +92,8 @@ namespace CPPTools::Fmt {
 			context.AddNoStride(5);
 
 			context.GetFormatData().AnsiTextStyleChange.HasSetUnderlineColor = true;
+
+			context.GetAnsiFormatterChange().HasMadeChange = true;
 		}
 	};
 
@@ -95,6 +108,8 @@ namespace CPPTools::Fmt {
 			context.GetFormatData().AnsiTextStyleChange.HasSetUnderlineColor = true;
 			context.GetAnsiTextCurrentStyle().UnderlineColorType	= Detail::AnsiColorUnderlineType::AnsiTextNColor;
 			context.GetAnsiTextCurrentStyle().UnderlineColorN		= t;
+
+			context.GetAnsiFormatterChange().HasMadeChange = true;
 		}
 	};
 
@@ -109,6 +124,8 @@ namespace CPPTools::Fmt {
 			context.GetFormatData().AnsiTextStyleChange.HasSetUnderlineColor = true;
 			context.GetAnsiTextCurrentStyle().UnderlineColorType		= Detail::AnsiColorUnderlineType::AnsiTextColor24b;
 			context.GetAnsiTextCurrentStyle().UnderlineColor24bits		= t;
+
+			context.GetAnsiFormatterChange().HasMadeChange = true;
 		}
 	};
 
@@ -122,6 +139,8 @@ namespace CPPTools::Fmt {
 
 			context.GetFormatData().AnsiTextStyleChange.HasSetBlink	= true;
 			context.GetAnsiTextCurrentStyle().Blink					= t;
+
+			context.GetAnsiFormatterChange().HasMadeChange = true;
 		}
 	};
 
@@ -135,6 +154,8 @@ namespace CPPTools::Fmt {
 
 			context.GetFormatData().AnsiTextStyleChange.HasSetInverted	= true;
 			context.GetAnsiTextCurrentStyle().Inverted					= t;
+
+			context.GetAnsiFormatterChange().HasMadeChange = true;
 		}
 	};
 
@@ -148,6 +169,8 @@ namespace CPPTools::Fmt {
 
 			context.GetFormatData().AnsiTextStyleChange.HasSetIdeogram	= true;
 			context.GetAnsiTextCurrentStyle().Ideogram					= t;
+
+			context.GetAnsiFormatterChange().HasMadeChange = true;
 		}
 	};
 
@@ -161,6 +184,8 @@ namespace CPPTools::Fmt {
 
 			context.GetFormatData().AnsiTextStyleChange.HasSetScript	= true;
 			context.GetAnsiTextCurrentStyle().Script					= t;
+
+			context.GetAnsiFormatterChange().HasMadeChange = true;
 		}
 	};
 

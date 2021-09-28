@@ -1,0 +1,20 @@
+#include "test.itest"
+#include "toto.itest"
+
+BEGIN(MTests)
+
+EXEC(test)
+EXEC(toto)
+
+END(MTests)
+
+
+
+
+
+
+
+
+
+
+
