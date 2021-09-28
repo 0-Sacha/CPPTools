@@ -5,14 +5,16 @@
 
 #include "CPPTools/LogSystem/LogSystem.h"
 #include "CPPTools/Profiling/Profiling.h"
+#include "CPPTools/Test/Test.h"
 
+
+int test(int i) {
+	return 5 * i;
+}
 
 int main() {
 	CPPTOOLS_FORMATTER_TIME_BEGIN();
-
-	int i = 2, j = 3;
-
-	CPPTools::Fmt::UnFormatContextError error = CPPTools::Fmt::UnFormat("Hello 5 world 8 !", "Hello {I}{} {I}world {I}{}{I}!", i, j);
-
-	CPPTools::LogSystem::GetClientInstance().LogInfo("Res: {i} {j} ; error : {error}", FORMAT(i), FORMAT(j), FORMAT(error));
+	
+	CPPTOOLS_TEST_FNFMT_FILE(test(5), 25, "test");
+	CPPTOOLS_TEST_FNFMT_FILE(test(4), 25, "test");
 }
