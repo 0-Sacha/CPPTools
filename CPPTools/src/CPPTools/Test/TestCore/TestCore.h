@@ -19,7 +19,47 @@
 
 namespace CPPTools::Test {
 
-	struct TestCollisionAvoider {};
+	struct TestMemoryCollisionAvoid
+	{
+		TestMemoryCollisionAvoid()
+			: Link(nullptr)
+			, NbTest(0)
+			, NbValidTest(0)
+			, NbFailTest(0)
+		{}
+
+		TestMemoryCollisionAvoid(TestMemoryCollisionAvoid& link)
+			: Link(&link)
+			, NbTest(0)
+			, NbValidTest(0)
+			, NbFailTest(0)
+		{}
+
+		~TestMemoryCollisionAvoid() {
+			if (Link != nullptr)
+			{
+				Link->NbTest += NbTest;
+				Link->NbValidTest += NbValidTest;
+				Link->NbFailTest += NbFailTest;
+			}
+		}
+
+		void AddValid() {
+			NbTest++;
+			NbValidTest++;
+		}
+
+		void AddFail() {
+			NbTest++;
+			NbFailTest++;
+		}
+
+	public:
+		TestMemoryCollisionAvoid* Link;
+		std::uint16_t NbTest;
+		std::uint16_t NbValidTest;
+		std::uint16_t NbFailTest;
+	};
 
 	class TestCore
 	{
@@ -45,3 +85,12 @@ namespace CPPTools::Test {
 		return std::string_view(begin, end - begin);
 	}
 }
+
+template<typename FormatContext>
+struct CPPTools::Fmt::FormatType<CPPTools::Test::TestMemoryCollisionAvoid, FormatContext>
+{
+	static void Write(const CPPTools::Test::TestMemoryCollisionAvoid& val, FormatContext& context) {
+		if (val.NbFailTest == 0)	context.LittleFormat("{C:green}{} tests fails and {} valid over {} tests", val.NbFailTest, val.NbValidTest, val.NbTest);
+		else 						context.LittleFormat("{C:red}{} tests valid over {} tests ({} tests fail)", val.NbValidTest, val.NbTest, val.NbFailTest);
+	}
+};

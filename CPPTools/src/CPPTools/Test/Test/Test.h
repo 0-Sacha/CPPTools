@@ -36,34 +36,43 @@
 //******************************************************//
 //******************************************************//
 
+// Assert log if false
+#define CPPTOOLS_TESTK_ASSERT(x) if(!(x)) { CPPTOOLS_TEST_FAIL("ASSERT ERROR : {0:C:red}", #x); ADD_FAIL(); } else { ADD_VALID(); }
 
-// Assert log if false file printed
-#define CPPTOOLS_TEST_ASSERT_FILE(x) if(!(x)) CPPTOOLS_TEST_FAIL("ASSERT ERROR : {0:C:red} -> function : {function:C:+black} ; file : {file:C:+black} ; line : {line:C:+black}", #x, FORMAT_SV("function", __FUNCSIG__), FORMAT_SV("file", __FILE__), FORMAT_SV("line", __LINE__))
-
-// Check if true with file printed
-#define CPPTOOLS_TEST_TEST_FILE(x)	if(x)	CPPTOOLS_TEST_OK("TEST OK      : {:C:green} -> function : {function:C:+black} ; file : {file:C:+black} ; line : {line:C:+black}", #x, FORMAT_SV("function", __FUNCSIG__), FORMAT_SV("file", __FILE__), FORMAT_SV("line", __LINE__));\
-									else	CPPTOOLS_TEST_FAIL("TEST ERROR   : {:C:red} -> function : {function:C:+black} ; file : {file:C:+black} ; line : {line:C:+black}", #x, FORMAT_SV("function", __FUNCSIG__), FORMAT_SV("file", __FILE__), FORMAT_SV("line", __LINE__))
+// Check if false
+#define CPPTOOLS_TESTK_TEST(x)	if(x)	{ CPPTOOLS_TEST_OK("TEST OK      : {:C:green}", #x); ADD_VALID(); }\
+								else	{ CPPTOOLS_TEST_FAIL("TEST ERROR   : {:C:red}", #x); ADD_FAIL(); } 
 
 // Check if equal with file printed
-#define CPPTOOLS_TEST_ISEQUAL_FILE(x, y)	if(x == y)	CPPTOOLS_TEST_OK("TEST OK      : {C:green}{} == {} -> function : {function:C:+black} ; file : {file:C:+black} ; line : {line:C:+black}", #x, #y, FORMAT_SV("function", __FUNCSIG__), FORMAT_SV("file", __FILE__), FORMAT_SV("line", __LINE__));\
-											else		CPPTOOLS_TEST_FAIL("TEST ERROR   : {C:red}{} == {} -> function : {function:C:+black} ; file : {file:C:+black} ; line : {line:C:+black}", #x, #y, FORMAT_SV("function", __FUNCSIG__), FORMAT_SV("file", __FILE__), FORMAT_SV("line", __LINE__))
+#define CPPTOOLS_TESTK_ISEQUAL(x, y) if(x == y)	{ CPPTOOLS_TEST_OK("TEST OK      : {C:green}{} == {}", #x, #y); ADD_VALID(); }\
+									else		{ CPPTOOLS_TEST_FAIL("TEST ERROR   : {C:red}{} == {}", #x, #y); ADD_FAIL(); }
 
 // Check if not equal with file printed
-#define CPPTOOLS_TEST_ISNOTEQUAL_FILE(x, y)	if(x != y)	CPPTOOLS_TEST_OK("TEST OK      : {C:green}{} != {} -> function : {function:C:+black} ; file : {file:C:+black} ; line : {line:C:+black}", #x, #y, FORMAT_SV("function", __FUNCSIG__), FORMAT_SV("file", __FILE__), FORMAT_SV("line", __LINE__));\
-											else		CPPTOOLS_TEST_FAIL("TEST ERROR   : {C:red}{} != {} -> function : {function:C:+black} ; file : {file:C:+black} ; line : {line:C:+black}", #x, #y, FORMAT_SV("function", __FUNCSIG__), FORMAT_SV("file", __FILE__), FORMAT_SV("line", __LINE__))
+#define CPPTOOLS_TESTK_ISNOTEQUAL(x, y)	if(x != y)	{ CPPTOOLS_TEST_OK("TEST OK      : {C:green}{} != {}", #x, #y); ADD_VALID(); }\
+										else		{ CPPTOOLS_TEST_FAIL("TEST ERROR   : {C:red}{} != {}", #x, #y); ADD_FAIL(); }
 
-#define CPPTOOLS_TEST_FN_FILE(fn, resExpected)	{\
-												auto res = fn;\
-												if (res == resExpected)	CPPTOOLS_TEST_OK("TEST OK      : {C:green}{} return {} -> function : {function:C:+black} ; file : {file:C:+black} ; line : {line:C:+black}", #fn, res, FORMAT_SV("function", __FUNCSIG__), FORMAT_SV("file", __FILE__), FORMAT_SV("line", __LINE__)); \
-												else					CPPTOOLS_TEST_FAIL("TEST ERROR   : {C:red}{} return {} instead of {} -> function : {function:C:+black} ; file : {file:C:+black} ; line : {line:C:+black}", #fn, res, resExpected, FORMAT_SV("function", __FUNCSIG__), FORMAT_SV("file", __FILE__), FORMAT_SV("line", __LINE__)); \
-												}
 
-#define CPPTOOLS_TEST_FN_F_FILE(fn, resExpected, ...)	{\
-														CPPTOOLS_TEST_INFO(__VA_ARGS__);\
-														auto res = fn;\
-														if (res == resExpected)	CPPTOOLS_TEST_OK("TEST OK      : {C:green}{} return {} -> function : {function:C:+black} ; file : {file:C:+black} ; line : {line:C:+black}", #fn, res, FORMAT_SV("function", __FUNCSIG__), FORMAT_SV("file", __FILE__), FORMAT_SV("line", __LINE__)); \
-														else					CPPTOOLS_TEST_FAIL("TEST ERROR   : {C:red}{} return {} instead of {} -> function : {function:C:+black} ; file : {file:C:+black} ; line : {line:C:+black}", #fn, res, resExpected, FORMAT_SV("function", __FUNCSIG__), FORMAT_SV("file", __FILE__), FORMAT_SV("line", __LINE__)); \
-														}
+#define CPPTOOLS_TESTK_FN(fn, resExpected)	{\
+											auto res = fn;\
+											if (res == resExpected)	{ CPPTOOLS_TEST_OK("TEST OK      : {C:green}{} return {}", #fn, res); ADD_VALID(); }\
+											else					{ CPPTOOLS_TEST_FAIL("TEST ERROR   : {C:red}{} return {} instead of {}", #fn, res, resExpected); ADD_FAIL(); }\
+											}
+
+#define CPPTOOLS_TESTK_FN_F(fn, resExpected, ...)	{\
+													CPPTOOLS_TEST_INFO(__VA_ARGS__);\
+													auto res = fn;\
+													if (res == resExpected)	{ CPPTOOLS_TEST_OK("TEST OK      : {C:green}{} return {}", #fn, res); ADD_VALID(); }\
+													else					{ CPPTOOLS_TEST_FAIL("TEST ERROR   : {C:red}{} return {} instead of {}", #fn, res, resExpected); ADD_FAIL(); }\
+													}
+
+
+//******************************************************//
+//******************************************************//
+//******************************************************//
+
+#define CPPTOOLS_FILE()		CPPTOOLS_TEST_TRACE("file : {file:C:+black} ; line : {line:C:+black}", FORMAT_SV("function", __FUNCSIG__), FORMAT_SV("file", __FILE__), FORMAT_SV("line", __LINE__))					
+#define CPPTOOLS_FUNCTION()	CPPTOOLS_TEST_TRACE("function : {function:C:+black} ; file : {file:C:+black} ; line : {line:C:+black}", FORMAT_SV("function", __FUNCSIG__), FORMAT_SV("file", __FILE__), FORMAT_SV("line", __LINE__))					
+
 
 //******************************************************//
 //******************************************************//

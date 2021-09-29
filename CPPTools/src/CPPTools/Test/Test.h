@@ -23,12 +23,12 @@
 #define	T_FN(fn, res)			CPPTOOLS_TEST_FN(fn, res);
 #define	T_FN_F(fn, res, ...)	CPPTOOLS_TEST_FN_F(fn, res, __VA_ARGS__);
 
-#define TF_ASSERT(x)			CPPTOOLS_TEST_ASSERT_FILE(x);
-#define	TF_TEST(x)				CPPTOOLS_TEST_TEST_FILE(x);
-#define	TF_EQUAL(x, y)			CPPTOOLS_TEST_ISEQUAL_FILE(x, y) ;
-#define	TF_NEQUAL(x, y)			CPPTOOLS_TEST_ISNOTEQUAL_FILE(x, y);
-#define	TF_FN(fn, res)			CPPTOOLS_TEST_FN_FILE(fn, res);
-#define	TF_FN_F(fn, res, ...)	CPPTOOLS_TEST_FN_F_FILE(fn, res, __VA_ARGS__);
+#define K_ASSERT(x)				CPPTOOLS_TESTK_ASSERT(x);
+#define	K_TEST(x)				CPPTOOLS_TESTK_TEST(x);
+#define	K_EQUAL(x, y)			CPPTOOLS_TESTK_ISEQUAL(x, y) ;
+#define	K_NEQUAL(x, y)			CPPTOOLS_TESTK_ISNOTEQUAL(x, y);
+#define	K_FN(fn, res)			CPPTOOLS_TESTK_FN(fn, res);
+#define	K_FN_F(fn, res, ...)	CPPTOOLS_TESTK_FN_F(fn, res, __VA_ARGS__);
 
 #endif
 
@@ -50,17 +50,21 @@
 
 #ifdef CPPTOOLS_TEST_GET_CMD
 
-#define BEGIN(x)	void x(CPPTools::Test::TestCollisionAvoider) {\
+#define BEGIN(x)	void x(CPPTools::Test::TestMemoryCollisionAvoid testMemory_CollissionAvoider) {\
+					std::string_view name_CollissionAvoider(#x);\
 					CPPTOOLS_TEST_TRACE("--------------------------------------");\
-					CPPTOOLS_TEST_TRACE("Begin of {}", #x);
+					CPPTOOLS_TEST_TRACE("Begin of {} in file : {} at line : {}", #x, __FILE__, __LINE__);
 
-#define END(x)		CPPTOOLS_TEST_TRACE("End of {}", #x);\
+#define END()		CPPTOOLS_TEST_TRACE("End of {} : {}", name_CollissionAvoider, testMemory_CollissionAvoider);\
 					CPPTOOLS_TEST_TRACE("--------------------------------------");\
 					}
 
-#define EXEC(x)		x(CPPTools::Test::TestCollisionAvoider());
+#define EXEC(x)		x(testMemory_CollissionAvoider);
+
+#define ADD_VALID()		testMemory_CollissionAvoider.AddValid()
+#define ADD_FAIL()		testMemory_CollissionAvoider.AddFail()
 
 #define TEST_LAUNCH()	CPPTOOLS_TEST_SIMPE_MSG()\
-						EXEC(MTests);
+						MTests(CPPTools::Test::TestMemoryCollisionAvoid());
 
 #endif

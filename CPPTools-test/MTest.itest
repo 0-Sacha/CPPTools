@@ -6,7 +6,7 @@ BEGIN(MTests)
 EXEC(test)
 EXEC(toto)
 
-END(MTests)
+END()
 
 
 
