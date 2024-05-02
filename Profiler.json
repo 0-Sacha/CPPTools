@@ -1,3 +1,0 @@
-{"otherData": {},"traceEvents":[
-#{"cat":"function","dur":0.000,"name":"Profile-Name  : width = 5 ; height = 8","ph":"X","pid":0,"tid":15729502191765196471,"ts":1624623053537280.000},
-#{"cat":"function","dur":0.000,"name":"Profiler","ph":"X","pid":0,"tid":0,"ts":1624623053537280.000}]}

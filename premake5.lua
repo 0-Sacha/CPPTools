@@ -16,7 +16,9 @@ workspace "CPPTools"
 include "Helper.lua"
 
 -- Include directories relative to WKS
+ProjectName = "CPPTools"
 Project["CPPTools"] = "%{wks.location}/CPPTools/"
+Project["Sandbox"] = "%{wks.location}/Sandbox/"
 
 include "CPPTools"
 include "Sandbox"
